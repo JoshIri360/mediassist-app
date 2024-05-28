@@ -38,3 +38,24 @@ Welcome to the MediAssist app repository for HackOps 1.0!
    ```bash
    git clone https://github.com/yourusername/MediAssist.git
    cd MediAssist
+
+2. Install dependencies:
+   ```bash
+   npm install
+
+3. Set up environment variables:
+   - Create a .env file in the root directory.
+   - Add your Firebase configuration, Google Maps API key, and OpenAI API key to the .env file.
+
+4. Start the application:
+   ```bash
+      expo start
+
+## Contributing
+We welcome contributions from the community! Please fork the repository and create a pull request with your changes. Ensure your code follows the project's coding standards and includes relevant tests.
+
+## License
+This project is licensed under the MIT License. See the LICENSE file for more details.
+
+## Contact
+For any questions or feedback, please open an issue or contact us at aidelojejoshua@gmail.com.
