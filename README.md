@@ -1,2 +1,40 @@
-# mediassist-app
-MediAssist is a comprehensive mobile application designed to provide timely medical advice in emergencies, locate nearby hospitals and pharmacies, and offer detailed medication information.
+# MediAssist
+
+Welcome to the MediAssist app repository for HackOps 1.0!
+
+## Overview
+
+**MediAssist** is a mobile application designed to enhance productivity in medical emergencies. It provides AI-powered medical advice, locates nearby hospitals and pharmacies, and offers comprehensive medication information. This app aims to streamline access to critical medical information, improving efficiency and response times in urgent situations.
+
+## Features
+
+- **Emergency Flow**: Quickly access first aid instructions, locate nearby hospitals and pharmacies, and notify emergency contacts.
+- **Symptom Checker**: Enter symptoms to receive AI-powered medical advice and relevant information.
+- **Hospital and Pharmacy Finder**: View nearby hospitals and pharmacies on a map, with contact information and navigation options.
+- **Medication Information**: Search for medications, view detailed information, save to profile, and set dosage reminders.
+- **User Profile Management**: Store and manage personal medical records, allergies, existing conditions, and current medications.
+- **Settings**: Customize profile, notification preferences, and app settings.
+
+## Technologies Used
+
+- **React Native (Expo)**: For building the mobile application.
+- **OpenAI API**: For AI-powered symptom analysis and medical advice.
+- **Firebase**: For user authentication and database management.
+- **Google Maps API**: For location services and navigation.
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js
+- Expo CLI
+- Firebase account and project setup
+- Google Maps API key
+- OpenAI API key
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/MediAssist.git
+   cd MediAssist
