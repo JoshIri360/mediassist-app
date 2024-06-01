@@ -4,7 +4,7 @@ Welcome to the MediAssist app repository for HackOps 1.0!
 
 ## Overview
 
-**MediAssist** is a mobile application designed to enhance productivity in medical emergencies. It provides AI-powered medical advice, locates nearby hospitals and pharmacies, and offers comprehensive medication information. This app aims to streamline access to critical medical information, improving efficiency and response times in urgent situations.
+**MediAssist** is a web application designed to enhance productivity in medical emergencies. It provides AI-powered medical advice, locates nearby hospitals and pharmacies, and offers comprehensive medication information. This app aims to streamline access to critical medical information, improving efficiency and response times in urgent situations.
 
 ## Features
 
@@ -17,7 +17,7 @@ Welcome to the MediAssist app repository for HackOps 1.0!
 
 ## Technologies Used
 
-- **React Native (Expo)**: For building the mobile application.
+- **Next.js**: For building the web application.
 - **OpenAI API**: For AI-powered symptom analysis and medical advice.
 - **Firebase**: For user authentication and database management.
 - **Google Maps API**: For location services and navigation.
@@ -27,7 +27,6 @@ Welcome to the MediAssist app repository for HackOps 1.0!
 ### Prerequisites
 
 - Node.js
-- Expo CLI
 - Firebase account and project setup
 - Google Maps API key
 - OpenAI API key
@@ -38,18 +37,21 @@ Welcome to the MediAssist app repository for HackOps 1.0!
    ```bash
    git clone https://github.com/yourusername/MediAssist.git
    cd MediAssist
+   ```
 
 2. Install dependencies:
    ```bash
    npm install
+   ```
 
 3. Set up environment variables:
-   - Create a .env file in the root directory.
-   - Add your Firebase configuration, Google Maps API key, and OpenAI API key to the .env file.
+   - Create a `.env.local` file in the root directory.
+   - Add your Firebase configuration, Google Maps API key, and OpenAI API key to the `.env.local` file.
 
 4. Start the application:
    ```bash
-      expo start
+   npm run dev
+   ```
 
 ## Contributing
 We welcome contributions from the community! Please fork the repository and create a pull request with your changes. Ensure your code follows the project's coding standards and includes relevant tests.
