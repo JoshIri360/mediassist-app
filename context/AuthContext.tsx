@@ -38,7 +38,9 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
   useEffect(() => {
     const allowedRoles = ["patient", "doctor"];
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      console.log("Checking User")
       if (user) {
+        console.log("User Found")
         const userDoc = await getDoc(doc(db, "users", user.uid));
         const userData = userDoc.data();
         if (userData && allowedRoles.includes(userData.role)) {
