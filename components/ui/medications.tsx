@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthContext } from "@/context/AuthContext";
-import { db, messaging, requestPermission } from "@/firebase/config";
+import { db } from "@/firebase/config";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
-import { onMessage } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
