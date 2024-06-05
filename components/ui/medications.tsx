@@ -11,9 +11,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useAuthContext } from "@/context/AuthContext";
-import { db } from "@/firebase/config";
+import { db, messaging, requestPermission } from "@/firebase/config";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { doc, getDoc, setDoc, updateDoc } from "firebase/firestore";
+import { onMessage } from "firebase/messaging";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,6 +26,8 @@ interface Medication {
   duration: string;
   instructions: string;
   pharmacyContact: string;
+  startDate: string;
+  endDate: string;
 }
 
 interface FormValues {
@@ -34,6 +37,8 @@ interface FormValues {
   duration: string;
   instructions: string;
   pharmacyContact: string;
+  startDate: string;
+  endDate: string;
 }
 
 const medicationSchema = z.object({
@@ -45,6 +50,8 @@ const medicationSchema = z.object({
   pharmacyContact: z
     .string()
     .min(1, { message: "Pharmacy contact is required." }),
+  startDate: z.string().min(1, { message: "Start date is required." }),
+  endDate: z.string().min(1, { message: "End date is required." }),
 });
 
 export function MedicationsForm() {
@@ -57,6 +64,8 @@ export function MedicationsForm() {
       duration: "",
       instructions: "",
       pharmacyContact: "",
+      startDate: "",
+      endDate: "",
     },
   });
 
@@ -179,38 +188,38 @@ export function MedicationsForm() {
                 />
                 <FormField
                   control={form.control}
-                  name="duration"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Duration</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Duration" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="instructions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instructions</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Instructions" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
                   name="pharmacyContact"
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Pharmacy Contact</FormLabel>
                       <FormControl>
                         <Input placeholder="Pharmacy Contact" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="startDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Start Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={form.control}
+                  name="endDate"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>End Date</FormLabel>
+                      <FormControl>
+                        <Input type="date" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -230,6 +239,8 @@ export function MedicationsForm() {
             <p>Frequency: {med.frequency}</p>
             <p>Duration: {med.duration}</p>
             <p>Instructions: {med.instructions}</p>
+            <p>Start Date: {med.startDate}</p>
+            <p>End Date: {med.endDate}</p>
             <a
               href={`tel:${med.pharmacyContact}`}
               className="text-blue-500 underline"
