@@ -18,6 +18,9 @@ const useFcmToken = () => {
           const permission = await Notification.requestPermission();
           setNotificationPermissionStatus(permission);
 
+          console.log("Messaging", messaging);
+          console.log("VAPID Key", process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY);
+
           // Check if permission is granted before retrieving the token
           if (permission === "granted") {
             console.log("Notification permission granted.");
