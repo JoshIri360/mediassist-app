@@ -10,6 +10,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useAuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/config";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,35 +31,33 @@ interface Medication {
   name: string;
   dosage: string;
   frequency: string;
-  duration: string;
-  instructions: string;
   pharmacyContact: string;
   startDate: string;
   endDate: string;
+  times: string[];
 }
 
 interface FormValues {
   name: string;
   dosage: string;
   frequency: string;
-  duration: string;
-  instructions: string;
   pharmacyContact: string;
   startDate: string;
   endDate: string;
+  times: string[];
 }
 
 const medicationSchema = z.object({
   name: z.string().min(1, { message: "Name is required." }),
   dosage: z.string().min(1, { message: "Dosage is required." }),
   frequency: z.string().min(1, { message: "Frequency is required." }),
-  duration: z.string().min(1, { message: "Duration is required." }),
-  instructions: z.string().min(1, { message: "Instructions are required." }),
   pharmacyContact: z
     .string()
-    .min(1, { message: "Pharmacy contact is required." }),
+    .length(11, { message: "Pharmacy contact must be 11 digits." })
+    .regex(/^\d+$/, "Pharmacy contact must only contain digits."),
   startDate: z.string().min(1, { message: "Start date is required." }),
   endDate: z.string().min(1, { message: "End date is required." }),
+  times: z.array(z.string()).nonempty(),
 });
 
 export function MedicationsForm() {
@@ -60,11 +67,10 @@ export function MedicationsForm() {
       name: "",
       dosage: "",
       frequency: "",
-      duration: "",
-      instructions: "",
       pharmacyContact: "",
       startDate: "",
       endDate: "",
+      times: [],
     },
   });
 
@@ -179,12 +185,39 @@ export function MedicationsForm() {
                     <FormItem>
                       <FormLabel>Frequency</FormLabel>
                       <FormControl>
-                        <Input placeholder="Frequency" {...field} />
+                        <Select
+                          onValueChange={(value) => {
+                            field.onChange(value);
+                            // Reset the times field based on the selected frequency
+                            form.setValue(
+                              "times",
+                              Array.from({ length: parseInt(value) }).map(
+                                () => ""
+                              )
+                            );
+                          }}
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue
+                              placeholder="Select frequency"
+                              {...field}
+                            />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectGroup>
+                              <SelectLabel>Frequency</SelectLabel>
+                              <SelectItem value="1">Once a day</SelectItem>
+                              <SelectItem value="2">Twice a day</SelectItem>
+                              <SelectItem value="3">Thrice a day</SelectItem>
+                            </SelectGroup>
+                          </SelectContent>
+                        </Select>
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
+
                 <FormField
                   control={form.control}
                   name="pharmacyContact"
@@ -224,6 +257,30 @@ export function MedicationsForm() {
                     </FormItem>
                   )}
                 />
+
+                {/** Dynamic time inputs based on frequency */}
+                {form.watch("frequency") && (
+                  <FormItem>
+                    <FormLabel>Times</FormLabel>
+                    <div className="flex space-x-2">
+                      {[...Array(parseInt(form.watch("frequency") || "0"))].map(
+                        (_, index) => (
+                          <FormField
+                            key={index}
+                            control={form.control}
+                            name={`times.${index}`}
+                            render={({ field }) => (
+                              <FormControl>
+                                <Input type="time" {...field} />
+                              </FormControl>
+                            )}
+                          />
+                        )
+                      )}
+                    </div>
+                    <FormMessage />
+                  </FormItem>
+                )}
                 <Button type="submit">Add Medication</Button>
               </form>
             </Form>
@@ -235,9 +292,12 @@ export function MedicationsForm() {
           <div key={index} className="p-4 border rounded-md">
             <h2 className="text-xl font-bold">{med.name}</h2>
             <p>Dosage: {med.dosage}</p>
-            <p>Frequency: {med.frequency}</p>
-            <p>Duration: {med.duration}</p>
-            <p>Instructions: {med.instructions}</p>
+            <p>
+              Frequency: {med.frequency}{" "}
+              {med.frequency === "1" ? "time" : "times"} per day
+            </p>
+            <p>Times: {med.times && med.times.join(", ")}</p>
+
             <p>Start Date: {med.startDate}</p>
             <p>End Date: {med.endDate}</p>
             <a
