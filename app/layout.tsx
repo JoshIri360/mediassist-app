@@ -1,9 +1,8 @@
 import "./globals.css";
 
 import { AuthContextProvider } from "@/context/AuthContext";
-import { Toaster } from "react-hot-toast";
 import { Libre_Franklin, Rubik } from "next/font/google";
-import { FCMProvider } from "@/context/FCMContext";
+import { Toaster } from "react-hot-toast";
 
 const libre_franklin = Libre_Franklin({
   subsets: ["latin"],
@@ -30,9 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={libre_franklin.variable + " " + rubik.variable}>
-        <FCMProvider>
-          <AuthContextProvider>{children}</AuthContextProvider>
-        </FCMProvider>
+        <AuthContextProvider>{children}</AuthContextProvider>
         <Toaster />
       </body>
     </html>
