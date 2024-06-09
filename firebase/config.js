@@ -17,19 +17,35 @@ const app =
   getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0];
 const auth = getAuth(app);
 const db = getFirestore(app);
-const messaging = getMessaging();
 
-const requestPermission = async () => {
+// Initialize Firebase Messaging
+const messaging = getMessaging(app);
+
+export const requestPermission = async () => {
   try {
-    await Notification.requestPermission();
-    const token = await getToken(messaging, {
-      vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
-    });
-    console.log("FCM Token:", token);
-    return token;
+    const permission = await Notification.requestPermission();
+    if (permission === "granted") {
+      console.log("Notification permission granted.");
+      // Get FCM token
+      const token = await getToken(messaging, {
+        vapidKey: process.env.NEXT_PUBLIC_VAPID_KEY,
+      });
+      console.log("FCM Token:", token);
+      localStorage.setItem("fcmToken", token);
+      return token;
+    } else {
+      console.log("Unable to get permission to notify.");
+    }
   } catch (error) {
-    console.error("Unable to get permission to notify.", error);
+    console.error("Error requesting notification permission:", error);
   }
 };
 
-export { messaging, requestPermission, auth, db };
+export const onMessageListener = () =>
+  new Promise((resolve) => {
+    onMessage(messaging, (payload) => {
+      resolve(payload);
+    });
+  });
+
+export { auth, db };
