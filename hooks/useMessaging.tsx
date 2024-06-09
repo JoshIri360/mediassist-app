@@ -1,6 +1,8 @@
+"use client"
+
 import { onMessage } from "firebase/messaging";
 import { useEffect } from "react";
-import { messaging } from "@/firebase/messaging";
+import { messaging } from "@/firebase/config";
 
 const useMessaging = () => {
   useEffect(() => {
