@@ -12,6 +12,7 @@ import {
 import { useAuthContext } from "@/context/AuthContext";
 import { CircleUserRound, MountainIcon } from "lucide-react";
 import Link from "next/link";
+import ChatComponent from "@/components/ui/chatComponent";
 
 export default function ProtectedLayout({
   children,
@@ -75,7 +76,10 @@ export default function ProtectedLayout({
           </DropdownMenu>
         </nav>
       </header>
-      <div className="flex flex-1">{children}</div>
+      <div className="flex flex-1">
+        {children}
+        <ChatComponent/>
+      </div>
     </div>
   );
 }
