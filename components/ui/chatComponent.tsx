@@ -10,8 +10,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import styles from '../styles/chat.module.css'
-import classNames from 'classnames';
+import styles from "../styles/chat.module.css";
 
 interface Message {
   role: "assistant" | "user";
@@ -80,9 +79,13 @@ export default function ChatComponent() {
           </Button>
         </DrawerTrigger>
         <DrawerContent className="flex flex-col w-[20rem] md:w-[30rem] lg:w-[25rem] h-[70vh] md:h-[60vh] lg:h-[80vh] xl:w-[40rem]">
-          <h1 className="flex justify-center text-2xl font-semibold">AI Chabot</h1>
+          <h1 className="flex justify-center text-2xl font-semibold">
+            AI Chabot
+          </h1>
           <DrawerHeader className="flex items-center justify-center z-10 opacity-70 px-4 py-3">
-            <h3 className="text-lg font-medium">Your Personal Medical Companion</h3>
+            <h3 className="text-lg font-medium">
+              Your Personal Medical Companion
+            </h3>
             {/* <DrawerClose asChild>
               <Button variant="ghost" size="icon">
                 <XIcon className="h-5 w-5" />
@@ -90,7 +93,7 @@ export default function ChatComponent() {
               </Button>
             </DrawerClose> */}
           </DrawerHeader>
-          <div className={classNames('flex-1 overflow-y-auto px-4 py-6', styles.successful)}>
+          <div className={"flex-1 overflow-y-auto px-4 py-6"}>
             <div className="space-y-4">
               {messages.map((message, index) => (
                 <div
@@ -131,7 +134,12 @@ export default function ChatComponent() {
                 value={input}
                 onChange={handleInputChange}
               />
-              <Button type="submit" className="h-9 w-9 rounded-full" size="icon" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="h-9 w-9 rounded-full"
+                size="icon"
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <LoadingIcon className="h-4 w-4 animate-spin" />
                 ) : (
