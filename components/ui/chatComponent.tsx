@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import styles from '../styles/chat.module.css'
+import classNames from 'classnames';
 
 interface Message {
   role: "assistant" | "user";
@@ -77,17 +79,18 @@ export default function ChatComponent() {
             <span className="sr-only">Open chatbot</span>
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="flex flex-col">
-          <DrawerHeader className="flex items-center justify-between border-b px-4 py-3">
-            <h3 className="text-lg font-medium">How can I help you?</h3>
-            <DrawerClose asChild>
+        <DrawerContent className="flex flex-col w-[20rem] md:w-[30rem] lg:w-[25rem] h-[70vh] md:h-[60vh] lg:h-[80vh] xl:w-[40rem]">
+          <h1 className="flex justify-center text-2xl font-semibold">AI Chabot</h1>
+          <DrawerHeader className="flex items-center justify-center z-10 opacity-70 px-4 py-3">
+            <h3 className="text-lg font-medium">Your Personal Medical Companion</h3>
+            {/* <DrawerClose asChild>
               <Button variant="ghost" size="icon">
                 <XIcon className="h-5 w-5" />
                 <span className="sr-only">Close</span>
               </Button>
-            </DrawerClose>
+            </DrawerClose> */}
           </DrawerHeader>
-          <div className="flex-1 overflow-y-auto px-4 py-6">
+          <div className={classNames('flex-1 overflow-y-auto px-4 py-6', styles.successful)}>
             <div className="space-y-4">
               {messages.map((message, index) => (
                 <div
@@ -118,17 +121,17 @@ export default function ChatComponent() {
           <DrawerFooter className="border-t px-4 py-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full items-center space-x-2"
+              className="flex w-full items-center space-x-2 py-[2px] px-[3px] border rounded-full"
             >
               <Input
                 id="message"
                 placeholder="Type your message..."
-                className="flex-1"
+                className="flex-1 rounded-full border-none"
                 autoComplete="off"
                 value={input}
                 onChange={handleInputChange}
               />
-              <Button type="submit" size="icon" disabled={isLoading}>
+              <Button type="submit" className="h-9 w-9 rounded-full" size="icon" disabled={isLoading}>
                 {isLoading ? (
                   <LoadingIcon className="h-4 w-4 animate-spin" />
                 ) : (
