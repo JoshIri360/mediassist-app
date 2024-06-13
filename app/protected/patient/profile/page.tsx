@@ -1,125 +1,128 @@
 "use client";
 
-import React, { useState } from 'react';
-import styled from 'styled-components';
+import React from 'react';
+import styled, { ThemeProvider } from 'styled-components';
+import { useNavigate, BrowserRouter as Router } from 'react-router-dom';
 
-const UserProfileContainer = styled.div`
+// Define your theme object
+const theme = {
+  colors: {
+    primary: 'blue', // Change this to your desired primary color
+    secondary: 'green', // Change this to your desired secondary color
+  },
+};
+
+const ProfileContainer = styled.div`
   display: flex;
   flex-direction: column;
   padding: 20px;
-  max-width: 600px;
+  width: 80%; /* Adjust the width as needed */
   margin: auto;
   background: white;
-  border-radius: 8px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Add shadow */
 `;
 
-const Title = styled.h1`
-  font-size: 24px;
-  color: #0070f3; // Replace with your primary color
-  text-align: center;
-`;
-
-const Form = styled.form`
+const ProfileHeader = styled.div`
   display: flex;
-  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
 `;
 
-const Label = styled.label`
-  margin-bottom: 8px;
+const ProfileInfo = styled.div`
+  margin-bottom: 10px;
+`;
+
+const Label = styled.span`
   font-weight: bold;
 `;
 
-const Input = styled.input`
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc; // Replace with your border color
-  border-radius: 4px;
+const Value = styled.span`
+  margin-left: 10px;
+`;
+
+const ProfilePicture = styled.img`
+  width: 100px; /* Adjust the width as needed */
+  height: 100px; /* Adjust the height as needed */
+  border-radius: 50%; /* Make it a circle */
 `;
 
 const Button = styled.button`
   padding: 10px 20px;
-  background-color: #0070f3; // Replace with your primary color
+  background-color: ${(props) => props.theme.colors.primary};
   color: white;
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  align-self: center;
 
   &:hover {
-    background-color: #005bb5; // Replace with your secondary color
+    background-color: ${(props) => props.theme.colors.secondary};
   }
 `;
 
-const UserProfile: React.FC = () => {
-  const [user, setUser] = useState({
-    name: '',
-    dob: '',
-    email: '',
-    phone: '',
-  });
+const ProfilePageContent: React.FC = () => {
+  const navigate = useNavigate();
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setUser({
-      ...user,
-      [name]: value,
-    });
+  const user = {
+    name: 'John Doe',
+    dob: '1985-06-15',
+    gender: 'Male',
+    email: 'john.doe@example.com',
+    phone: '+1 (555) 123-4567',
+    address: '123 Main St, Anytown USA',
+    // Add more user information as needed
+    profilePicture: 'https://example.com/profile.jpg', // Example profile picture URL
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log('User Profile:', user);
-    // Handle profile update logic here
+  const handleEdit = () => {
+    navigate('/manageprofile');
   };
 
   return (
-    <UserProfileContainer>
-      <Title>Manage Your Profile</Title>
-      <Form onSubmit={handleSubmit}>
-        <Label htmlFor="name">Name</Label>
-        <Input
-          type="text"
-          id="name"
-          name="name"
-          value={user.name}
-          onChange={handleChange}
-          required
-        />
+    <ProfileContainer>
+      <ProfileHeader>
+        <ProfilePicture src={user.profilePicture} alt="Profile Picture" />
+        <Button onClick={handleEdit}>Edit Profile</Button>
+      </ProfileHeader>
 
-        <Label htmlFor="dob">Date of Birth</Label>
-        <Input
-          type="date"
-          id="dob"
-          name="dob"
-          value={user.dob}
-          onChange={handleChange}
-          required
-        />
-
-        <Label htmlFor="email">Email</Label>
-        <Input
-          type="email"
-          id="email"
-          name="email"
-          value={user.email}
-          onChange={handleChange}
-          required
-        />
-
-        <Label htmlFor="phone">Phone Number</Label>
-        <Input
-          type="tel"
-          id="phone"
-          name="phone"
-          value={user.phone}
-          onChange={handleChange}
-          required
-        />
-
-        <Button type="submit">Save Changes</Button>
-      </Form>
-    </UserProfileContainer>
+      <h2>Personal Information</h2>
+      <ProfileInfo>
+        <Label>Name:</Label>
+        <Value>{user.name}</Value>
+      </ProfileInfo>
+      <ProfileInfo>
+        <Label>Date of Birth:</Label>
+        <Value>{user.dob}</Value>
+      </ProfileInfo>
+      <ProfileInfo>
+        <Label>Gender:</Label>
+        <Value>{user.gender}</Value>
+      </ProfileInfo>
+      <ProfileInfo>
+        <Label>Phone:</Label>
+        <Value>{user.phone}</Value>
+      </ProfileInfo>
+      <ProfileInfo>
+        <Label>Email:</Label>
+        <Value>{user.email}</Value>
+      </ProfileInfo>
+      <ProfileInfo>
+        <Label>Address:</Label>
+        <Value>{user.address}</Value>
+      </ProfileInfo>
+    </ProfileContainer>
   );
 };
 
-export default UserProfile;
+const ProfilePage: React.FC = () => {
+  return (
+    <ThemeProvider theme={theme}>
+      <Router>
+        <ProfilePageContent />
+      </Router>
+    </ThemeProvider>
+  );
+};
+
+export default ProfilePage;
