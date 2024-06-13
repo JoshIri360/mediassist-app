@@ -1,9 +1,9 @@
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { getMessaging, sendMessage } from "firebase/messaging";
+import { getMessaging } from "firebase/messaging";
 import { app } from "@/firebase/config";
 
 export async function POST(req) {
-  console.log("Post request received")
+  console.log("Post request received");
   try {
     const db = getFirestore(app);
     const usersSnapshot = await getDocs(collection(db, "users"));
@@ -53,7 +53,7 @@ export async function POST(req) {
 
             const messaging = getMessaging(app);
             try {
-              const response = await sendMessage(messaging, {
+              const response = await messaging.send({
                 token: fcmToken,
                 ...payload,
               });
