@@ -99,22 +99,12 @@ export function MedicationsForm({
         getDoc(userDocRef).then((docSnap) => {
           if (docSnap.exists()) {
             const userData = docSnap.data();
-            console.log("User data:", userData);
             setMedications(userData.medications || []);
           } else {
             setDoc(userDocRef, { medications: [] });
             setMedications([]);
           }
         });
-
-        // if (userDocSnap.exists()) {
-        //   const userData = userDocSnap.data();
-        //   console.log("User data:", userData);
-        //   setMedications(userData.medications || []);
-        // } else {
-        //   await setDoc(userDocRef, { medications: [] });
-        //   setMedications([]);
-        // }
       }
     };
 
