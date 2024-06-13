@@ -319,25 +319,62 @@ export function MedicationsForm({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {medications.map((med, index) => (
-                <TableRow key={index}>
-                  <TableCell className="font-medium">{med.name}</TableCell>
-                  <TableCell>{med.dosage}</TableCell>
-                  <TableCell>
-                    {med.frequency} {med.frequency === "1" ? "time" : "times"}{" "}
-                    per day
-                  </TableCell>
-                  <TableCell>{med.times && med.times.join(", ")}</TableCell>
-                  <TableCell>{med.startDate}</TableCell>
-                  <TableCell>{med.endDate}</TableCell>
-                  <TableCell>
-                    <Button variant="ghost" size="icon" className="w-8 h-8">
-                      <SparkleIcon className="h-4 w-4" />
-                      <span className="sr-only">Ask AI</span>
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              <TableRow>
+                <TableCell colSpan={7} className="font-bold bg-gray-100">
+                  Current Medications
+                </TableCell>
+              </TableRow>
+              {medications
+                .filter(
+                  (med) => !med.endDate || new Date(med.endDate) >= new Date()
+                )
+                .map((med, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{med.name}</TableCell>
+                    <TableCell>{med.dosage}</TableCell>
+                    <TableCell>
+                      {med.frequency} {med.frequency === "1" ? "time" : "times"}{" "}
+                      per day
+                    </TableCell>
+                    <TableCell>{med.times && med.times.join(", ")}</TableCell>
+                    <TableCell>{med.startDate}</TableCell>
+                    <TableCell>{med.endDate}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" className="w-8 h-8">
+                        <SparkleIcon className="h-4 w-4" />
+                        <span className="sr-only">Ask AI</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              <TableRow>
+                <TableCell colSpan={7} className="font-bold bg-gray-100">
+                  Past Medications
+                </TableCell>
+              </TableRow>
+              {medications
+                .filter(
+                  (med) => med.endDate && new Date(med.endDate) < new Date()
+                )
+                .map((med, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{med.name}</TableCell>
+                    <TableCell>{med.dosage}</TableCell>
+                    <TableCell>
+                      {med.frequency} {med.frequency === "1" ? "time" : "times"}{" "}
+                      per day
+                    </TableCell>
+                    <TableCell>{med.times && med.times.join(", ")}</TableCell>
+                    <TableCell>{med.startDate}</TableCell>
+                    <TableCell>{med.endDate}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" className="w-8 h-8">
+                        <SparkleIcon className="h-4 w-4" />
+                        <span className="sr-only">Ask AI</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
             </TableBody>
           </Table>
         </div>

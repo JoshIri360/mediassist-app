@@ -3,6 +3,7 @@ import { getMessaging, sendMessage } from "firebase/messaging";
 import { app } from "@/firebase/config";
 
 export async function POST(req) {
+  console.log("Post request received")
   try {
     const db = getFirestore(app);
     const usersSnapshot = await getDocs(collection(db, "users"));

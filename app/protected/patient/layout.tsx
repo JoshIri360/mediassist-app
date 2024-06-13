@@ -26,11 +26,11 @@ export default function DoctorLayout({
   children: React.ReactNode;
 }) {
   function formatDate(date: Date) {
-    const options = {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
+    const options: Intl.DateTimeFormatOptions = {
+      weekday: "long" as const,
+      year: "numeric" as const,
+      month: "long" as const,
+      day: "numeric" as const,
     };
     return new Intl.DateTimeFormat("en-US", options).format(date);
   }
