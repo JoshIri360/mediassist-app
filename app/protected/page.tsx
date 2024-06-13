@@ -6,6 +6,7 @@ import useFcmToken from "@/hooks/useFcmToken";
 import { getMessaging, onMessage } from "firebase/messaging";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import ChatComponent from "@/components/ui/chatComponent";
 
 export default function ProtectedPage() {
   const { user, role } = useAuthContext();
@@ -47,7 +48,10 @@ export default function ProtectedPage() {
   }, [router, user, role]);
 
   if (loading) {
-    return <div className="text-5xl font-bold">Loading...</div>;
+    return <div className="text-5xl font-bold">
+      Loading...
+      <ChatComponent/>
+    </div>;
   }
 
   return null;
