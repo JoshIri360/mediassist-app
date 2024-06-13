@@ -1,6 +1,6 @@
 # MediAssist
 
-Welcome to the MediAssist app repository for PipeOps 1.0!
+Welcome to the MediAssist app repository for HackOps 1.0!
 
 ## Overview
 
@@ -18,7 +18,7 @@ Welcome to the MediAssist app repository for PipeOps 1.0!
 ## Technologies Used
 
 - **Next.js**: For building the web application.
-- **OpenAI API**: For AI-powered symptom analysis and medical advice.
+- **Anthropic API**: For AI-powered symptom analysis and medical advice.
 - **Firebase**: For user authentication and database management.
 - **Google Maps API**: For location services and navigation.
 
@@ -29,7 +29,7 @@ Welcome to the MediAssist app repository for PipeOps 1.0!
 - Node.js
 - Firebase account and project setup
 - Google Maps API key
-- OpenAI API key
+- Anthropic API key
 
 ### Installation
 
@@ -46,7 +46,7 @@ Welcome to the MediAssist app repository for PipeOps 1.0!
 
 3. Set up environment variables:
    - Create a `.env.local` file in the root directory.
-   - Add your Firebase configuration, Google Maps API key, and OpenAI API key to the `.env.local` file.
+   - Add your Firebase configuration, Google Maps API key, and Anthropic API key to the `.env.local` file.
 
 4. Start the application:
    ```bash
