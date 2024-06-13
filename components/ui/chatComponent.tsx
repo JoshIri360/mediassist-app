@@ -29,7 +29,7 @@ export default function ChatComponent() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("Input")
+    console.log("Input");
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -42,13 +42,14 @@ export default function ChatComponent() {
 
     // Simulate API call
     setTimeout(async () => {
-
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: [...messages, { role: "user", content: input }] }),
+        body: JSON.stringify({
+          messages: [...messages, { role: "user", content: input }],
+        }),
       });
 
       const data = await response.json();
@@ -91,14 +92,18 @@ export default function ChatComponent() {
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex ${message.role === "assistant" ? "justify-start" : "justify-end"
-                    }`}
+                  className={`flex ${
+                    message.role === "assistant"
+                      ? "justify-start"
+                      : "justify-end"
+                  }`}
                 >
                   <div
-                    className={`flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ${message.role === "assistant"
-                      ? "bg-gray-100 dark:bg-gray-800 items-start"
-                      : "bg-gray-900 text-gray-50 dark:bg-gray-50 dark:text-gray-900 items-end"
-                      }`}
+                    className={`flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ${
+                      message.role === "assistant"
+                        ? "bg-gray-100 dark:bg-gray-800 items-start"
+                        : "bg-gray-900 text-gray-50 dark:bg-gray-50 dark:text-gray-900 items-end"
+                    }`}
                   >
                     <p>{message.content}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -155,8 +160,18 @@ function MessageSquareIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
-      <path d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+      <path
+        d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z"
+        stroke="white"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z"
+        stroke="white"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }

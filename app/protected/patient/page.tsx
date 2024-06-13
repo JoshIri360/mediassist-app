@@ -18,7 +18,7 @@ export default function PatientHomePage() {
 
   return (
     <div className="px-4 md:px-6 w-full">
-      <div className="flex justify-between w-full items-center">
+      <div className="flex justify-between w-full items-center pt-4">
         <div>
           <h1 className="text-3xl font-bold">Medications</h1>
           <p className="text-[#ACACAC]">
