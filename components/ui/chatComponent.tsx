@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import styles from "../styles/chat.module.css";
 
 interface Message {
   role: "assistant" | "user";
@@ -29,7 +30,7 @@ export default function ChatComponent() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("Input")
+    console.log("Input");
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -42,13 +43,14 @@ export default function ChatComponent() {
 
     // Simulate API call
     setTimeout(async () => {
-
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ messages: [...messages, { role: "user", content: input }] }),
+        body: JSON.stringify({
+          messages: [...messages, { role: "user", content: input }],
+        }),
       });
 
       const data = await response.json();
@@ -65,7 +67,7 @@ export default function ChatComponent() {
   }, [messages]);
 
   return (
-    <div className="w-full max-w-md">
+    <div className="max-w-md">
       <Drawer>
         <DrawerTrigger asChild>
           <Button
@@ -76,29 +78,38 @@ export default function ChatComponent() {
             <span className="sr-only">Open chatbot</span>
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="flex flex-col">
-          <DrawerHeader className="flex items-center justify-between border-b px-4 py-3">
-            <h3 className="text-lg font-medium">How can I help you?</h3>
-            <DrawerClose asChild>
+        <DrawerContent className="flex flex-col w-[20rem] md:w-[30rem] lg:w-[25rem] h-[70vh] md:h-[60vh] lg:h-[80vh] xl:w-[40rem]">
+          <h1 className="flex justify-center text-2xl font-semibold">
+            AI Chabot
+          </h1>
+          <DrawerHeader className="flex items-center justify-center z-10 opacity-70 px-4 py-3">
+            <h3 className="text-lg font-medium">
+              Your Personal Medical Companion
+            </h3>
+            {/* <DrawerClose asChild>
               <Button variant="ghost" size="icon">
                 <XIcon className="h-5 w-5" />
                 <span className="sr-only">Close</span>
               </Button>
-            </DrawerClose>
+            </DrawerClose> */}
           </DrawerHeader>
-          <div className="flex-1 overflow-y-auto px-4 py-6">
+          <div className={"flex-1 overflow-y-auto px-4 py-6"}>
             <div className="space-y-4">
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex ${message.role === "assistant" ? "justify-start" : "justify-end"
-                    }`}
+                  className={`flex ${
+                    message.role === "assistant"
+                      ? "justify-start"
+                      : "justify-end"
+                  }`}
                 >
                   <div
-                    className={`flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ${message.role === "assistant"
-                      ? "bg-gray-100 dark:bg-gray-800 items-start"
-                      : "bg-gray-900 text-gray-50 dark:bg-gray-50 dark:text-gray-900 items-end"
-                      }`}
+                    className={`flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ${
+                      message.role === "assistant"
+                        ? "bg-gray-100 dark:bg-gray-800 items-start"
+                        : "bg-gray-900 text-gray-50 dark:bg-gray-50 dark:text-gray-900 items-end"
+                    }`}
                   >
                     <p>{message.content}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -113,17 +124,22 @@ export default function ChatComponent() {
           <DrawerFooter className="border-t px-4 py-3">
             <form
               onSubmit={handleSubmit}
-              className="flex w-full items-center space-x-2"
+              className="flex w-full items-center space-x-2 py-[2px] px-[3px] border rounded-full"
             >
               <Input
                 id="message"
                 placeholder="Type your message..."
-                className="flex-1"
+                className="flex-1 rounded-full border-none"
                 autoComplete="off"
                 value={input}
                 onChange={handleInputChange}
               />
-              <Button type="submit" size="icon" disabled={isLoading}>
+              <Button
+                type="submit"
+                className="h-9 w-9 rounded-full"
+                size="icon"
+                disabled={isLoading}
+              >
                 {isLoading ? (
                   <LoadingIcon className="h-4 w-4 animate-spin" />
                 ) : (
@@ -155,8 +171,18 @@ function MessageSquareIcon(props: React.SVGProps<SVGSVGElement>) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
-      <path d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z" stroke="white" stroke-width="2" stroke-linejoin="round" />
+      <path
+        d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z"
+        stroke="white"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z"
+        stroke="white"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
     </svg>
   );
 }

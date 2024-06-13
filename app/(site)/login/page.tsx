@@ -1,4 +1,3 @@
-//! Add `use client` to prevent this page from being server side rendered
 "use client";
 
 import { Button } from "@/components/ui/button";
