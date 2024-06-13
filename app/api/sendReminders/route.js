@@ -1,6 +1,17 @@
 import { getFirestore, collection, getDocs } from "firebase/firestore";
-import { getMessaging } from "firebase/messaging";
+import admin from "firebase-admin";
 import { app } from "@/firebase/config";
+
+// Initialize Firebase Admin SDK
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      projectId: process.env.FIREBASE_PROJECT_ID,
+      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+      privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+    }),
+  });
+}
 
 export async function POST(req) {
   console.log("Post request received");
@@ -42,21 +53,18 @@ export async function POST(req) {
           });
 
           if (timesToTake.length > 0) {
-            const payload = {
+            const message = {
               notification: {
                 title: `Medication Reminder: ${med.name}`,
                 body: `It's time to take your ${med.dosage} dose of ${
                   med.name
                 }. Times: ${timesToTake.join(", ")}`,
               },
+              token: fcmToken,
             };
 
-            const messaging = getMessaging(app);
             try {
-              const response = await messaging.send({
-                token: fcmToken,
-                ...payload,
-              });
+              const response = await admin.messaging().send(message);
               console.log("Successfully sent message:", response);
             } catch (error) {
               console.log("Error sending message:", error);
