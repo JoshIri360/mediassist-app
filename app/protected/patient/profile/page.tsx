@@ -3,36 +3,53 @@
 import React from 'react';
 import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate, BrowserRouter as Router } from 'react-router-dom';
+import { Download,Printer } from 'lucide-react';
 
 // Define your theme object
 const theme = {
   colors: {
-    primary: 'blue', // Change this to your desired primary color
-    secondary: 'green', // Change this to your desired secondary color
+    primary: 'blue',
+    secondary: 'green',
   },
 };
 
 const ProfileContainer = styled.div`
   display: flex;
-  flex-direction: column; /* Change to column to stack header and content */
+  flex-direction: column;
   padding: 20px;
-  width: 100%; /* Set width to 100% of viewport width */
-  margin: 0; /* Remove default margin */
+  width: 100%;
+  margin: 0;
   background: white;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow-x: hidden; /* Prevent horizontal overflow */
+  overflow-x: hidden;
 `;
 
 const ProfileContent = styled.div`
   display: flex;
-  flex-direction: row; /* Row for side-by-side layout */
-  justify-content: space-between; /* Evenly distribute children */
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const HeaderContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 `;
 
 const Header = styled.h1`
-  text-align: center;
-  width: 100%;
-  margin-bottom: 20px;
+  font-size: 2em;
+  font-weight: bold;
+`;
+
+const IconContainer = styled.div`
+  display: flex;
+  gap: 10px;
+`;
+
+const Icon = styled.img`
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
 `;
 
 const Section = styled.div`
@@ -50,6 +67,7 @@ const Label = styled.span`
 
 const Value = styled.span`
   margin-left: 10px;
+  float: right; /* Align values to the right */
 `;
 
 const Button = styled.button`
@@ -66,7 +84,7 @@ const Button = styled.button`
   }
 `;
 
-  const TableContainer = styled.div`
+const TableContainer = styled.div`
   margin: 20px 0;
 `;
 
@@ -93,8 +111,6 @@ const TableCell = styled.td`
   padding: 8px;
 `;
 
-
-
 const ProfilePageContent: React.FC = () => {
   const navigate = useNavigate();
 
@@ -105,7 +121,7 @@ const ProfilePageContent: React.FC = () => {
     email: 'john.doe@example.com',
     phone: '+1 (555) 123-4567',
     address: '123 Main St, Anytown USA',
-    profilePicture: 'https://example.com/profile.jpg', // Example profile picture URL
+    profilePicture: 'https://example.com/profile.jpg',
   };
 
   const medicalHistory = {
@@ -134,12 +150,18 @@ const ProfilePageContent: React.FC = () => {
 
   return (
     <ProfileContainer>
-      <Header style={{ textAlign: 'left', fontSize: '2em', fontWeight: 'bold' }}>Patient Medical Profile</Header>
+      <HeaderContainer>
+        <Header>Patient Medical Profile</Header>
+        <IconContainer>
+          <Printer />
+          <Download />
+        </IconContainer>
+      </HeaderContainer>
       <hr style={{ borderColor: '#f2f2f2', borderWidth: '0.5px' }} />
-      <br></br>
+      <br />
       <ProfileContent>
         <Section>
-          <h2 style={{fontWeight:"bold"}}>Personal Information</h2>
+          <h2 style={{ fontWeight: "bold" }}>Personal Information</h2>
           <ProfileInfo>
             <Label>Name:</Label>
             <Value>{user.name}</Value>
@@ -166,7 +188,7 @@ const ProfilePageContent: React.FC = () => {
           </ProfileInfo>
         </Section>
         <Section>
-          <h2 style={{fontWeight:"bold"}}>Medical History</h2>
+          <h2 style={{ fontWeight: "bold" }}>Medical History</h2>
           <ProfileInfo>
             <Label>Blood Type:</Label>
             <Value>{medicalHistory.bloodType}</Value>
@@ -189,9 +211,9 @@ const ProfilePageContent: React.FC = () => {
           </ProfileInfo>
         </Section>
       </ProfileContent>
-      <br></br>
+      <br />
       <hr style={{ borderColor: '#f2f2f2', borderWidth: '0.5px' }} />
-      <br></br>
+      <br />
 
       <TableContainer>
         <h2>Current Medications</h2>
@@ -241,8 +263,6 @@ const ProfilePageContent: React.FC = () => {
           </tbody>
         </Table>
       </TableContainer>
-
-
     </ProfileContainer>
   );
 };
