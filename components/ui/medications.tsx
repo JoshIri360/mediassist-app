@@ -60,7 +60,13 @@ const medicationSchema = z.object({
   times: z.array(z.string()).nonempty(),
 });
 
-export function MedicationsForm() {
+export function MedicationsForm({
+  isFormOpen,
+  setIsFormOpen,
+}: {
+  isFormOpen: boolean;
+  setIsFormOpen: (isOpen: boolean) => void;
+}) {
   const form = useForm<FormValues>({
     resolver: zodResolver(medicationSchema),
     defaultValues: {
@@ -75,26 +81,31 @@ export function MedicationsForm() {
   });
 
   const [medications, setMedications] = useState<Medication[]>([]);
-  const [isFormOpen, setIsFormOpen] = useState(false);
   const { user } = useAuthContext();
-
-  const toggleForm = () => {
-    setIsFormOpen(!isFormOpen);
-  };
 
   useEffect(() => {
     const fetchMedications = async () => {
       if (user) {
         const userDocRef = doc(db, "users", user.uid);
-        const userDocSnap = await getDoc(userDocRef);
+        getDoc(userDocRef).then((docSnap) => {
+          if (docSnap.exists()) {
+            const userData = docSnap.data();
+            console.log("User data:", userData);
+            setMedications(userData.medications || []);
+          } else {
+            setDoc(userDocRef, { medications: [] });
+            setMedications([]);
+          }
+        });
 
-        if (userDocSnap.exists()) {
-          const userData = userDocSnap.data();
-          setMedications(userData.medications || []);
-        } else {
-          await setDoc(userDocRef, { medications: [] });
-          setMedications([]);
-        }
+        // if (userDocSnap.exists()) {
+        //   const userData = userDocSnap.data();
+        //   console.log("User data:", userData);
+        //   setMedications(userData.medications || []);
+        // } else {
+        //   await setDoc(userDocRef, { medications: [] });
+        //   setMedications([]);
+        // }
       }
     };
 
@@ -114,16 +125,12 @@ export function MedicationsForm() {
     } catch (error) {
       console.error("Error adding medication: ", error);
     } finally {
-      toggleForm();
+      setIsFormOpen(false);
     }
   };
 
   return (
     <div>
-      <Button onClick={toggleForm}>
-        {isFormOpen ? "Close Form" : "Open Form"}
-      </Button>
-
       {isFormOpen && (
         <div
           style={{
@@ -165,98 +172,102 @@ export function MedicationsForm() {
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="dosage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dosage</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Dosage" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="frequency"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Frequency</FormLabel>
-                      <FormControl>
-                        <Select
-                          onValueChange={(value) => {
-                            field.onChange(value);
-                            // Reset the times field based on the selected frequency
-                            form.setValue(
-                              "times",
-                              Array.from({ length: parseInt(value) }).map(
-                                () => ""
-                              )
-                            );
-                          }}
-                        >
-                          <SelectTrigger className="w-full">
-                            <SelectValue
-                              placeholder="Select frequency"
-                              {...field}
-                            />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectGroup>
-                              <SelectLabel>Frequency</SelectLabel>
-                              <SelectItem value="1">Once a day</SelectItem>
-                              <SelectItem value="2">Twice a day</SelectItem>
-                              <SelectItem value="3">Thrice a day</SelectItem>
-                            </SelectGroup>
-                          </SelectContent>
-                        </Select>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex [&>*]:w-full space-x-2">
+                  <FormField
+                    control={form.control}
+                    name="dosage"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dosage</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Dosage" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="frequency"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Frequency</FormLabel>
+                        <FormControl>
+                          <Select
+                            onValueChange={(value) => {
+                              field.onChange(value);
+                              // Reset the times field based on the selected frequency
+                              form.setValue(
+                                "times",
+                                Array.from({ length: parseInt(value) }).map(
+                                  () => ""
+                                )
+                              );
+                            }}
+                          >
+                            <SelectTrigger className="w-full">
+                              <SelectValue
+                                placeholder="Select frequency"
+                                {...field}
+                              />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectGroup>
+                                <SelectLabel>Frequency</SelectLabel>
+                                <SelectItem value="1">Once a day</SelectItem>
+                                <SelectItem value="2">Twice a day</SelectItem>
+                                <SelectItem value="3">Thrice a day</SelectItem>
+                              </SelectGroup>
+                            </SelectContent>
+                          </Select>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 <FormField
                   control={form.control}
                   name="pharmacyContact"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Pharmacy Contact</FormLabel>
+                      <FormLabel>Pharmacy Contact No.</FormLabel>
                       <FormControl>
-                        <Input placeholder="Pharmacy Contact" {...field} />
+                        <Input placeholder="08011111111" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                <FormField
-                  control={form.control}
-                  name="startDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Start Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="endDate"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>End Date</FormLabel>
-                      <FormControl>
-                        <Input type="date" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="flex [&>*]:w-full space-x-2">
+                  <FormField
+                    control={form.control}
+                    name="startDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Start Date</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="endDate"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>End Date</FormLabel>
+                        <FormControl>
+                          <Input type="date" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
                 {/** Dynamic time inputs based on frequency */}
                 {form.watch("frequency") && (

@@ -1,12 +1,21 @@
-import { db, messaging } from "../../../firebaseAdmin";
+import { getFirestore, collection, getDocs } from "firebase/firestore";
+import { getMessaging, sendMessage } from "firebase/messaging";
+import { app } from "@/firebase/config";
 
 export async function POST(req) {
   try {
-    const usersSnapshot = await db.collection("users").get();
+    const db = getFirestore(app);
+    const usersSnapshot = await getDocs(collection(db, "users"));
 
     for (const userDoc of usersSnapshot.docs) {
       const userData = userDoc.data();
       const medications = userData.medications || [];
+      const fcmToken = userData.fcmToken;
+
+      if (!fcmToken) {
+        console.log(`No FCM token found for user ${userDoc.id}`);
+        continue;
+      }
 
       for (const med of medications) {
         const now = new Date();
@@ -41,14 +50,16 @@ export async function POST(req) {
               },
             };
 
-            messaging
-              .sendToDevice(userData.deviceToken, payload)
-              .then((response) => {
-                console.log("Successfully sent message:", response);
-              })
-              .catch((error) => {
-                console.log("Error sending message:", error);
+            const messaging = getMessaging(app);
+            try {
+              const response = await sendMessage(messaging, {
+                token: fcmToken,
+                ...payload,
               });
+              console.log("Successfully sent message:", response);
+            } catch (error) {
+              console.log("Error sending message:", error);
+            }
           }
         }
       }

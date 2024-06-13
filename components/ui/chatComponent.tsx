@@ -65,7 +65,7 @@ export default function ChatComponent() {
   }, [messages]);
 
   return (
-    <div className="w-full max-w-md">
+    <div className="max-w-md">
       <Drawer>
         <DrawerTrigger asChild>
           <Button
