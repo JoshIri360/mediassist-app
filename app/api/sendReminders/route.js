@@ -4,7 +4,10 @@ import { app } from "@/firebase/config";
 
 // Initialize Firebase Admin SDK
 if (!admin.apps.length) {
-  console.log("Private Key: ", process.env.FIREBASE_PRIVATE_KEY);
+  console.log(
+    "Private Key 1: ",
+    process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
+  );
   admin.initializeApp({
     credential: admin.credential.cert({
       projectId: process.env.FIREBASE_PROJECT_ID,
