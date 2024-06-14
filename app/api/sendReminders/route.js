@@ -30,12 +30,19 @@ export async function POST(req) {
       }
 
       for (const med of medications) {
-        const now = new Date();
+        const _ = new Date();
+        const now = new Date(_.getTime() - _.getTimezoneOffset() * 60000);
         const startDate = new Date(med.startDate);
         const endDate = new Date(med.endDate);
+        console.log("Current date: ", now);
+        console.log("Processing medication: ", med.name);
+
+        console.log("Start date: ", startDate);
+        console.log("End date: ", endDate);
 
         // Check if the current date falls within the medication's start and end dates
         if (now >= startDate && now <= endDate) {
+          console.log("Medication is active", med.name);
           const timesToTake = med.times.filter((time) => {
             const [hours, minutes] = time.split(":").map(Number);
             const medTime = new Date(
@@ -48,11 +55,16 @@ export async function POST(req) {
             const timeDiff = Math.abs(medTime.getTime() - now.getTime());
             const oneHourInMs = 60 * 60 * 1000; // One hour in milliseconds
 
+            console.log("Medication time: ", medTime);
+            console.log("Current time: ", now);
+            console.log("Time difference: ", timeDiff / 1000 / 60, "minutes");
+
             // Check if the current time is within one hour of the medication time
             return timeDiff <= oneHourInMs;
           });
 
           if (timesToTake.length > 0) {
+            console.log("Sending reminder for: ", med.name);
             const message = {
               notification: {
                 title: `Medication Reminder: ${med.name}`,
