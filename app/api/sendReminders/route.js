@@ -2,19 +2,94 @@ import { getFirestore, collection, getDocs } from "firebase/firestore";
 import admin from "firebase-admin";
 import { app } from "@/firebase/config";
 
-// Initialize Firebase Admin SDK
 if (!admin.apps.length) {
-  // console.log(
-  //   "Private Key 1: ",
-  //   process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n")
-  // );
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      privateKey: JSON.parse(process.env.FIREBASE_PRIVATE_KEY),
-    }),
-  });
+  try {
+    // Check if environment variables are present
+    const requiredEnvVars = [
+      "FIREBASE_PROJECT_ID",
+      "FIREBASE_CLIENT_EMAIL",
+      "FIREBASE_PRIVATE_KEY",
+    ];
+    for (const envVar of requiredEnvVars) {
+      if (!process.env[envVar]) {
+        throw new Error(
+          `${envVar} is not defined in the environment variables.`
+        );
+      }
+    }
+
+    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+
+    // Log the original private key (be cautious with this in production)
+    console.log("Original FIREBASE_PRIVATE_KEY:", privateKey);
+
+    // Attempt different methods of parsing the private key
+    if (typeof privateKey !== "string") {
+      throw new Error(
+        `FIREBASE_PRIVATE_KEY is not a string. Type: ${typeof privateKey}`
+      );
+    }
+
+    if (privateKey.includes("\\n")) {
+      privateKey = privateKey.replace(/\\n/g, "\n");
+      console.log("Replaced \\n with newline characters.");
+    } else if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
+      try {
+        privateKey = JSON.parse(privateKey);
+        console.log("Successfully parsed FIREBASE_PRIVATE_KEY as JSON.");
+      } catch (jsonError) {
+        console.error("Error parsing FIREBASE_PRIVATE_KEY as JSON:", jsonError);
+        throw new Error(
+          "Error parsing FIREBASE_PRIVATE_KEY JSON: " + jsonError.message
+        );
+      }
+    }
+
+    // Check if privateKey starts and ends with the expected format
+    if (
+      !privateKey.startsWith("-----BEGIN PRIVATE KEY-----") ||
+      !privateKey.endsWith("-----END PRIVATE KEY-----")
+    ) {
+      console.warn(
+        "Warning: FIREBASE_PRIVATE_KEY does not have the expected format."
+      );
+    }
+
+    // Initialize Firebase Admin SDK
+    admin.initializeApp({
+      credential: admin.credential.cert({
+        projectId: process.env.FIREBASE_PROJECT_ID,
+        clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
+        privateKey: privateKey,
+      }),
+    });
+
+    console.log("Admin SDK initialized successfully");
+
+    // Optionally, perform a test operation to verify the initialization
+    const db = admin.firestore();
+    await db.collection("test").doc("test").set({ test: true });
+    console.log("Test write to Firestore successful.");
+  } catch (error) {
+    console.error("Error initializing Admin SDK:", error.message);
+    console.error("Stack Trace:", error.stack);
+
+    // Log additional debugging information
+    console.error("Environment variables:");
+    console.error("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
+    console.error("FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
+    console.error(
+      "FIREBASE_PRIVATE_KEY (length):",
+      process.env.FIREBASE_PRIVATE_KEY
+        ? process.env.FIREBASE_PRIVATE_KEY.length
+        : "undefined"
+    );
+
+    // Optionally, you can throw the error or handle it appropriately
+    throw new Error(
+      "Failed to initialize Firebase Admin SDK: " + error.message
+    );
+  }
 }
 
 console.log("passed admin init");
