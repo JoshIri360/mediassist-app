@@ -55,6 +55,8 @@ if (!admin.apps.length) {
       );
     }
 
+    console.log("Successfully parsed FIREBASE_PRIVATE_KEY");
+
     // Initialize Firebase Admin SDK
     admin.initializeApp({
       credential: admin.credential.cert({
