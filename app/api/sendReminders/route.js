@@ -28,6 +28,8 @@ if (!admin.apps.length) {
       throw new Error(
         `FIREBASE_PRIVATE_KEY is not a string. Type: ${typeof privateKey}`
       );
+    } else {
+     console.log("FIREBASE_PRIVATE_KEY is a string.")
     }
 
     if (privateKey.includes("\\n")) {
