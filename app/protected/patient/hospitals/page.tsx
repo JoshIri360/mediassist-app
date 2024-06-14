@@ -41,7 +41,7 @@ interface PlaceResult {
 
 export default function MedicalFacilitiesMap() {
   const { isLoaded, loadError } = useJsApiLoader({
-    googleMapsApiKey: "AIzaSyBMkUFFucC5x58I8mTBW61i9BdL1X6TzRk",
+    googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string,
     libraries,
   });
 
