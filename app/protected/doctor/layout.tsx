@@ -1,13 +1,14 @@
 import Link from "next/link";
 import {
   Tablets,
-  Hospital,
-  UsersIcon,
+  Users,
+  Calendar,
+  Clipboard,
   SettingsIcon,
   Bell,
   Menu,
 } from "lucide-react";
-import React, { useState } from "react";
+import React from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -43,35 +44,43 @@ export default function DoctorLayout({
       <nav className="fixed inset-y-0 left-0 z-10 w-60 -translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 shrink-0 flex-col items-start justify-start gap-2 bg-gray-100 p-4">
         <Link href="#" className="flex justify-center w-full" prefetch={false}>
           <span className="text-lg font-bold text-black py-4 text-center">
-            MediAssist
+            MediAssist Doctor
           </span>
         </Link>
         <Link
-          href="/protected/patient"
+          href="/protected/doctor"
           className="flex w-full items-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300"
           prefetch={false}
         >
+          <Users className="mr-2 h-4 w-4" />
+          Patient List
+        </Link>
+        <Link
+          href="/protected/doctor/medications"
+          className="flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          prefetch={false}
+        >
           <Tablets className="mr-2 h-4 w-4" />
-          Medications
+          Medication Management
         </Link>
         <Link
-          href="/protected/patient/hospitals"
+          href="/protected/doctor/appointments"
           className="flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-800"
           prefetch={false}
         >
-          <Hospital className="mr-2 h-4 w-4" />
-          Locate Hospitals
+          <Calendar className="mr-2 h-4 w-4" />
+          Appointments
         </Link>
         <Link
-          href="/protected/patient/users"
+          href="/protected/doctor/notes"
           className="flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-800"
           prefetch={false}
         >
-          <UsersIcon className="mr-2 h-4 w-4" />
-          Users
+          <Clipboard className="mr-2 h-4 w-4" />
+          Notes & Observations
         </Link>
         <Link
-          href="/protected/patient/settings"
+          href="/protected/doctor/settings"
           className="flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-800"
           prefetch={false}
         >
@@ -114,7 +123,9 @@ export default function DoctorLayout({
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem><Link href="/profile">Profile</Link></DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Logout</DropdownMenuItem>
               </DropdownMenuContent>

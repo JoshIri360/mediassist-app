@@ -1,24 +1,16 @@
 "use client";
 
+import ChatComponent from "@/components/ui/chatComponent";
 import { useAuthContext } from "@/context/AuthContext";
 import { app } from "@/firebase/config";
-import useFcmToken from "@/hooks/useFcmToken";
 import { getMessaging, onMessage } from "firebase/messaging";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import ChatComponent from "@/components/ui/chatComponent";
 
 export default function ProtectedPage() {
   const { user, role } = useAuthContext();
   const router = useRouter();
   const [loading, setLoading] = useState(true);
-  const { fcmToken, notificationPermissionStatus } = useFcmToken();
-
-  useEffect(() => {
-    if (fcmToken) {
-      console.log("FCM token:", fcmToken);
-    }
-  }, [fcmToken]);
 
   useEffect(() => {
     if (typeof window !== "undefined" && "serviceWorker" in navigator) {
@@ -48,10 +40,12 @@ export default function ProtectedPage() {
   }, [router, user, role]);
 
   if (loading) {
-    return <div className="text-5xl font-bold">
-      Loading...
-      <ChatComponent/>
-    </div>;
+    return (
+      <div className="text-5xl font-bold">
+        Loading...
+        <ChatComponent />
+      </div>
+    );
   }
 
   return null;

@@ -17,8 +17,8 @@ const rubik = Rubik({
 });
 
 export const metadata = {
-  title: "Next.js & Firebase Auth",
-  description: " Next.js & Firebase Authentication Tutorial",
+  title: "MediAssist",
+  description: "Next.js & Firebase Authentication Tutorial",
 };
 
 export default function RootLayout({

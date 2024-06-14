@@ -1,4 +1,3 @@
-//! Add `use client` to prevent this page from being server side rendered
 "use client";
 
 import { Button } from "@/components/ui/button";
@@ -10,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { JSX, SVGProps, useState } from "react";
 import { toast } from "react-hot-toast";
-
+  
 export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
