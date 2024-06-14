@@ -72,13 +72,13 @@ export default function ChatComponent() {
         <DrawerTrigger asChild>
           <Button
             variant="outline"
-            className="fixed bottom-4 right-4 z-50 shadow-lg bg-gradient-to-r from-[#000000] from-50% to-[#666666] to-100% border-[#242424] rounded-full py-7"
+            className="fixed bottom-4 right-4 z-50 shadow-lg bg-gradient-to-r from-gray-900 from-60% to-[#666666] to-100% border-[#242424] rounded-full py-7"
           >
             <MessageSquareIcon className="h-6 w-6" />
             <span className="sr-only">Open chatbot</span>
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="flex flex-col w-[20rem] md:w-[30rem] lg:w-[25rem] h-[70vh] md:h-[60vh] lg:h-[80vh] xl:w-[40rem]">
+        <DrawerContent className="flex flex-col w-[20rem] md:w-[30rem] lg:w-[25rem] h-[70vh] md:h-[60vh] lg:h-[80vh]">
           <h1 className="flex justify-center text-2xl font-semibold">AI Chabot</h1>
           <DrawerHeader className="flex items-center justify-center z-10 opacity-70 px-4 py-3">
             <h3 className="text-lg font-medium">Your Personal Medical Companion</h3>

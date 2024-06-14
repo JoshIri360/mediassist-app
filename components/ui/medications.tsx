@@ -281,7 +281,9 @@ export function MedicationsForm() {
                     <FormMessage />
                   </FormItem>
                 )}
+                <div className="flex justify-center pt-3">
                 <Button type="submit">Add Medication</Button>
+                </div>
               </form>
             </Form>
           </div>
