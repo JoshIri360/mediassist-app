@@ -20,32 +20,22 @@ if (!admin.apps.length) {
 
     let privateKey = process.env.FIREBASE_PRIVATE_KEY;
 
-    // Log the original private key (be cautious with this in production)
-    console.log("Original FIREBASE_PRIVATE_KEY:", privateKey);
+    console.log("Original FIREBASE_PRIVATE_KEY type:", typeof privateKey);
 
-    // Attempt different methods of parsing the private key
-    if (typeof privateKey !== "string") {
-      throw new Error(
-        `FIREBASE_PRIVATE_KEY is not a string. Type: ${typeof privateKey}`
-      );
-    } else {
-     console.log("FIREBASE_PRIVATE_KEY is a string.")
-    }
+    // Remove any leading/trailing whitespace
+    privateKey = privateKey.trim();
 
-    if (privateKey.includes("\\n")) {
-      privateKey = privateKey.replace(/\\n/g, "\n");
-      console.log("Replaced \\n with newline characters.");
-    } else if (privateKey.startsWith('"') && privateKey.endsWith('"')) {
-      try {
-        privateKey = JSON.parse(privateKey);
-        console.log("Successfully parsed FIREBASE_PRIVATE_KEY as JSON.");
-      } catch (jsonError) {
-        console.error("Error parsing FIREBASE_PRIVATE_KEY as JSON:", jsonError);
-        throw new Error(
-          "Error parsing FIREBASE_PRIVATE_KEY JSON: " + jsonError.message
-        );
-      }
-    }
+    // Remove any backslashes that aren't part of \n
+    privateKey = privateKey.replace(/\\(?!n)/g, "");
+
+    // Replace "\n" with actual newlines
+    privateKey = privateKey.replace(/\\n/g, "\n");
+
+    // Remove any remaining backslashes
+    privateKey = privateKey.replace(/\\/g, "");
+
+    console.log("Processed FIREBASE_PRIVATE_KEY:");
+    console.log(privateKey);
 
     // Check if privateKey starts and ends with the expected format
     if (
@@ -56,8 +46,6 @@ if (!admin.apps.length) {
         "Warning: FIREBASE_PRIVATE_KEY does not have the expected format."
       );
     }
-
-    console.log("Successfully parsed FIREBASE_PRIVATE_KEY");
 
     // Initialize Firebase Admin SDK
     admin.initializeApp({
