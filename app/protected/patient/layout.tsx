@@ -58,7 +58,7 @@ export default function DoctorLayout({
           href="/protected/patient"
           className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
             isActiveLink("/protected/patient")
-              ? "bg-gray-200 text-gray-800"
+              ? "bg-primary text-white"
               : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
           }`}
           prefetch={false}
@@ -70,7 +70,7 @@ export default function DoctorLayout({
           href="/protected/patient/hospitals"
           className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
             isActiveLink("/protected/patient/hospitals")
-              ? "bg-gray-200 text-gray-800"
+              ? "bg-primary text-white"
               : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
           }`}
           prefetch={false}
@@ -82,7 +82,7 @@ export default function DoctorLayout({
           href="/protected/patient/users"
           className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
             isActiveLink("/protected/patient/users")
-              ? "bg-gray-200 text-gray-800"
+              ? "bg-primary text-white"
               : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
           }`}
           prefetch={false}
@@ -94,7 +94,7 @@ export default function DoctorLayout({
           href="/protected/patient/settings"
           className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
             isActiveLink("/protected/patient/settings")
-              ? "bg-gray-200 text-gray-800"
+              ? "bg-primary text-white"
               : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
           }`}
           prefetch={false}
