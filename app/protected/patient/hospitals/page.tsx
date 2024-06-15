@@ -16,6 +16,7 @@ import {
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
+import { LocateIcon, StarIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import usePlacesAutocomplete, {
@@ -206,7 +207,7 @@ export default function MedicalFacilitiesMap() {
   if (!isLoaded) return <div>Loading maps...</div>;
 
   return (
-    <div className="container mx-auto p-4">
+    <section className="container mx-auto p-4">
       <h1 className="text-2xl font-bold mb-4">Nearby Medical Facilities</h1>
       <div className="mb-4">
         <MapSearchBox />
@@ -240,29 +241,45 @@ export default function MedicalFacilitiesMap() {
           )}
         </GoogleMap>
       </div>
-      <div className="mt-4">
-        <h2 className="text-xl font-semibold mb-2">Facility List</h2>
+      <section className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 p-4 md:p-6 mt-4">
         {facilities.map((facility) => (
           <Link
             href={`/protected/patient/hospitals/${facility.place_id}`}
             key={facility.place_id}
+            className="cursor-pointer"
           >
-            <Card className="mb-2 hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle>{facility.name}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p>{facility.vicinity}</p>
-                {facility.rating && <p>Rating: {facility.rating}</p>}
-                <p>
-                  {(calculateDistance(facility, center) / 1000).toFixed(2)} km
-                  away
+            <div className="bg-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-950">
+              <div className="p-4 md:p-6">
+                <h3 className="text-lg font-semibold">{facility.name}</h3>
+                <p className="text-gray-500 dark:text-gray-400 text-sm">
+                  {facility.vicinity}
                 </p>
-              </CardContent>
-            </Card>
+                <div className="flex items-center gap-2 mt-2">
+                  <LocateIcon className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">
+                    {(calculateDistance(facility, center) / 1000).toFixed(2)} km
+                  </span>
+                </div>
+                <div className="flex items-center gap-1 mt-2">
+                  {[...Array(5)].map((_, index) => (
+                    <StarIcon
+                      key={index}
+                      className={`w-4 h-4 ${
+                        index < Math.floor(facility.rating || 0)
+                          ? "fill-primary"
+                          : "fill-muted stroke-muted-foreground"
+                      }`}
+                    />
+                  ))}
+                  <span className="text-gray-500 dark:text-gray-400 text-sm">
+                    ({facility.rating})
+                  </span>
+                </div>
+              </div>
+            </div>
           </Link>
         ))}
-      </div>
-    </div>
+      </section>
+    </section>
   );
 }
