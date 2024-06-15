@@ -9,6 +9,14 @@ const nextConfig = {
     }
     return config;
   },
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'aceternity.com',
+      },
+    ],
+  },
 };
 
 export default nextConfig;

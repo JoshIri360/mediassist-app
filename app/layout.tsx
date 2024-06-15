@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={libre_franklin.variable + " " + rubik.variable}>
         <AuthContextProvider>{children}</AuthContextProvider>
         <Toaster />
