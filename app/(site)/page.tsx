@@ -1,4 +1,3 @@
-// app/page.tsx
 import React from 'react';
 import { MultiStepLoaderDemo } from '@/components/multi-loader';
 import { FloatingNavDemo } from '@/components/navbar';
