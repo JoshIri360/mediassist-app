@@ -20,7 +20,8 @@ if (!admin.apps.length) {
     let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim()
       .replace(/\\(?!n)/g, "")
       .replace(/\\n/g, "\n")
-      .replace(/\\/g, "");
+      .replace(/\\/g, "")
+      .trimEnd();
 
     if (
       !privateKey.startsWith("-----BEGIN PRIVATE KEY-----") ||

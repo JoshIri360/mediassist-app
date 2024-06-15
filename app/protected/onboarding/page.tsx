@@ -1,233 +1,393 @@
 "use client";
 
-import React, { useState } from 'react';
-import styled, { ThemeProvider } from 'styled-components';
-import { useNavigate, BrowserRouter as Router } from 'react-router-dom';
-import { IoIosArrowBack } from 'react-icons/io'; // Import the icon
+import React, { useState, ChangeEvent, FormEvent } from "react";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { PlusCircle, X } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
+interface Medication {
+  name: string;
+  frequency: string;
+  dosage: string;
+  startDate: string;
+}
 
+interface FormData {
+  name: string;
+  age: string;
+  weight: string;
+  familyHistory: string;
+  allergies: string;
+  immunizations: string;
+  medications: Medication[];
+  gender: string;
+  phoneNumber: string;
+  address: string;
+  bloodType: string;
+  pastSurgeries: string;
+}
 
-const theme = {
-  colors: {
-    primary: '#6200ea',
-    secondary: '#3700b3',
-  },
-};
-
-const Container = styled.div`
-  display: flex;
-  height: 100vh;
-  padding: 20px; // Add padding to the container to provide spacing around the sidebar
-  box-sizing: border-box; // Ensure padding is included in the element's total width and height
-`;
-
-const Sidebar = styled.div`
-  flex: 1.2;  // Increase the width of the sidebar
-  background: #121063;
-  border-radius: 10px;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  padding: 40px;
-  margin-right: 20px; // Add space to the right of the sidebar
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Optional: Add a shadow for better visual separation
-  text-align: center;
-
-  h1 {
-    font-size: 2.5rem;
-    margin-bottom: 20px;
-  }
-
-  p {
-    font-size: 1.2rem;
-    margin-top: 10px;
-  }
-`;
-
-const FormContainer = styled.div`
-  flex: 1.8;  // Decrease the width of the form container
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;  // Raise the form higher
-  padding: 40px;
-  background: white;
-  border-radius: 10px; // Match the sidebar's border radius
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Optional: Add a shadow for better visual separation
-`;
-
-const BackArrow = styled(IoIosArrowBack)`
-  cursor: pointer;
-  font-size: 1.5rem;
-  color: #6b6b6b;
-  margin-bottom: 20px;
-`;
-
-const Title = styled.h2`
-  font-size: 1.5rem;  // Smaller text
-  margin-bottom: 10px;
-`;
-
-const Subtitle = styled.p`
-  font-size: 0.9rem;  // Smaller text
-  color: #6b6b6b;
-  margin-bottom: 20px;  // Adjust margin
-`;
-
-const ProgressBar = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-
-  span {
-    font-size: 0.8rem;  // Smaller text
-    color: #6b6b6b;
-  }
-
-  div {
-    flex: 1;
-    height: 4px;
-    background-color: #e0e0e0;
-    margin-left: 10px;
-    margin-right: 10px;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      height: 4px;
-      width: 50%; /* Adjust based on step */
-      background-color: ${(props) => props.theme.colors.primary};
-    }
-  }
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-
-  label {
-    margin-bottom: 8px;  // Adjust margin
-    font-size: 0.9rem;  // Smaller text
-    color: #6b6b6b;
-  }
-
-  input {
-    margin-bottom: 15px;  // Adjust margin
-    padding: 8px;  // Adjust padding
-    font-size: 0.9rem;  // Smaller text
-    border: 1px solid #ccc;
-    border-radius: 4px;
-  }
-
-  button {
-    padding: 8px;  // Smaller button
-    font-size: 0.9rem;  // Smaller text
-    background-color: ${(props) => props.theme.colors.primary};
-    color: white;
-    border: none;
-    cursor: pointer;
-    border-radius: 4px;
-
-    &:hover {
-      background-color: ${(props) => props.theme.colors.secondary};
-    }
-  }
-`;
-
-
-const OnboardingStep1Content: React.FC = () => {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    age: '',
-    weight: '',
-    familyHistory: '',
-    immunization: '',
-    allergies: '',
+export default function MedicalOnboarding() {
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    age: "",
+    weight: "",
+    familyHistory: "",
+    allergies: "",
+    immunizations: "",
+    medications: [{ name: "", frequency: "", dosage: "", startDate: "" }],
+    gender: "",
+    phoneNumber: "",
+    address: "",
+    bloodType: "",
+    pastSurgeries: "",
   });
 
-  const [currentStep, setCurrentStep] = useState(1);
-  const handleBack = () => {
-    if (currentStep === 2) {
-      setCurrentStep(1);
+  const [currentPage, setCurrentPage] = useState<number>(1);
+  const [progress, setProgress] = useState<number>(0);
+
+  const handleInputChange = (
+    e:
+      | ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+      | any
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+    calculateProgress();
+  };
+
+  const addMedication = () => {
+    setFormData((prev) => ({
+      ...prev,
+      medications: [
+        ...prev.medications,
+        { name: "", frequency: "", dosage: "", startDate: "" },
+      ],
+    }));
+    calculateProgress();
+  };
+
+  const removeMedication = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      medications: prev.medications.filter((_, i) => i !== index),
+    }));
+    calculateProgress();
+  };
+
+  const updateMedication = (
+    index: number,
+    field: keyof Medication,
+    value: string
+  ) => {
+    setFormData((prev) => ({
+      ...prev,
+      medications: prev.medications.map((med, i) =>
+        i === index ? { ...med, [field]: value } : med
+      ),
+    }));
+    calculateProgress();
+  };
+
+  const calculateProgress = () => {
+    const fields = [
+      formData.name,
+      formData.age,
+      formData.weight,
+      formData.familyHistory,
+      formData.allergies,
+      formData.immunizations,
+      ...formData.medications.flatMap((med) => Object.values(med)),
+    ];
+    const filledFields = fields.filter((field) => field.trim() !== "").length;
+    const totalFields = fields.length;
+    const newProgress = Math.round((filledFields / totalFields) * 100);
+    setProgress(newProgress);
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (currentPage < 2) {
+      setCurrentPage(currentPage + 1);
     } else {
-      navigate(-1);
+      console.log("Form Data:", formData);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+  const handleBack = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
-
-  const Step1Form = () => {
-    return (
-      <Form onSubmit={handleSubmit}>
-        <label>Name</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-        <label>Age</label>
-        <input type="number" name="age" value={formData.age} onChange={handleChange} required />
-        <label>Weight (kg)</label>
-        <input type="number" name="weight" value={formData.weight} onChange={handleChange} required />
-        <button type="submit">Next</button>
-      </Form>
-    );
-  };
-  
-  const Step2Form = () => {
-    return (
-      <Form onSubmit={handleSubmit}>
-        <label>Family Medical History</label>
-        <textarea name="familyHistory" value={formData.familyHistory} onChange={handleChange} required />
-        <label>Immunization Records</label>
-        <textarea name="immunization" value={formData.immunization} onChange={handleChange} required />
-        <label>Allergies</label>
-        <textarea name="allergies" value={formData.allergies} onChange={handleChange} required />
-        <button type="submit">Submit</button>
-      </Form>
-    );
-  };
-
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (currentStep === 1) {
-      setCurrentStep(2);
-    } else{
-    localStorage.setItem('onboardingData', JSON.stringify(formData));
-    console.log(formData);
-  }};
 
   return (
-    <Container>
-      <Sidebar>
-        <h1>Elevate your workflow with MediCare</h1>
-        <p>Elevate your workflow with Fremen. Elevate your workflow with Fremen. Elevate your workflow with Fremen. Elevate your workflow with Fremen.</p>
-      </Sidebar>
-      <FormContainer>
-      <BackArrow onClick={handleBack} style={{ visibility: currentStep === 1 ? 'hidden' : 'visible' }} />
-        <Title>Patient Onboarding</Title>
-        <Subtitle>{currentStep === 1 ? 'Please enter your personal details' : 'Please provide your medical history'}</Subtitle>
-        <ProgressBar>
-          <span>{currentStep} of 2</span>
-          <div></div>
-        </ProgressBar>
-        {currentStep === 1 ? <Step1Form /> : <Step2Form />}
-      </FormContainer>
-    </Container>
+    <div
+      className="flex min-h-screen w-full p-5"
+      // style={{ boxSizing: "content-box" }}
+    >
+      <div className="hidden md:block w-1/2 bg-blue-500 rounded-lg"></div>
+      <div className="w-full lg:w-1/2 flex items-center justify-center">
+        <form
+          onSubmit={handleSubmit}
+          className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8"
+        >
+          <div className="space-y-8">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+                Medical Onboarding
+              </h1>
+              <p className="mt-2 text-lg text-gray-500 dark:text-gray-400">
+                Please fill out the following information to complete your
+                medical onboarding.
+              </p>
+            </div>
+            {currentPage === 1 && (
+              <div className="space-y-6">
+                <div>
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="Enter your name"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-6">
+                  <div>
+                    <Label htmlFor="age">Age</Label>
+                    <Input
+                      id="age"
+                      name="age"
+                      type="number"
+                      value={formData.age}
+                      onChange={handleInputChange}
+                      placeholder="Enter your age"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="weight">Weight (kg)</Label>
+                    <Input
+                      id="weight"
+                      name="weight"
+                      type="number"
+                      value={formData.weight}
+                      onChange={handleInputChange}
+                      placeholder="Enter your weight"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <Label htmlFor="gender">Gender</Label>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) =>
+                      handleInputChange({ target: { name: "gender", value } })
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Gender" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="phoneNumber">Phone Number</Label>
+                  <Input
+                    id="phoneNumber"
+                    name="phoneNumber"
+                    value={formData.phoneNumber}
+                    onChange={handleInputChange}
+                    placeholder="07011111111"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="address">Address</Label>
+                  <Input
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="Enter your address"
+                  />
+                </div>
+              </div>
+            )}
+            {currentPage === 2 && (
+              <div className="space-y-6">
+                <div>
+                  <Label htmlFor="bloodType">Blood Type</Label>
+                  <Input
+                    id="bloodType"
+                    name="bloodType"
+                    value={formData.bloodType}
+                    onChange={handleInputChange}
+                    placeholder="Enter your blood type"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="familyHistory">
+                    Family Medical History (enter &quot;none&quot; or
+                    &quot;unknown&quot; if applicable)
+                  </Label>
+                  <Textarea
+                    id="familyHistory"
+                    name="familyHistory"
+                    value={formData.familyHistory}
+                    onChange={handleInputChange}
+                    placeholder="Enter your family medical history"
+                    className="min-h-[100px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="allergies">
+                    Allergies (enter &quot;none&quot; or &quot;unknown&quot; if
+                    applicable)
+                  </Label>
+                  <Textarea
+                    id="allergies"
+                    name="allergies"
+                    value={formData.allergies}
+                    onChange={handleInputChange}
+                    placeholder="Enter your allergies"
+                    className="min-h-[100px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="immunizations">
+                    Immunization Records (enter &quot;none&quot; or
+                    &quot;unknown&quot; if applicable)
+                  </Label>
+                  <Textarea
+                    id="immunizations"
+                    name="immunizations"
+                    value={formData.immunizations}
+                    onChange={handleInputChange}
+                    placeholder="Enter your immunization records"
+                    className="min-h-[100px]"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="pastSurgeries">
+                    Past Surgeries (enter &quot;none&quot; or
+                    &quot;unknown&quot; if applicable)
+                  </Label>
+                  <Textarea
+                    id="pastSurgeries"
+                    name="pastSurgeries"
+                    value={formData.pastSurgeries}
+                    onChange={handleInputChange}
+                    placeholder="Enter your past surgeries"
+                    className="min-h-[100px]"
+                  />
+                </div>
+                <div>
+                  <Label>Current Medications</Label>
+                  {formData.medications.map((medication, index) => (
+                    <Card key={index} className="mt-2">
+                      <CardContent className="pt-6">
+                        <div className="grid grid-cols-2 gap-4">
+                          <Input
+                            placeholder="Medication Name"
+                            value={medication.name}
+                            onChange={(e) =>
+                              updateMedication(index, "name", e.target.value)
+                            }
+                          />
+                          <Input
+                            placeholder="Frequency"
+                            value={medication.frequency}
+                            onChange={(e) =>
+                              updateMedication(
+                                index,
+                                "frequency",
+                                e.target.value
+                              )
+                            }
+                          />
+                          <Input
+                            placeholder="Dosage"
+                            value={medication.dosage}
+                            onChange={(e) =>
+                              updateMedication(index, "dosage", e.target.value)
+                            }
+                          />
+                          <Input
+                            type="date"
+                            placeholder="Start Date"
+                            value={medication.startDate}
+                            onChange={(e) =>
+                              updateMedication(
+                                index,
+                                "startDate",
+                                e.target.value
+                              )
+                            }
+                          />
+                        </div>
+                        {index > 0 && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="icon"
+                            className="mt-2"
+                            onClick={() => removeMedication(index)}
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        )}
+                      </CardContent>
+                    </Card>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="mt-2"
+                    onClick={addMedication}
+                  >
+                    <PlusCircle className="mr-2 h-4 w-4" /> Add Medication
+                  </Button>
+                </div>
+              </div>
+            )}
+            <div className="flex items-center justify-between">
+              <Progress value={progress} className="w-full" />
+              <span className="ml-4 text-sm text-gray-500 dark:text-gray-400">
+                {progress}%
+              </span>
+            </div>
+            <div className="flex justify-between">
+              {currentPage > 1 && (
+                <Button
+                  type="button"
+                  className="cursor-pointer"
+                  onClick={handleBack}
+                >
+                  Back
+                </Button>
+              )}
+              <Button type="submit" className="cursor-pointer">
+                {currentPage === 1 ? "Next" : "Submit"}
+              </Button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
   );
-};
-
-const OnboardingStep1: React.FC = () => {
-  return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <OnboardingStep1Content />
-      </Router>
-    </ThemeProvider>
-  );
-};
-
-export default OnboardingStep1;
+}

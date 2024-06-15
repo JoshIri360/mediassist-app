@@ -42,7 +42,7 @@ const fetchHospitalData = async (placeId: string): Promise<Hospital> => {
 };
 
 export default function HospitalPage() {
-  console.log("Id")
+  console.log("Id");
   const params = useParams();
   const { id } = params;
   const [hospital, setHospital] = useState<Hospital | null>(null);
@@ -66,6 +66,8 @@ export default function HospitalPage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!hospital) return <div>No hospital data found</div>;
+
+  console.log(hospital);
 
   return (
     <div className="container mx-auto p-4">
