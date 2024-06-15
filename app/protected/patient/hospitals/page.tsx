@@ -1,18 +1,5 @@
 "use client";
 
-import React, { useState, useCallback, useEffect } from "react";
-import {
-  GoogleMap,
-  useJsApiLoader,
-  Marker,
-  InfoWindow,
-} from "@react-google-maps/api";
-import usePlacesAutocomplete, {
-  getGeocode,
-  getLatLng,
-} from "use-places-autocomplete";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
   Command,
   CommandEmpty,
@@ -21,8 +8,20 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import {
+  GoogleMap,
+  InfoWindow,
+  Libraries,
+  Marker,
+  useJsApiLoader,
+} from "@react-google-maps/api";
+import React, { useCallback, useEffect, useState } from "react";
+import usePlacesAutocomplete, {
+  getGeocode,
+  getLatLng,
+} from "use-places-autocomplete";
 
-const libraries: "places"[] = ["places"];
+const libraries: Libraries = ["places", "geometry"];
 
 interface LatLngLiteral {
   lat: number;
@@ -50,6 +49,24 @@ export default function MedicalFacilitiesMap() {
   const [selectedPlace, setSelectedPlace] = useState<PlaceResult | null>(null);
   const [facilities, setFacilities] = useState<PlaceResult[]>([]);
 
+  const calculateDistance = (
+    facility: PlaceResult,
+    center: LatLngLiteral
+  ): number => {
+    const { location } = facility.geometry;
+    const facilityCoords = new google.maps.LatLng(
+      location.lat(),
+      location.lng()
+    );
+    const centerCoords = new google.maps.LatLng(center.lat, center.lng);
+    console.log(google.maps.geometry);
+    const distance = google?.maps?.geometry?.spherical?.computeDistanceBetween(
+      facilityCoords,
+      centerCoords
+    );
+    return distance;
+  };
+
   const searchNearbyFacilities = useCallback(
     (location: LatLngLiteral, map: google.maps.Map) => {
       const service = new google.maps.places.PlacesService(map);
@@ -67,6 +84,7 @@ export default function MedicalFacilitiesMap() {
         ) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             setFacilities(results as PlaceResult[]);
+            console.log("Facilities found:", results);
           }
         }
       );
@@ -88,37 +106,38 @@ export default function MedicalFacilitiesMap() {
           setCenter(pos);
           if (map) {
             map.setCenter(pos);
-            searchNearbyFacilities(pos, map);
           }
         },
         () => {
           console.log("Error: The Geolocation service failed.");
-          // Set a default location (e.g., New York City) if geolocation fails
-          const defaultPos = { lat: 40.7128, lng: -74.006 };
+          const defaultPos = { lat: 4.7731, lng: 7.0085 };
           setCenter(defaultPos);
           if (map) {
             map.setCenter(defaultPos);
-            searchNearbyFacilities(defaultPos, map);
           }
         }
       );
     } else {
       console.log("Error: Your browser doesn't support geolocation.");
-      // Set a default location if geolocation is not supported
-      const defaultPos = { lat: 40.7128, lng: -74.006 };
+      const defaultPos = { lat: 4.7731, lng: 7.0085 };
       setCenter(defaultPos);
       if (map) {
         map.setCenter(defaultPos);
-        searchNearbyFacilities(defaultPos, map);
       }
     }
-  }, [map, searchNearbyFacilities]);
+  }, [map]);
 
   useEffect(() => {
     if (isLoaded && map) {
       getCurrentLocation();
     }
   }, [isLoaded, map, getCurrentLocation]);
+
+  useEffect(() => {
+    if (map && center.lat !== 0 && center.lng !== 0) {
+      searchNearbyFacilities(center, map);
+    }
+  }, [center, map, searchNearbyFacilities]);
 
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map);
@@ -227,6 +246,9 @@ export default function MedicalFacilitiesMap() {
             <h3 className="font-bold">{facility.name}</h3>
             <p>{facility.vicinity}</p>
             {facility.rating && <p>Rating: {facility.rating}</p>}
+            <p>
+              {(calculateDistance(facility, center) / 1000).toFixed(2)} km away
+            </p>
           </div>
         ))}
       </div>
