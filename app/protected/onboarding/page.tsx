@@ -16,12 +16,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-interface Medication {
+type Medication = {
   name: string;
   frequency: string;
   dosage: string;
   startDate: string;
-}
+  times: string[];
+};
 
 interface FormData {
   name: string;
@@ -46,7 +47,9 @@ export default function MedicalOnboarding() {
     familyHistory: "",
     allergies: "",
     immunizations: "",
-    medications: [{ name: "", frequency: "", dosage: "", startDate: "" }],
+    medications: [
+      { name: "", frequency: "", dosage: "", startDate: "", times: [] },
+    ],
     gender: "",
     phoneNumber: "",
     address: "",
@@ -72,7 +75,7 @@ export default function MedicalOnboarding() {
       ...prev,
       medications: [
         ...prev.medications,
-        { name: "", frequency: "", dosage: "", startDate: "" },
+        { name: "", frequency: "", dosage: "", startDate: "", times: [] },
       ],
     }));
     calculateProgress();
@@ -89,7 +92,7 @@ export default function MedicalOnboarding() {
   const updateMedication = (
     index: number,
     field: keyof Medication,
-    value: string
+    value: string | string[]
   ) => {
     setFormData((prev) => ({
       ...prev,
@@ -110,7 +113,12 @@ export default function MedicalOnboarding() {
       formData.immunizations,
       ...formData.medications.flatMap((med) => Object.values(med)),
     ];
-    const filledFields = fields.filter((field) => field.trim() !== "").length;
+    const filledFields = fields.filter((field) => {
+      if (Array.isArray(field)) {
+        return field.length > 0;
+      }
+      return field.trim() !== "";
+    }).length;
     const totalFields = fields.length;
     const newProgress = Math.round((filledFields / totalFields) * 100);
     setProgress(newProgress);
@@ -131,6 +139,12 @@ export default function MedicalOnboarding() {
     }
   };
 
+  const updateTimes = (index: number, frequency: string) => {
+    const timesCount = parseInt(frequency) || 0;
+    const newTimes = Array(timesCount).fill("");
+    updateMedication(index, "times", newTimes);
+  };
+
   return (
     <div
       className="flex min-h-screen w-full p-5"
@@ -142,7 +156,7 @@ export default function MedicalOnboarding() {
           onSubmit={handleSubmit}
           className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8"
         >
-          <div className="space-y-8">
+          <div className="space-y-6">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
                 Medical Onboarding
@@ -153,7 +167,7 @@ export default function MedicalOnboarding() {
               </p>
             </div>
             {currentPage === 1 && (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 <div>
                   <Label htmlFor="name">Name</Label>
                   <Input
@@ -245,13 +259,20 @@ export default function MedicalOnboarding() {
                     Family Medical History (enter &quot;none&quot; or
                     &quot;unknown&quot; if applicable)
                   </Label>
-                  <Textarea
+                  {/* <Textarea
                     id="familyHistory"
                     name="familyHistory"
                     value={formData.familyHistory}
                     onChange={handleInputChange}
                     placeholder="Enter your family medical history"
                     className="min-h-[100px]"
+                  /> */}
+                  <Input
+                    id="familyHistory"
+                    name="familyHistory"
+                    value={formData.familyHistory}
+                    onChange={handleInputChange}
+                    placeholder="Diabetes"
                   />
                 </div>
                 <div>
@@ -259,13 +280,12 @@ export default function MedicalOnboarding() {
                     Allergies (enter &quot;none&quot; or &quot;unknown&quot; if
                     applicable)
                   </Label>
-                  <Textarea
+                  <Input
                     id="allergies"
                     name="allergies"
                     value={formData.allergies}
                     onChange={handleInputChange}
-                    placeholder="Enter your allergies"
-                    className="min-h-[100px]"
+                    placeholder="Peanuts, Shellfish, Pollen"
                   />
                 </div>
                 <div>
@@ -273,13 +293,12 @@ export default function MedicalOnboarding() {
                     Immunization Records (enter &quot;none&quot; or
                     &quot;unknown&quot; if applicable)
                   </Label>
-                  <Textarea
+                  <Input
                     id="immunizations"
                     name="immunizations"
                     value={formData.immunizations}
                     onChange={handleInputChange}
-                    placeholder="Enter your immunization records"
-                    className="min-h-[100px]"
+                    placeholder="Coronavirus, Influenza, Polio"
                   />
                 </div>
                 <div>
@@ -287,13 +306,12 @@ export default function MedicalOnboarding() {
                     Past Surgeries (enter &quot;none&quot; or
                     &quot;unknown&quot; if applicable)
                   </Label>
-                  <Textarea
+                  <Input
                     id="pastSurgeries"
                     name="pastSurgeries"
                     value={formData.pastSurgeries}
                     onChange={handleInputChange}
-                    placeholder="Enter your past surgeries"
-                    className="min-h-[100px]"
+                    placeholder="Appendix, Tonsils, Knee Surgery"
                   />
                 </div>
                 <div>
@@ -309,17 +327,22 @@ export default function MedicalOnboarding() {
                               updateMedication(index, "name", e.target.value)
                             }
                           />
-                          <Input
-                            placeholder="Frequency"
+                          <Select
                             value={medication.frequency}
-                            onChange={(e) =>
-                              updateMedication(
-                                index,
-                                "frequency",
-                                e.target.value
-                              )
-                            }
-                          />
+                            onValueChange={(value) => {
+                              updateMedication(index, "frequency", value);
+                              updateTimes(index, value);
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select frequency" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="1">Once a day</SelectItem>
+                              <SelectItem value="2">Twice a day</SelectItem>
+                              <SelectItem value="3">Thrice a day</SelectItem>
+                            </SelectContent>
+                          </Select>
                           <Input
                             placeholder="Dosage"
                             value={medication.dosage}
@@ -340,6 +363,20 @@ export default function MedicalOnboarding() {
                             }
                           />
                         </div>
+                        {medication.times.map((time, timeIndex) => (
+                          <Input
+                            key={timeIndex}
+                            type="time"
+                            placeholder={`Time ${timeIndex + 1}`}
+                            value={time}
+                            onChange={(e) => {
+                              const newTimes = [...medication.times];
+                              newTimes[timeIndex] = e.target.value;
+                              updateMedication(index, "times", newTimes);
+                            }}
+                            className="mt-2"
+                          />
+                        ))}
                         {index > 0 && (
                           <Button
                             type="button"
