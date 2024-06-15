@@ -1,6 +1,6 @@
 "use client";
 
-export default function PatientSettingsPage() {
+export default function DoctorSettingsPage() {
 
     return (
         <div className="container mx-auto p-4">
