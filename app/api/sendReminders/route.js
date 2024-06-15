@@ -4,7 +4,6 @@ import { app } from "@/firebase/config";
 
 if (!admin.apps.length) {
   try {
-    // Check if environment variables are present
     const requiredEnvVars = [
       "FIREBASE_PROJECT_ID",
       "FIREBASE_CLIENT_EMAIL",
@@ -18,66 +17,31 @@ if (!admin.apps.length) {
       }
     }
 
-    let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+    let privateKey = process.env.FIREBASE_PRIVATE_KEY.trim()
+      .replace(/\\(?!n)/g, "")
+      .replace(/\\n/g, "\n")
+      .replace(/\\/g, "");
 
-    console.log("Original FIREBASE_PRIVATE_KEY type:", typeof privateKey);
-
-    // Remove any leading/trailing whitespace
-    privateKey = privateKey.trim();
-
-    // Remove any backslashes that aren't part of \n
-    privateKey = privateKey.replace(/\\(?!n)/g, "");
-
-    // Replace "\n" with actual newlines
-    privateKey = privateKey.replace(/\\n/g, "\n");
-
-    // Remove any remaining backslashes
-    privateKey = privateKey.replace(/\\/g, "");
-
-    console.log("Processed FIREBASE_PRIVATE_KEY:");
-    console.log(privateKey);
-
-    // Check if privateKey starts and ends with the expected format
     if (
       !privateKey.startsWith("-----BEGIN PRIVATE KEY-----") ||
       !privateKey.endsWith("-----END PRIVATE KEY-----")
     ) {
-      console.warn(
-        "Warning: FIREBASE_PRIVATE_KEY does not have the expected format."
+      throw new Error(
+        "FIREBASE_PRIVATE_KEY does not have the expected format."
       );
     }
 
-    // Initialize Firebase Admin SDK
     admin.initializeApp({
       credential: admin.credential.cert({
         projectId: process.env.FIREBASE_PROJECT_ID,
         clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-        privateKey: privateKey,
+        privateKey,
       }),
     });
 
-    console.log("Admin SDK initialized successfully");
-
-    // Optionally, perform a test operation to verify the initialization
     const db = admin.firestore();
     await db.collection("test").doc("test").set({ test: true });
-    console.log("Test write to Firestore successful.");
   } catch (error) {
-    console.error("Error initializing Admin SDK:", error.message);
-    console.error("Stack Trace:", error.stack);
-
-    // Log additional debugging information
-    console.error("Environment variables:");
-    console.error("FIREBASE_PROJECT_ID:", process.env.FIREBASE_PROJECT_ID);
-    console.error("FIREBASE_CLIENT_EMAIL:", process.env.FIREBASE_CLIENT_EMAIL);
-    console.error(
-      "FIREBASE_PRIVATE_KEY (length):",
-      process.env.FIREBASE_PRIVATE_KEY
-        ? process.env.FIREBASE_PRIVATE_KEY.length
-        : "undefined"
-    );
-
-    // Optionally, you can throw the error or handle it appropriately
     throw new Error(
       "Failed to initialize Firebase Admin SDK: " + error.message
     );
