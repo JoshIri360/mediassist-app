@@ -20,6 +20,7 @@ export function HeroSection() {
     <div
       className="h-[100vh] md:h-[150vh] lg:h-[300vh] bg-black w-full dark:border dark:border-white/[0.1] rounded-md relative pt-40 overflow-clip"
       ref={ref}
+      id="hero"
     >
       <GoogleGeminiEffect
         pathLengths={[

@@ -4,7 +4,7 @@ import { HeroParallax } from "./ui/hero-parallax";
 
 export function HomePreview() {
   return (
-    <div className='w-full overflow-hidden'>
+    <div id="preview" className='w-full overflow-hidden'>
       <HeroParallax products={products} />
     </div>
   );

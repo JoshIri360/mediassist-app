@@ -9,7 +9,7 @@ export function ProblemSolution() {
       <div className=" text-6xl pt-20 pb-2 flex justify-center w-full bg-gray-100 dark:bg-black">
         <h1>Health Spotlight</h1>
       </div>
-      <div className="py-20 flex flex-col lg:flex-row items-center justify-center bg-white dark:bg-black w-full gap-4 mx-auto px-8">
+      <div id="issues" className="py-20 flex flex-col lg:flex-row items-center justify-center bg-white dark:bg-black w-full gap-4 mx-auto px-8">
         <Card title="Improving recruitment through technology, forming strategic alliances for temporary staffing, and enhancing pay and working conditions can help alleviate these staffing issues​." text="The healthcare industry is experiencing significant challenges in hiring and keeping staff, with job vacancies peaking at 9.2% in 2022, far above the usual 4.2%​​​." link="https://www.advisory.com/daily-briefing/2023/01/04/healthcare-2023">
           <CanvasRevealEffect
             animationSpeed={3}

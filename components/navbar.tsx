@@ -2,10 +2,7 @@
 import React from "react";
 import { FloatingNav } from "./ui/floating-navbar";
 import { IconHome } from "@tabler/icons-react";
-import { Contact, BookOpenCheck } from "lucide-react";
-import { HeroSection } from '@/components/hero';
-import { ProblemSolution } from '@/components/problem-solution';
-import { GlowingStarsTeam } from '@/components/team';
+import { Contact, Fullscreen, BookOpenCheck } from "lucide-react";
 
 export function FloatingNavDemo() {
   const navItems = [
@@ -24,6 +21,11 @@ export function FloatingNavDemo() {
       link: "#team",
       icon: <Contact className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
+    {
+      name: "Preview",
+      link: "#preview",
+      icon: <Fullscreen className="h-4 w-4 text-neutral-500 dark:text-white" />,
+    },
   ];
 
   return (
@@ -37,9 +39,6 @@ export function FloatingNavDemo() {
 const DummyContent = () => {
   return (
     <div>
-      <section id="hero"><HeroSection /></section>
-      <section id="issues"><ProblemSolution /></section>
-      <section id="team"><GlowingStarsTeam /></section>
     </div>
   );
 };
