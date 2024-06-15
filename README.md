@@ -8,7 +8,7 @@ Welcome to the MediAssist app repository for HackOps 1.0!
 
 ## Features
 
-- **Emergency Flow**: Quickly access first aid instructions, locate nearby hospitals and pharmacies, and notify emergency contacts.
+- **Emergency Flow**: Quickly access first aid instructions, locate nearby hospitals and pharmacies, and notify emergency contacts
 - **Symptom Checker**: Enter symptoms to receive AI-powered medical advice and relevant information.
 - **Hospital and Pharmacy Finder**: View nearby hospitals and pharmacies on a map, with contact information and navigation options.
 - **Medication Information**: Search for medications, view detailed information, save to profile, and set dosage reminders.
