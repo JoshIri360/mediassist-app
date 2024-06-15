@@ -1,16 +1,11 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useState, useEffect } from "react";
-import Image from "next/image";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
+  CarouselItem
 } from "@/components/ui/carousel";
 import {
   CarIcon,
@@ -19,7 +14,10 @@ import {
   PhoneIcon,
   StarIcon,
 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
 // Define types for hospital data
 interface Hospital {
@@ -86,28 +84,29 @@ export default function HospitalPage() {
         <CardContent>
           <div className="flex w-full">
             {hospital.photos && hospital.photos.length > 0 ? (
-              <Carousel className="w-full max-w-xs py-2">
+              <Carousel className="w-full max-w-xs py-2 ">
                 <CarouselContent>
                   {hospital.photos.map((photo, index) => (
                     <CarouselItem key={index}>
-                      <div className="p-1">
+                      <div className="p-1 w-72 h-48 aspect-video rounded-3xl">
                         <Image
                           src={`https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}`}
                           alt={`${hospital.name} image ${index + 1}`}
                           width={300}
                           height={200}
+                          objectFit="cover"
                           className="rounded-md"
                         />
                       </div>
                     </CarouselItem>
                   ))}
                 </CarouselContent>
-                {/* <CarouselPrevious />
-                <CarouselNext /> */}
               </Carousel>
             ) : (
-              <div className="w-full max-w-xs mx-auto h-[200px] bg-gray-200 flex items-center justify-center rounded-md">
-                <p>No images available</p>
+              <div className="w-full max-w-xs py-2">
+                <div className="w-full max-w-xs mx-auto h-[200px] bg-gray-200 flex items-center justify-center rounded-md">
+                  <p>No images available</p>
+                </div>
               </div>
             )}
           </div>
@@ -161,10 +160,6 @@ export default function HospitalPage() {
                 >
                   {hospital.opening_hours.open_now ? "Open" : "Closed"}
                 </div>
-                {/* <div className="text-sm text-gray-500 dark:text-gray-400">
-                  {hospital.opening_hours.weekday_text?.join(", ") ||
-                    "Open now: Not available"}
-                </div> */}
               </div>
             )}
             <div className="mt-2">
@@ -174,10 +169,16 @@ export default function HospitalPage() {
               </p>
             </div>
           </div>
-          <Button size="lg" className="w-full mt-4 bg-black text-white">
-            <CarIcon className="w-5 h-5 mr-2" />
-            Call an Uber
-          </Button>
+          <div className="flex space-x-0 md:space-x-4 md:flex-row flex-col">
+            <Button size="lg" className="w-full mt-4 bg-black text-white">
+              <CarIcon className="w-5 h-5 mr-2" />
+              Call an Uber
+            </Button>
+            <Button size="lg" className="w-full mt-4 bg-black text-white">
+              <CarIcon className="w-5 h-5 mr-2" />
+              Call an Uber
+            </Button>
+          </div>
         </CardContent>
       </Card>
     </div>
