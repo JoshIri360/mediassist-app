@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { db } from "@/firebase";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 
 import {
   Table,
@@ -26,8 +27,10 @@ import {
 export default function DoctorPatientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [newPatient, setNewPatient] = useState({ userId: "", name: "", condition: "" });
-  const [patients, setPatients] = useState([]);
+  const [patient, setPatient] = useState([]);
 
+
+  
   // Mock patient data
   const patients = [
     {
@@ -55,6 +58,8 @@ export default function DoctorPatientsPage() {
       patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.condition.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  
+
 
   return (
     <div className="container mx-auto p-4">
