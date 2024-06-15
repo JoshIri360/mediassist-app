@@ -247,11 +247,11 @@ export default function MedicalFacilitiesMap() {
             href={`/protected/patient/hospitals/${facility.place_id}`}
             key={facility.place_id}
           >
-            <Card className="mb-2 hover:shadow-lg transition-shadow duration-300">
-              <CardHeader>
-                <CardTitle>{facility.name}</CardTitle>
+            <Card className="mb-2 hover:shadow-lg transition-shadow duration-300 p-0">
+              <CardHeader className="pb-0 p-3">
+                <CardTitle >{facility.name}</CardTitle>
               </CardHeader>
-              <CardContent>
+              <CardContent className="p-3 pt-0">
                 <p>{facility.vicinity}</p>
                 {facility.rating && <p>Rating: {facility.rating}</p>}
                 <p>

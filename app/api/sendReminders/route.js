@@ -78,7 +78,6 @@ export async function POST(req) {
         console.log("Start date: ", startDate);
         console.log("End date: ", endDate);
 
-        // Check if the current date falls within the medication's start and end dates
         if (now >= startDate && now <= endDate) {
           console.log("Medication is active", med.name);
           const timesToTake = med.times.filter((time) => {
@@ -97,7 +96,6 @@ export async function POST(req) {
             console.log("Current time: ", now);
             console.log("Time difference: ", timeDiff / 1000 / 60, "minutes");
 
-            // Check if the current time is within one hour of the medication time
             return timeDiff <= oneHourInMs;
           });
 
