@@ -76,12 +76,15 @@ export default function MedicalFacilitiesMap() {
 
   const getCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
+      console.log("Geolocation is supported!");
       navigator.geolocation.getCurrentPosition(
         (position: GeolocationPosition) => {
+          console.log("Getting current location...");
           const pos: LatLngLiteral = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
+          console.log("Current location:", pos);
           setCenter(pos);
           if (map) {
             map.setCenter(pos);
