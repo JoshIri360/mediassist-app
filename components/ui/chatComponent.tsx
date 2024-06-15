@@ -79,7 +79,9 @@ export default function ChatComponent() {
           </Button>
         </DrawerTrigger>
         <DrawerContent className="flex flex-col w-[20rem] md:w-[30rem] lg:w-[25rem] h-[70vh] md:h-[60vh] lg:h-[80vh]">
-          <h1 className="flex justify-center text-2xl font-semibold">AI Chabot</h1>
+          <h1 className="flex justify-center text-2xl font-semibold">
+            AI Chabot
+          </h1>
           <DrawerHeader className="flex items-center justify-center z-10 opacity-70 px-4 py-3">
             <h3 className="text-lg font-medium">
               Your Personal Medical Companion
@@ -172,14 +174,14 @@ function MessageSquareIcon(props: React.SVGProps<SVGSVGElement>) {
       <path
         d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z"
         stroke="white"
-        stroke-width="2"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinejoin="round"
       />
       <path
         d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z"
         stroke="white"
-        stroke-width="2"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinejoin="round"
       />
     </svg>
   );
