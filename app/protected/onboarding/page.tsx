@@ -148,6 +148,13 @@ const OnboardingStep1Content: React.FC = () => {
   });
 
   const [currentStep, setCurrentStep] = useState(1);
+  const handleBack = () => {
+    if (currentStep === 2) {
+      setCurrentStep(1);
+    } else {
+      navigate(-1);
+    }
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -200,7 +207,7 @@ const OnboardingStep1Content: React.FC = () => {
         <p>Elevate your workflow with Fremen. Elevate your workflow with Fremen. Elevate your workflow with Fremen. Elevate your workflow with Fremen.</p>
       </Sidebar>
       <FormContainer>
-        <BackArrow onClick={() => navigate(-1)} />
+      <BackArrow onClick={handleBack} style={{ visibility: currentStep === 1 ? 'hidden' : 'visible' }} />
         <Title>Patient Onboarding</Title>
         <Subtitle>{currentStep === 1 ? 'Please enter your personal details' : 'Please provide your medical history'}</Subtitle>
         <ProgressBar>
