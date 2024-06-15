@@ -129,7 +129,7 @@ export function MedicationsForm({
   };
 
   return (
-    <>
+    <div>
       <main className="flex-1 p-4 md:p-6 px-0 md:px-0 w-full">
         {isFormOpen && (
           <div
@@ -294,43 +294,91 @@ export function MedicationsForm({
                               </FormControl>
                             )}
                           />
-                        )
-                        )}
+                        ))}
                       </div>
                       <FormMessage />
                     </FormItem>
                   )}
-                  <div className="flex justify-center pt-3">
-                    <Button type="submit">Add Medication</Button>
-                  </div>
+                  <Button type="submit">Add Medication</Button>
                 </form>
               </Form>
             </div>
           </div>
         )}
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {medications.map((med, index) => (
-            <div key={index} className="p-4 border rounded-md">
-              <h2 className="text-xl font-bold">{med.name}</h2>
-              <p>Dosage: {med.dosage}</p>
-              <p>
-                Frequency: {med.frequency}{" "}
-                {med.frequency === "1" ? "time" : "times"} per day
-              </p>
-              <p>Times: {med.times && med.times.join(", ")}</p>
-
-              <p>Start Date: {med.startDate}</p>
-              <p>End Date: {med.endDate}</p>
-              <a
-                href={`tel:${med.pharmacyContact}`}
-                className="text-blue-500 underline"
-              >
-                Contact Pharmacy
-              </a>
-            </div>
-          ))}
+        <div className="border shadow-sm rounded-lg">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Dosage</TableHead>
+                <TableHead>Frequency</TableHead>
+                <TableHead>Times</TableHead>
+                <TableHead>Start Date</TableHead>
+                <TableHead>End Date</TableHead>
+                <TableHead className="w-[80px]">Ask AI</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={7} className="font-bold bg-gray-100">
+                  Current Medications
+                </TableCell>
+              </TableRow>
+              {medications
+                .filter(
+                  (med) => !med.endDate || new Date(med.endDate) >= new Date()
+                )
+                .map((med, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{med.name}</TableCell>
+                    <TableCell>{med.dosage}</TableCell>
+                    <TableCell>
+                      {med.frequency} {med.frequency === "1" ? "time" : "times"}{" "}
+                      per day
+                    </TableCell>
+                    <TableCell>{med.times && med.times.join(", ")}</TableCell>
+                    <TableCell>{med.startDate}</TableCell>
+                    <TableCell>{med.endDate}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" className="w-8 h-8">
+                        <SparkleIcon className="h-4 w-4" />
+                        <span className="sr-only">Ask AI</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              <TableRow>
+                <TableCell colSpan={7} className="font-bold bg-gray-100">
+                  Past Medications
+                </TableCell>
+              </TableRow>
+              {medications
+                .filter(
+                  (med) => med.endDate && new Date(med.endDate) < new Date()
+                )
+                .map((med, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium">{med.name}</TableCell>
+                    <TableCell>{med.dosage}</TableCell>
+                    <TableCell>
+                      {med.frequency} {med.frequency === "1" ? "time" : "times"}{" "}
+                      per day
+                    </TableCell>
+                    <TableCell>{med.times && med.times.join(", ")}</TableCell>
+                    <TableCell>{med.startDate}</TableCell>
+                    <TableCell>{med.endDate}</TableCell>
+                    <TableCell>
+                      <Button variant="ghost" size="icon" className="w-8 h-8">
+                        <SparkleIcon className="h-4 w-4" />
+                        <span className="sr-only">Ask AI</span>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
         </div>
       </main>
-    </>
+    </div>
   );
 }

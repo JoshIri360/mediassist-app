@@ -1,5 +1,6 @@
 "use client";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -15,6 +16,7 @@ import {
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
+import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import usePlacesAutocomplete, {
   getGeocode,
@@ -59,7 +61,6 @@ export default function MedicalFacilitiesMap() {
       location.lng()
     );
     const centerCoords = new google.maps.LatLng(center.lat, center.lng);
-    console.log(google.maps.geometry);
     const distance = google?.maps?.geometry?.spherical?.computeDistanceBetween(
       facilityCoords,
       centerCoords
@@ -242,14 +243,24 @@ export default function MedicalFacilitiesMap() {
       <div className="mt-4">
         <h2 className="text-xl font-semibold mb-2">Facility List</h2>
         {facilities.map((facility) => (
-          <div key={facility.place_id} className="mb-2 p-2 border rounded">
-            <h3 className="font-bold">{facility.name}</h3>
-            <p>{facility.vicinity}</p>
-            {facility.rating && <p>Rating: {facility.rating}</p>}
-            <p>
-              {(calculateDistance(facility, center) / 1000).toFixed(2)} km away
-            </p>
-          </div>
+          <Link
+            href={`/protected/patient/hospitals/${facility.place_id}`}
+            key={facility.place_id}
+          >
+            <Card className="mb-2 hover:shadow-lg transition-shadow duration-300">
+              <CardHeader>
+                <CardTitle>{facility.name}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p>{facility.vicinity}</p>
+                {facility.rating && <p>Rating: {facility.rating}</p>}
+                <p>
+                  {(calculateDistance(facility, center) / 1000).toFixed(2)} km
+                  away
+                </p>
+              </CardContent>
+            </Card>
+          </Link>
         ))}
       </div>
     </div>
