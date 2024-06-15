@@ -265,7 +265,7 @@ export default function MedicalFacilitiesMap() {
                     <StarIcon
                       key={index}
                       className={`w-4 h-4 ${
-                        index < Math.floor(facility.rating)
+                        index < Math.floor(facility.rating || 0)
                           ? "fill-primary"
                           : "fill-muted stroke-muted-foreground"
                       }`}
