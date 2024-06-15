@@ -1,3 +1,5 @@
+"use client"
+
 import Link from "next/link";
 import {
   Tablets,
@@ -19,12 +21,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { CircleUserRound } from "lucide-react";
 import ChatComponent from "@/components/ui/chatComponent";
+import { usePathname } from "next/navigation";
 
 export default function DoctorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+
+  const pathname = usePathname();
+
   function formatDate(date: Date) {
     const options: Intl.DateTimeFormatOptions = {
       weekday: "long" as const,
@@ -37,6 +43,8 @@ export default function DoctorLayout({
 
   const date = formatDate(new Date());
 
+  const isActiveLink = (path: string) => pathname === path;
+
   return (
     <div className="flex flex-1 w-full">
       <input type="checkbox" id="sidebar-toggle" className="hidden peer" />
@@ -48,7 +56,11 @@ export default function DoctorLayout({
         </Link>
         <Link
           href="/protected/patient"
-          className="flex w-full items-center rounded-lg bg-gray-200 px-4 py-2 text-sm font-medium text-gray-800 hover:bg-gray-300"
+          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+            isActiveLink("/protected/patient")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          }`}
           prefetch={false}
         >
           <Tablets className="mr-2 h-4 w-4" />
@@ -56,7 +68,11 @@ export default function DoctorLayout({
         </Link>
         <Link
           href="/protected/patient/hospitals"
-          className="flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+            isActiveLink("/protected/patient/hospitals")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          }`}
           prefetch={false}
         >
           <Hospital className="mr-2 h-4 w-4" />
@@ -64,7 +80,11 @@ export default function DoctorLayout({
         </Link>
         <Link
           href="/protected/patient/users"
-          className="flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+            isActiveLink("/protected/patient/users")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          }`}
           prefetch={false}
         >
           <UsersIcon className="mr-2 h-4 w-4" />
@@ -72,7 +92,11 @@ export default function DoctorLayout({
         </Link>
         <Link
           href="/protected/patient/settings"
-          className="flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+            isActiveLink("/protected/patient/settings")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+          }`}
           prefetch={false}
         >
           <SettingsIcon className="mr-2 h-4 w-4" />
