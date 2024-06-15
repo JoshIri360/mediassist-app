@@ -5,8 +5,7 @@ import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { db } from "@/firebase";
-const [newPatient, setNewPatient] = useState({ userId: "", name: "", condition: "" });
-  const [patients, setPatients] = useState([]);
+
 import {
   Table,
   TableBody,
@@ -26,6 +25,8 @@ import {
 
 export default function DoctorPatientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
+  const [newPatient, setNewPatient] = useState({ userId: "", name: "", condition: "" });
+  const [patients, setPatients] = useState([]);
 
   // Mock patient data
   const patients = [
