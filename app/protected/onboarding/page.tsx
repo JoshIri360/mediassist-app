@@ -5,7 +5,8 @@ import styled, { ThemeProvider } from 'styled-components';
 import { useNavigate, BrowserRouter as Router } from 'react-router-dom';
 import { IoIosArrowBack } from 'react-icons/io'; // Import the icon
 
-// Define your theme object
+
+
 const theme = {
   colors: {
     primary: '#6200ea',
@@ -134,26 +135,63 @@ const Form = styled.form`
   }
 `;
 
+
 const OnboardingStep1Content: React.FC = () => {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
     age: '',
-    weight: ''
+    weight: '',
+    familyHistory: '',
+    immunization: '',
+    allergies: '',
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
+  };
+
+  const Step1Form = () => {
+    return (
+      <Form onSubmit={handleSubmit}>
+        <label>Name</label>
+        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
+        <label>Age</label>
+        <input type="number" name="age" value={formData.age} onChange={handleChange} required />
+        <label>Weight (kg)</label>
+        <input type="number" name="weight" value={formData.weight} onChange={handleChange} required />
+        <button type="submit">Next</button>
+      </Form>
+    );
+  };
+  
+  const Step2Form = () => {
+    return (
+      <Form onSubmit={handleSubmit}>
+        <label>Family Medical History</label>
+        <textarea name="familyHistory" value={formData.familyHistory} onChange={handleChange} required />
+        <label>Immunization Records</label>
+        <textarea name="immunization" value={formData.immunization} onChange={handleChange} required />
+        <label>Allergies</label>
+        <textarea name="allergies" value={formData.allergies} onChange={handleChange} required />
+        <button type="submit">Submit</button>
+      </Form>
+    );
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (currentStep === 1) {
+      setCurrentStep(2);
+    } else{
     localStorage.setItem('onboardingData', JSON.stringify(formData));
-    navigate('/onboarding-step2');
-  };
+    console.log(formData);
+  }};
 
   return (
     <Container>
@@ -164,20 +202,12 @@ const OnboardingStep1Content: React.FC = () => {
       <FormContainer>
         <BackArrow onClick={() => navigate(-1)} />
         <Title>Patient Onboarding</Title>
-        <Subtitle>Please enter your personal details</Subtitle>
+        <Subtitle>{currentStep === 1 ? 'Please enter your personal details' : 'Please provide your medical history'}</Subtitle>
         <ProgressBar>
-          <span>1 of 2</span>
+          <span>{currentStep} of 2</span>
           <div></div>
         </ProgressBar>
-        <Form onSubmit={handleSubmit}>
-          <label>Name</label>
-          <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-          <label>Age</label>
-          <input type="number" name="age" value={formData.age} onChange={handleChange} required />
-          <label>Weight (kg)</label>
-          <input type="number" name="weight" value={formData.weight} onChange={handleChange} required />
-          <button type="submit">Next</button>
-        </Form>
+        {currentStep === 1 ? <Step1Form /> : <Step2Form />}
       </FormContainer>
     </Container>
   );
