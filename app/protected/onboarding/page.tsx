@@ -1,13 +1,10 @@
 "use client";
 
-import React, { useState, ChangeEvent, FormEvent } from "react";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { PlusCircle, X } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Progress } from "@/components/ui/progress";
 import {
   Select,
   SelectContent,
@@ -15,12 +12,25 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
+import {
+  addDoc,
+  collection,
+  deleteDoc,
+  doc,
+  getDocs,
+  updateDoc,
+} from "firebase/firestore";
+import { PlusCircle, X } from "lucide-react";
+import { ChangeEvent, FormEvent, useState } from "react";
 
 type Medication = {
   name: string;
   frequency: string;
   dosage: string;
   startDate: string;
+  endDate: string;
   times: string[];
 };
 
@@ -40,6 +50,8 @@ interface FormData {
 }
 
 export default function MedicalOnboarding() {
+  const { user } = useAuthContext();
+
   const [formData, setFormData] = useState<FormData>({
     name: "",
     age: "",
@@ -48,7 +60,14 @@ export default function MedicalOnboarding() {
     allergies: "",
     immunizations: "",
     medications: [
-      { name: "", frequency: "", dosage: "", startDate: "", times: [] },
+      {
+        name: "",
+        frequency: "",
+        dosage: "",
+        startDate: "",
+        endDate: "",
+        times: [],
+      },
     ],
     gender: "",
     phoneNumber: "",
@@ -75,7 +94,14 @@ export default function MedicalOnboarding() {
       ...prev,
       medications: [
         ...prev.medications,
-        { name: "", frequency: "", dosage: "", startDate: "", times: [] },
+        {
+          name: "",
+          frequency: "",
+          dosage: "",
+          startDate: "",
+          endDate: "",
+          times: [],
+        },
       ],
     }));
     calculateProgress();
@@ -124,12 +150,50 @@ export default function MedicalOnboarding() {
     setProgress(newProgress);
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (currentPage < 2) {
+    if (currentPage < 2 && user) {
       setCurrentPage(currentPage + 1);
     } else {
       console.log("Form Data:", formData);
+      try {
+        console.log(user?.uid);
+        if (!user?.uid) return;
+        const userDocRef = doc(db, "users", user.uid);
+
+        // Prepare the user data
+        const userData = {
+          address: formData.address,
+          age: formData.age,
+          allergies: formData.allergies,
+          bloodType: formData.bloodType,
+          familyHistory: formData.familyHistory,
+          gender: formData.gender,
+          immunizations: formData.immunizations,
+          name: formData.name,
+          pastSurgeries: formData.pastSurgeries,
+          phoneNumber: formData.phoneNumber,
+          weight: formData.weight,
+          medications: [...formData.medications],
+        };
+
+        await updateDoc(userDocRef, userData);
+
+        const medicationsCollectionRef = collection(userDocRef, "medications");
+
+        const existingMeds = await getDocs(medicationsCollectionRef);
+        existingMeds.forEach(async (doc) => {
+          await deleteDoc(doc.ref);
+        });
+
+        for (const medication of formData.medications) {
+          await addDoc(medicationsCollectionRef, medication);
+        }
+
+        console.log("User data and medications updated successfully");
+      } catch (error) {
+        console.error("Error updating user data:", error);
+      }
     }
   };
 
@@ -259,14 +323,6 @@ export default function MedicalOnboarding() {
                     Family Medical History (enter &quot;none&quot; or
                     &quot;unknown&quot; if applicable)
                   </Label>
-                  {/* <Textarea
-                    id="familyHistory"
-                    name="familyHistory"
-                    value={formData.familyHistory}
-                    onChange={handleInputChange}
-                    placeholder="Enter your family medical history"
-                    className="min-h-[100px]"
-                  /> */}
                   <Input
                     id="familyHistory"
                     name="familyHistory"
@@ -360,6 +416,14 @@ export default function MedicalOnboarding() {
                                 "startDate",
                                 e.target.value
                               )
+                            }
+                          />
+                          <Input
+                            type="date"
+                            placeholder="End Date"
+                            value={medication.endDate}
+                            onChange={(e) =>
+                              updateMedication(index, "endDate", e.target.value)
                             }
                           />
                         </div>
