@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { JSX, SVGProps, useState } from "react";
 import { toast } from "react-hot-toast";
-  
+
 export default function Page() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -53,7 +53,7 @@ export default function Page() {
           <div>
             <h2 className="text-3xl font-bold text-center">Sign in</h2>
             <p className="mt-2 text-center text-gray-500 dark:text-gray-400">
-              Enter your email and password to create your account.
+              Enter your email and password to sign in to your account.
             </p>
           </div>
           <form className="space-y-3" onSubmit={handleForm}>
@@ -82,15 +82,6 @@ export default function Page() {
               Sign in
             </Button>
           </form>
-          <div className="flex items-center justify-center">
-            <div className="w-full border-b border-gray-300 dark:border-gray-700" />
-            <div className="px-4 bg-white dark:bg-gray-950">or</div>
-            <div className="w-full border-b border-gray-300 dark:border-gray-700" />
-          </div>
-          <Button variant="outline" className="w-full">
-            <ChromeIcon className="mr-2 h-5 w-5" />
-            Sign in with Google
-          </Button>
           <div className="text-center">
             <Link className="btn-2 underline" href="/signup">
               Don&apos;t have an account? Sign up

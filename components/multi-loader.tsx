@@ -20,21 +20,18 @@ export function MultiStepLoaderDemo() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Calculate the total duration of the loading sequence
-    const totalDuration = loadingStates.length * 1000;
+    const totalDuration = loadingStates.length * 700;
 
-    // Set a timeout to change the loading state to false after the sequence completes
     const timer = setTimeout(() => {
       setLoading(false);
     }, totalDuration);
 
-    // Clean up the timer on component unmount
     return () => clearTimeout(timer);
   }, []);
 
   return (
     <div className="w-full flex items-center justify-center bg-black">
-      <Loader loadingStates={loadingStates} loading={loading} duration={1000} />
+      <Loader loadingStates={loadingStates} loading={loading} duration={700} />
     </div>
   );
 }
