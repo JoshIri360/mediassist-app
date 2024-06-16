@@ -4,8 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { db } from "@/firebase";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+ import { collection, getDocs, addDoc } from "firebase/firestore";
 
 import {
   Table,

@@ -16,8 +16,7 @@ import {
   Hospital,
   Menu,
   SettingsIcon,
-  Tablets,
-  UsersIcon,
+  Tablets
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
