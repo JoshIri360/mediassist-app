@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { customAlphabet } from 'nanoid';
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -48,6 +49,7 @@ interface FormData {
   address: string;
   bloodType: string;
   pastSurgeries: string;
+  userId: string;
 }
 
 export default function MedicalOnboarding() {
@@ -75,6 +77,7 @@ export default function MedicalOnboarding() {
     address: "",
     bloodType: "",
     pastSurgeries: "",
+    userId: "",
   });
 
   const [currentPage, setCurrentPage] = useState<number>(1);
@@ -162,6 +165,11 @@ export default function MedicalOnboarding() {
         if (!user?.uid) return;
         const userDocRef = doc(db, "users", user.uid);
 
+        const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        const nanoid = customAlphabet(alphabet, 5);
+        
+        const userId = nanoid();
+
         const userData = {
           address: formData.address,
           age: formData.age,
@@ -176,6 +184,7 @@ export default function MedicalOnboarding() {
           weight: formData.weight,
           medications: [...formData.medications],
           onboarded: true,
+          userId,
         };
 
         await updateDoc(userDocRef, userData);
