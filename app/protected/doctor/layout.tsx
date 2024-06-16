@@ -85,7 +85,7 @@ export default function DoctorLayout({
   const isActiveLink = (path: string) => pathname === path;
 
   return (
-    <div className="flex flex-1 w-full h-screen overflow-hidden bg-slate-600">
+    <div className="flex flex-1 w-full h-screen overflow-hidden">
       <input type="checkbox" id="sidebar-toggle" className="hidden peer" />
       <nav className="fixed inset-y-0 left-0 z-20 w-60 -translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 shrink-0 flex flex-col items-start justify-start bg-gray-100 p-4 h-screen overflow-y-auto">
         <Link href="#" className="flex justify-center w-full" prefetch={false}>
