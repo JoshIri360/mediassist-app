@@ -11,7 +11,7 @@ export default function ProtectedLayout({
   const { user } = useAuthContext();
 
   return (
-    <div className="flex flex-col min-h-screen w-screen">
+    <div className="">
       <div className="flex flex-1">
         {children}
         <ChatComponent />

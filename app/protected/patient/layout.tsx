@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   Bell,
   CircleUserRound,
@@ -22,12 +23,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
 
-export default function DoctorLayout({
+export default function PatientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const { user } = useAuthContext();
+
+  console.log("User", user);
 
   function formatDate(date: Date) {
     const options: Intl.DateTimeFormatOptions = {
