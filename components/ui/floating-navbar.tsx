@@ -22,7 +22,7 @@ export const FloatingNav = ({
 }) => {
   const { scrollYProgress } = useScroll();
 
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true); // Start with visible set to true
 
   useMotionValueEvent(scrollYProgress, "change", (current) => {
     // Check if current is not undefined and is a number
@@ -30,7 +30,7 @@ export const FloatingNav = ({
       let direction = current! - scrollYProgress.getPrevious()!;
 
       if (scrollYProgress.get() < 0.05) {
-        setVisible(false);
+        setVisible(true); // Make visible when at the top of the page
       } else {
         if (direction < 0) {
           setVisible(true);
@@ -46,7 +46,7 @@ export const FloatingNav = ({
       <motion.div
         initial={{
           opacity: 1,
-          y: -100,
+          y: 0, // Start at y: 0 instead of y: -100
         }}
         animate={{
           y: visible ? 0 : -100,
