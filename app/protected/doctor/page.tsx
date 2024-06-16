@@ -31,7 +31,7 @@ export default function DoctorPatientsPage() {
     name: "",
     condition: "",
   });
-  const [patient, setPatient] = useState([]);
+  const [patientkey, setPatient] = useState<{ id: number; name: string; condition: string; lastVisit: string; }[]>([]);
 
 
 
@@ -39,16 +39,28 @@ export default function DoctorPatientsPage() {
     try {
       // Search for the user in the "patients" collection
       const querySnapshot = await getDocs(
-        query(collection(db, "patients"), where("userId", "==", userId))
+        query(collection(db, "users"), where("userId", "==", userId))
       );
   
       if (!querySnapshot.empty) {
-        const patientData = querySnapshot.docs[0].data();
+        const patientData = querySnapshot.docs[0].data() as { id: number; name: string; condition: string; lastVisit: string; };
         console.log("Patient found:", patientData);
         // Return the patient data or update the state with the retrieved information
         return patientData;
       } else {
         console.log("No patient found with the given user ID");
+      }
+    } catch (error) {
+      console.error("Error searching for patient:", error);
+    }
+  };
+
+  const handleSearch = async (userId:any) => {
+    try {
+      const patientData = await handleSearchPatient(userId);
+      if (patientData) {
+        // Add the retrieved patient data to the existing patients list
+        setPatient([...patientkey, patientData]);
       }
     } catch (error) {
       console.error("Error searching for patient:", error);
@@ -77,7 +89,7 @@ export default function DoctorPatientsPage() {
     },
   ];
 
-  const filteredPatients = patients.filter(
+  const filteredPatients = [...patientkey, ...patients].filter(
     (patient) =>
       patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.condition.toLowerCase().includes(searchTerm.toLowerCase())
@@ -106,8 +118,17 @@ export default function DoctorPatientsPage() {
                 list.
               </DialogDescription>
             </DialogHeader>
-            <Input type="text" placeholder="Enter hospital number" />
-            <Button>Add Patient</Button>
+            <Input
+              type="text"
+              placeholder="Enter user ID"
+              value={newPatient.userId}
+              onChange={(e) =>
+                setNewPatient({ ...newPatient, userId: e.target.value })
+              }
+            />
+            <Button onClick={() => handleSearch(newPatient.userId)}>
+              Add Patient
+            </Button>
           </DialogContent>
         </Dialog>
       </div>
