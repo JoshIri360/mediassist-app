@@ -1,16 +1,7 @@
-"use client"
+"use client";
 
-import Link from "next/link";
-import {
-  Tablets,
-  Hospital,
-  UsersIcon,
-  SettingsIcon,
-  Bell,
-  Menu,
-} from "lucide-react";
-import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
+import ChatComponent from "@/components/ui/chatComponent";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,16 +10,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CircleUserRound } from "lucide-react";
-import ChatComponent from "@/components/ui/chatComponent";
+import {
+  Bell,
+  CircleUserRound,
+  Hospital,
+  Menu,
+  SettingsIcon,
+  Tablets,
+  UsersIcon,
+} from "lucide-react";
+import Link from "next/link";
 import { usePathname } from "next/navigation";
+import React from "react";
 
 export default function DoctorLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-
   const pathname = usePathname();
 
   function formatDate(date: Date) {
@@ -46,53 +45,49 @@ export default function DoctorLayout({
   const isActiveLink = (path: string) => pathname === path;
 
   return (
-    <div className="flex flex-1 w-full">
+    <div className="flex flex-1 w-full h-screen overflow-hidden">
       <input type="checkbox" id="sidebar-toggle" className="hidden peer" />
-      <nav className="fixed inset-y-0 left-0 z-10 w-60 -translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 shrink-0 flex-col items-start justify-start gap-2 bg-gray-100 p-4">
-        <Link href="#" className="flex justify-center w-full" prefetch={false}>
-          <span className="text-lg font-bold text-black py-4 text-center">
+      <nav className="fixed inset-y-0 left-0 z-20 w-60 -translate-x-full peer-checked:translate-x-0 transition-transform duration-300 ease-in-out md:relative md:translate-x-0 shrink-0 flex flex-col items-start justify-start bg-gray-100 p-4 h-screen overflow-y-auto">
+        <Link
+          href="#"
+          className="flex justify-center w-full mb-4"
+          prefetch={false}
+        >
+          <span className="text-lg font-bold text-black text-center">
             MediAssist
           </span>
         </Link>
-        <Link
-          href="/protected/patient"
-          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-            isActiveLink("/protected/patient")
-              ? "bg-primary text-white"
-              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-          }`}
-          prefetch={false}
-        >
-          <Tablets className="mr-2 h-4 w-4" />
-          Medications
-        </Link>
-        <Link
-          href="/protected/patient/hospitals"
-          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-            isActiveLink("/protected/patient/hospitals")
-              ? "bg-primary text-white"
-              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-          }`}
-          prefetch={false}
-        >
-          <Hospital className="mr-2 h-4 w-4" />
-          Locate Hospitals
-        </Link>
-        <Link
-          href="/protected/patient/users"
-          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-            isActiveLink("/protected/patient/users")
-              ? "bg-primary text-white"
-              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-          }`}
-          prefetch={false}
-        >
-          <UsersIcon className="mr-2 h-4 w-4" />
-          Users
-        </Link>
+
+        <div className="flex flex-col w-full space-y-2 mb-auto">
+          <Link
+            href="/protected/patient"
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+              isActiveLink("/protected/patient")
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+            }`}
+            prefetch={false}
+          >
+            <Tablets className="mr-2 h-4 w-4" />
+            Medications
+          </Link>
+          <Link
+            href="/protected/patient/hospitals"
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+              isActiveLink("/protected/patient/hospitals")
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+            }`}
+            prefetch={false}
+          >
+            <Hospital className="mr-2 h-4 w-4" />
+            Locate Hospitals
+          </Link>
+        </div>
+
         <Link
           href="/protected/patient/settings"
-          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium mt-auto ${
             isActiveLink("/protected/patient/settings")
               ? "bg-primary text-white"
               : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
@@ -103,8 +98,8 @@ export default function DoctorLayout({
           Settings
         </Link>
       </nav>
-      <div className="flex flex-col min-h-screen w-full">
-        <header className="sticky top-0 flex h-16 w-full items-center bg-white px-4 md:px-6 border-b border-[#E4E7EC]">
+      <div className="flex flex-col w-full h-screen overflow-hidden">
+        <header className="fixed ml-0 md:ml-60 top-0 left-0 right-0 z-10 flex h-16 items-center bg-white px-4 md:px-6 border-b border-[#E4E7EC]">
           <Link
             href="#"
             className="flex items-center gap-2 text-[#6C6C6C] text-xl font-semibold"
@@ -138,15 +133,17 @@ export default function DoctorLayout({
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem><Link href="/profile">Profile</Link></DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/profile">Profile</Link>
+                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Logout</DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>
         </header>
-        <div className="flex flex-1">
-          {children}
+        <div className="flex flex-1 pt-16 overflow-hidden">
+          <div className="flex-1 overflow-y-auto">{children}</div>
           <ChatComponent />
         </div>
       </div>

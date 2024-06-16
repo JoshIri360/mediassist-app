@@ -1,280 +1,239 @@
 "use client";
 
-import React from 'react';
-import styled, { ThemeProvider } from 'styled-components';
-import { useNavigate, BrowserRouter as Router } from 'react-router-dom';
-import { Download,Printer } from 'lucide-react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
+import { doc, getDoc, updateDoc } from "firebase/firestore";
+import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 
-// Define your theme object
-const theme = {
-  colors: {
-    primary: 'blue',
-    secondary: 'green',
-  },
-};
+interface FormData {
+  name: string;
+  age: string;
+  weight: string;
+  familyHistory: string;
+  allergies: string;
+  immunizations: string;
+  gender: string;
+  phoneNumber: string;
+  address: string;
+  bloodType: string;
+  pastSurgeries: string;
+}
 
-const ProfileContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  padding: 20px;
-  width: 100%;
-  margin: 0;
-  background: white;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-  overflow-x: hidden;
-`;
+export default function Profile() {
+  const { user } = useAuthContext();
 
-const ProfileContent = styled.div`
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-`;
+  const [formData, setFormData] = useState<FormData>({
+    name: "",
+    age: "",
+    weight: "",
+    familyHistory: "",
+    allergies: "",
+    immunizations: "",
+    gender: "",
+    phoneNumber: "",
+    address: "",
+    bloodType: "",
+    pastSurgeries: "",
+  });
 
-const HeaderContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
+  useEffect(() => {
+    const fetchData = async () => {
+      if (!user?.uid) return;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
 
-const Header = styled.h1`
-  font-size: 2em;
-  font-weight: bold;
-`;
-
-const IconContainer = styled.div`
-  display: flex;
-  gap: 10px;
-`;
-
-const Icon = styled.img`
-  width: 24px;
-  height: 24px;
-  cursor: pointer;
-`;
-
-const Section = styled.div`
-  flex: 1;
-  margin: 0 10px;
-`;
-
-const ProfileInfo = styled.div`
-  margin-bottom: 10px;
-`;
-
-const Label = styled.span`
-  font-weight: bold;
-`;
-
-const Value = styled.span`
-  margin-left: 10px;
-  float: right; /* Align values to the right */
-`;
-
-const Button = styled.button`
-  padding: 10px 20px;
-  background-color: ${(props) => props.theme.colors.primary};
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  align-self: center;
-
-  &:hover {
-    background-color: ${(props) => props.theme.colors.secondary};
-  }
-`;
-
-const TableContainer = styled.div`
-  margin: 20px 0;
-`;
-
-const Table = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-  margin-bottom: 20px;
-`;
-
-const TableHeader = styled.th`
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-  text-align: left;
-`;
-
-const TableRow = styled.tr`
-  &:nth-child(even) {
-    background-color: #f9f9f9;
-  }
-`;
-
-const TableCell = styled.td`
-  border-bottom: 1px solid #ddd;
-  padding: 8px;
-`;
-
-const ProfilePageContent: React.FC = () => {
-  const navigate = useNavigate();
-
-  const user = {
-    name: 'John Doe',
-    dob: '1985-06-15',
-    gender: 'Male',
-    email: 'john.doe@example.com',
-    phone: '+1 (555) 123-4567',
-    address: '123 Main St, Anytown USA',
-    profilePicture: 'https://example.com/profile.jpg',
-  };
-
-  const medicalHistory = {
-    bloodType: 'O+',
-    allergies: ['Pollen', 'Penicillin'],
-    chronicConditions: ['Asthma', 'Hypertension'],
-    pastSurgeries: [
-      {
-        surgery: 'Appendectomy',
-        year: 2010
+      if (userDoc.exists()) {
+        setFormData(userDoc.data() as FormData);
       }
-    ],
-    immunizations: ['Flu', 'Pneumonia', 'Tetanus'],
+    };
+
+    fetchData();
+  }, [user]);
+
+  const handleInputChange = (e: any) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const currentMedications = [
-    { medication: 'Lisinopril', dosage: '10mg', frequency: 'Daily', startDate: '2022-03-15' },
-    { medication: 'Metformin', dosage: '500mg', frequency: 'Twice Daily', startDate: '2021-09-01' },
-    { medication: 'Albuterol', dosage: '90mcg', frequency: 'As Needed', startDate: '2020-11-20' },
-  ];
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!user?.uid) return;
 
-  const pastMedications = [
-    { medication: 'Atorvastatin', dosage: '20mg', frequency: 'Daily', startDate: '2019-06-01', endDate: '2021-05-31' },
-    { medication: 'Ibuprofen', dosage: '200mg', frequency: 'As Needed', startDate: '2018-02-15', endDate: '2019-01-31' },
-  ];
+    const userDocRef = doc(db, "users", user.uid);
+    await updateDoc(userDocRef, formData as any);
+
+    console.log("User data updated successfully");
+  };
 
   return (
-    <ProfileContainer>
-      <HeaderContainer>
-        <Header>Patient Medical Profile</Header>
-        <IconContainer>
-          <Printer />
-          <Download />
-        </IconContainer>
-      </HeaderContainer>
-      <hr style={{ borderColor: '#f2f2f2', borderWidth: '0.5px' }} />
-      <br />
-      <ProfileContent>
-        <Section>
-          <h2 style={{ fontWeight: "bold" }}>Personal Information</h2>
-          <ProfileInfo>
-            <Label>Name:</Label>
-            <Value>{user.name}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Date of Birth:</Label>
-            <Value>{user.dob}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Gender:</Label>
-            <Value>{user.gender}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Phone:</Label>
-            <Value>{user.phone}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Email:</Label>
-            <Value>{user.email}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Address:</Label>
-            <Value>{user.address}</Value>
-          </ProfileInfo>
-        </Section>
-        <Section>
-          <h2 style={{ fontWeight: "bold" }}>Medical History</h2>
-          <ProfileInfo>
-            <Label>Blood Type:</Label>
-            <Value>{medicalHistory.bloodType}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Allergies:</Label>
-            <Value>{medicalHistory.allergies.join(', ')}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Chronic Conditions:</Label>
-            <Value>{medicalHistory.chronicConditions.join(', ')}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Past Surgeries:</Label>
-            <Value>{medicalHistory.pastSurgeries.map(surgery => `${surgery.surgery} (${surgery.year})`).join(', ')}</Value>
-          </ProfileInfo>
-          <ProfileInfo>
-            <Label>Immunizations:</Label>
-            <Value>{medicalHistory.immunizations.join(', ')}</Value>
-          </ProfileInfo>
-        </Section>
-      </ProfileContent>
-      <br />
-      <hr style={{ borderColor: '#f2f2f2', borderWidth: '0.5px' }} />
-      <br />
-
-      <TableContainer>
-        <h2>Current Medications</h2>
-        <Table>
-          <thead>
-            <tr>
-              <TableHeader>Medication</TableHeader>
-              <TableHeader>Dosage</TableHeader>
-              <TableHeader>Frequency</TableHeader>
-              <TableHeader>Start Date</TableHeader>
-            </tr>
-          </thead>
-          <tbody>
-            {currentMedications.map((medication, index) => (
-              <TableRow key={index}>
-                <TableCell>{medication.medication}</TableCell>
-                <TableCell>{medication.dosage}</TableCell>
-                <TableCell>{medication.frequency}</TableCell>
-                <TableCell>{medication.startDate}</TableCell>
-              </TableRow>
-            ))}
-          </tbody>
-        </Table>
-      </TableContainer>
-      <TableContainer>
-        <h2>Past Medications</h2>
-        <Table>
-          <thead>
-            <tr>
-              <TableHeader>Medication</TableHeader>
-              <TableHeader>Dosage</TableHeader>
-              <TableHeader>Frequency</TableHeader>
-              <TableHeader>Start Date</TableHeader>
-              <TableHeader>End Date</TableHeader>
-            </tr>
-          </thead>
-          <tbody>
-            {pastMedications.map((medication, index) => (
-              <TableRow key={index}>
-                <TableCell>{medication.medication}</TableCell>
-                <TableCell>{medication.dosage}</TableCell>
-                <TableCell>{medication.frequency}</TableCell>
-                <TableCell>{medication.startDate}</TableCell>
-                <TableCell>{medication.endDate}</TableCell>
-              </TableRow>
-            ))}
-          </tbody>
-        </Table>
-      </TableContainer>
-    </ProfileContainer>
+    <div className="flex min-h-screen w-full p-5">
+      <div className="w-full flex items-center justify-center mx-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full px-2"
+        >
+          <div className="space-y-6">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+                Profile
+              </h1>
+              <p className="mt-2 text-lg text-gray-500 dark:text-gray-400">
+                Edit your profile information.
+              </p>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="name">Name</Label>
+                <Input
+                  id="name"
+                  name="name"
+                  value={formData.name}
+                  onChange={handleInputChange}
+                  placeholder="Enter your name"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-6">
+                <div>
+                  <Label htmlFor="age">Age</Label>
+                  <Input
+                    id="age"
+                    name="age"
+                    type="number"
+                    value={formData.age}
+                    onChange={handleInputChange}
+                    placeholder="Enter your age"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="weight">Weight (kg)</Label>
+                  <Input
+                    id="weight"
+                    name="weight"
+                    type="number"
+                    value={formData.weight}
+                    onChange={handleInputChange}
+                    placeholder="Enter your weight"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="gender">Gender</Label>
+                <Select
+                  value={formData.gender}
+                  onValueChange={(value) =>
+                    handleInputChange({ target: { name: "gender", value } })
+                  }
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Gender" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="male">Male</SelectItem>
+                    <SelectItem value="female">Female</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Input
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  value={formData.phoneNumber}
+                  onChange={handleInputChange}
+                  placeholder="07011111111"
+                />
+              </div>
+              <div>
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  name="address"
+                  value={formData.address}
+                  onChange={handleInputChange}
+                  placeholder="Enter your address"
+                />
+              </div>
+              <div>
+                <Label htmlFor="bloodType">Blood Type</Label>
+                <Input
+                  id="bloodType"
+                  name="bloodType"
+                  value={formData.bloodType}
+                  onChange={handleInputChange}
+                  placeholder="Enter your blood type"
+                />
+              </div>
+              <div>
+                <Label htmlFor="familyHistory">
+                  Family Medical History (enter &quot;none&quot; or
+                  &quot;unknown&quot; if applicable)
+                </Label>
+                <Input
+                  id="familyHistory"
+                  name="familyHistory"
+                  value={formData.familyHistory}
+                  onChange={handleInputChange}
+                  placeholder="Diabetes"
+                />
+              </div>
+              <div>
+                <Label htmlFor="allergies">
+                  Allergies (enter &quot;none&quot; or &quot;unknown&quot; if
+                  applicable)
+                </Label>
+                <Input
+                  id="allergies"
+                  name="allergies"
+                  value={formData.allergies}
+                  onChange={handleInputChange}
+                  placeholder="Peanuts, Shellfish, Pollen"
+                />
+              </div>
+              <div>
+                <Label htmlFor="immunizations">
+                  Immunization Records (enter &quot;none&quot; or
+                  &quot;unknown&quot; if applicable)
+                </Label>
+                <Input
+                  id="immunizations"
+                  name="immunizations"
+                  value={formData.immunizations}
+                  onChange={handleInputChange}
+                  placeholder="Coronavirus, Influenza, Polio"
+                />
+              </div>
+              <div>
+                <Label htmlFor="pastSurgeries">
+                  Past Surgeries (enter &quot;none&quot; or &quot;unknown&quot;
+                  if applicable)
+                </Label>
+                <Input
+                  id="pastSurgeries"
+                  name="pastSurgeries"
+                  value={formData.pastSurgeries}
+                  onChange={handleInputChange}
+                  placeholder="Appendix, Tonsils, Knee Surgery"
+                />
+              </div>
+            </div>
+            <Button type="submit" className="cursor-pointer">
+              Save
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
-};
-
-const ProfilePage: React.FC = () => {
-  return (
-    <ThemeProvider theme={theme}>
-      <Router>
-        <ProfilePageContent />
-      </Router>
-    </ThemeProvider>
-  );
-};
-
-export default ProfilePage;
+}
