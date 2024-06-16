@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
- import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, getDocs, addDoc } from "firebase/firestore";
 
 import {
   Table,
@@ -25,11 +25,13 @@ import {
 
 export default function DoctorPatientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [newPatient, setNewPatient] = useState({ userId: "", name: "", condition: "" });
+  const [newPatient, setNewPatient] = useState({
+    userId: "",
+    name: "",
+    condition: "",
+  });
   const [patient, setPatient] = useState([]);
 
-
-  
   // Mock patient data
   const patients = [
     {
@@ -57,8 +59,6 @@ export default function DoctorPatientsPage() {
       patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       patient.condition.toLowerCase().includes(searchTerm.toLowerCase())
   );
-  
-
 
   return (
     <div className="container mx-auto p-4">
@@ -79,7 +79,8 @@ export default function DoctorPatientsPage() {
             <DialogHeader>
               <DialogTitle>Add New Patient</DialogTitle>
               <DialogDescription>
-                Enter the patient&apos;s hospital number to add them to your list.
+                Enter the patient&apos;s hospital number to add them to your
+                list.
               </DialogDescription>
             </DialogHeader>
             <Input type="text" placeholder="Enter hospital number" />

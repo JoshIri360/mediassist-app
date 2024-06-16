@@ -161,7 +161,6 @@ export default function MedicalOnboarding() {
         if (!user?.uid) return;
         const userDocRef = doc(db, "users", user.uid);
 
-        // Prepare the user data
         const userData = {
           address: formData.address,
           age: formData.age,
@@ -175,6 +174,7 @@ export default function MedicalOnboarding() {
           phoneNumber: formData.phoneNumber,
           weight: formData.weight,
           medications: [...formData.medications],
+          onboarded: true,
         };
 
         await updateDoc(userDocRef, userData);
