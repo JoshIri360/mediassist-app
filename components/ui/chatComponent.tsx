@@ -79,19 +79,13 @@ export default function ChatComponent() {
           </Button>
         </DrawerTrigger>
         <DrawerContent className="flex flex-col w-[20rem] md:w-[30rem] lg:w-[25rem] h-[70vh] md:h-[60vh] lg:h-[80vh]">
-          <h1 className="flex justify-center text-2xl font-semibold">
-            AI Chabot
-          </h1>
-          <DrawerHeader className="flex items-center justify-center z-10 opacity-70 px-4 py-3">
-            <h3 className="text-lg font-medium">
+          <DrawerHeader className="flex items-center justify-center z-10 opacity-70 px-4 py-2 flex-col">
+            <h1 className="flex justify-center text-2xl font-semibold">
+              Sakura
+            </h1>
+            <h3 className="text-md font-medium">
               Your Personal Medical Companion
             </h3>
-            {/* <DrawerClose asChild>
-              <Button variant="ghost" size="icon">
-                <XIcon className="h-5 w-5" />
-                <span className="sr-only">Close</span>
-              </Button>
-            </DrawerClose> */}
           </DrawerHeader>
           <div className={"flex-1 overflow-y-auto px-4 py-6"}>
             <div className="space-y-4">
