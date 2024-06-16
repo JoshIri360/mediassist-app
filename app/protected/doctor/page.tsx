@@ -4,7 +4,8 @@ import { useState } from "react";
 import Link from "next/link";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { collection, getDocs, addDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
+import { db } from "@/firebase/config";
 
 import {
   Table,
@@ -31,6 +32,28 @@ export default function DoctorPatientsPage() {
     condition: "",
   });
   const [patient, setPatient] = useState([]);
+
+
+
+  const handleSearchPatient = async (userId: any) => {
+    try {
+      // Search for the user in the "patients" collection
+      const querySnapshot = await getDocs(
+        query(collection(db, "patients"), where("userId", "==", userId))
+      );
+  
+      if (!querySnapshot.empty) {
+        const patientData = querySnapshot.docs[0].data();
+        console.log("Patient found:", patientData);
+        // Return the patient data or update the state with the retrieved information
+        return patientData;
+      } else {
+        console.log("No patient found with the given user ID");
+      }
+    } catch (error) {
+      console.error("Error searching for patient:", error);
+    }
+  };
 
   // Mock patient data
   const patients = [
