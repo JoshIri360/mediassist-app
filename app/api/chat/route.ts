@@ -15,8 +15,16 @@ export async function POST(request: Request) {
   //     prompt: `You are a helpful assistant. You explain medical information to users in one sentence.\n\n${prompt}`,
   // });
 
-  const text =
+  let text =
     "The chat bot is currently disabled to save AI costs, but it really works, I promise!";
+
+  if (messages.length == 6) {
+    text = "Can you stop spamming me? I'm trying to help you!";
+  } else if (messages.length == 8) {
+    text = "I'm going to ignore you now. Goodbye!";
+  } else if (messages.length >= 9) {
+    text = "I'm still here, but I'm not going to respond to you anymore.";
+  }
 
   return Response.json({ text });
 }

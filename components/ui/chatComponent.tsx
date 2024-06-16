@@ -30,7 +30,6 @@ export default function ChatComponent() {
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    console.log("Input");
     e.preventDefault();
     if (!input.trim()) return;
 
@@ -43,6 +42,7 @@ export default function ChatComponent() {
 
     // Simulate API call
     setTimeout(async () => {
+      console.log("API call", messages, input);
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
