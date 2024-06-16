@@ -16,7 +16,7 @@ import {
   Hospital,
   Menu,
   SettingsIcon,
-  Tablets
+  Tablets,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -84,18 +84,20 @@ export default function DoctorLayout({
           </Link>
         </div>
 
-        <Link
-          href="/protected/patient/settings"
-          className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium mt-auto ${
-            isActiveLink("/protected/patient/settings")
-              ? "bg-primary text-white"
-              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-          }`}
-          prefetch={false}
-        >
-          <SettingsIcon className="mr-2 h-4 w-4" />
-          Settings
-        </Link>
+        <div>
+          <Link
+            href="/protected/patient/settings"
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium mt-auto ${
+              isActiveLink("/protected/patient/settings")
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+            }`}
+            prefetch={false}
+          >
+            <SettingsIcon className="mr-2 h-4 w-4" />
+            Settings
+          </Link>
+        </div>
       </nav>
       <div className="flex flex-col w-full h-screen overflow-hidden">
         <header className="fixed ml-0 md:ml-60 top-0 left-0 right-0 z-10 flex h-16 items-center bg-white px-4 md:px-6 border-b border-[#E4E7EC]">
