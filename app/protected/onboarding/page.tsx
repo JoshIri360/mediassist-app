@@ -23,6 +23,7 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { PlusCircle, X } from "lucide-react";
+import Image from "next/image";
 import { ChangeEvent, FormEvent, useState } from "react";
 
 type Medication = {
@@ -214,7 +215,15 @@ export default function MedicalOnboarding() {
       className="flex min-h-screen w-full p-5"
       // style={{ boxSizing: "content-box" }}
     >
-      <div className="hidden md:block w-1/2 bg-blue-500 rounded-lg"></div>
+      <div className="hidden md:block w-1/2 bg-blue-500 rounded-3xl relative">
+        <Image
+          src="/sign-bg.jpeg"
+          alt="Sign-in image"
+          className="h-full w-full object-cover rounded-3xl"
+          objectFit="cover"
+          layout="fill"
+        />
+      </div>
       <div className="w-full lg:w-1/2 flex items-center justify-center">
         <form
           onSubmit={handleSubmit}
@@ -406,26 +415,38 @@ export default function MedicalOnboarding() {
                               updateMedication(index, "dosage", e.target.value)
                             }
                           />
-                          <Input
-                            type="date"
-                            placeholder="Start Date"
-                            value={medication.startDate}
-                            onChange={(e) =>
-                              updateMedication(
-                                index,
-                                "startDate",
-                                e.target.value
-                              )
-                            }
-                          />
-                          <Input
-                            type="date"
-                            placeholder="End Date"
-                            value={medication.endDate}
-                            onChange={(e) =>
-                              updateMedication(index, "endDate", e.target.value)
-                            }
-                          />
+                        </div>
+                        <div className="flex w-full space-x-2 justify-between ">
+                          <div className="w-1/2">
+                            <Label htmlFor="endDate">Start Date</Label>
+                            <Input
+                              type="date"
+                              placeholder="Start Date"
+                              value={medication.startDate}
+                              onChange={(e) =>
+                                updateMedication(
+                                  index,
+                                  "startDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="w-1/2">
+                            <Label htmlFor="endDate">End Date</Label>
+                            <Input
+                              type="date"
+                              placeholder="End Date"
+                              value={medication.endDate}
+                              onChange={(e) =>
+                                updateMedication(
+                                  index,
+                                  "endDate",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
                         </div>
                         {medication.times.map((time, timeIndex) => (
                           <Input
