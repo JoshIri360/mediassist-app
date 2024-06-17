@@ -14,7 +14,7 @@ export default function DoctorSettingsPage() {
             Mobile Notifications
           </label>
           <p className="text-gray-500 mb-2">
-            It's time description for the notification
+            It is time description for the notification
           </p>
           <input
             type="checkbox"
@@ -34,7 +34,7 @@ export default function DoctorSettingsPage() {
             Theme
           </label>
           <p className="text-gray-500 mb-2">
-            It's time description for the notification
+            It is time description for the notification
           </p>
           <select
             id="theme"
