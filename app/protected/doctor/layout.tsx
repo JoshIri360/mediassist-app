@@ -22,7 +22,7 @@ import {
   DoorOpen,
   Menu,
   SettingsIcon,
-  Users
+  Users,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -216,7 +216,9 @@ export default function DoctorLayout({
             </DropdownMenu>
           </nav>
         </header>
-        <div className="flex flex-1">{children}</div>
+        <div className="flex flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto">{children}</div>
+        </div>
       </div>
     </div>
   );
