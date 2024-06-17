@@ -1,6 +1,6 @@
 # MediAssist
 
-Welcome to the MediAssist app repository for HackOps 1.0!
+Welcome to the MediAssist web app repository for HackOps 1.0!
 
 ## Overview
 
