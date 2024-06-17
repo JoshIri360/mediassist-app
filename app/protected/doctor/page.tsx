@@ -41,6 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthContext } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 
 interface Patient {
   id: string;
@@ -58,8 +59,17 @@ interface NewPatient {
 }
 
 export default function DoctorPatientsPage() {
-  const { user } = useAuthContext();
-  console.log("User:", user);
+  const { user, role } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "patient") {
+      router.push("/protected/patient");
+    }
+  }, [user, role, router]);
+
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [newPatient, setNewPatient] = useState<NewPatient>({
     hospitalNumber: "",
