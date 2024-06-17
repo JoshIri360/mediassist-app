@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Command,
@@ -9,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   GoogleMap,
   InfoWindow,
@@ -130,6 +132,17 @@ export default function MedicalFacilitiesMap() {
   }, [map]);
 
   useEffect(() => {
+
+    const { user, role } = useAuthContext();
+    const router = useRouter();
+    if (!user) {
+      router.push("/login");
+      ;
+    } else if (role === "doctor") {
+      router.push("/protected/doctor");
+      ;
+    }
+
     if (isLoaded && map) {
       getCurrentLocation();
     }

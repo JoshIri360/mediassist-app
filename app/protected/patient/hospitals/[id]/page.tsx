@@ -56,6 +56,7 @@ export default function HospitalPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+
     if (id) {
       fetchHospitalData(id as string)
         .then((data) => {

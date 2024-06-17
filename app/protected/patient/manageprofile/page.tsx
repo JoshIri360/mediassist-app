@@ -1,5 +1,5 @@
 "use client";
-
+import { useAuthContext } from '@/context/AuthContext';
 import React, { useState } from 'react';
 
 const UserProfile: React.FC = () => {
