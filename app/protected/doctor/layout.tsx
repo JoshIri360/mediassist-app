@@ -27,7 +27,8 @@ import ChatComponent from "@/components/ui/chatComponent";
 import { usePathname } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import { auth, db } from "@/firebase/config";
+import { signOut } from "firebase/auth";
 
 interface UserData {
   email: string;
@@ -161,7 +162,12 @@ export default function DoctorLayout({
                 <p className="text-black leading-[14px]">{email}</p>
               </div>
             </div>
-            <div className="flex items-center justify-center">
+            <div
+              className="flex items-center justify-center"
+              onClick={() => {
+                signOut(auth);
+              }}
+            >
               <DoorClosed className="h-6 w-6" />
               <DoorOpen className="h-6 w-6 absolute opacity-0 group-hover:opacity-100" />
             </div>

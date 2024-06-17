@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { quantum } from "ldrs";
 
 quantum.register();
 
-const Loader = () => {
+const Loader: React.FC = () => {
   const [loaderSpeed, setLoaderSpeed] = useState(1.75);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
