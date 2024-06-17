@@ -4,7 +4,16 @@ import { auth, db } from "@/firebase/config";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useRef,
+} from "react";
+import { quantum } from "ldrs";
+
+quantum.register();
 
 interface AuthContextType {
   user: User | null;
@@ -33,7 +42,9 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [role, setRole] = useState(null);
+  const [loaderSpeed, setLoaderSpeed] = useState(1.75);
   const router = useRouter();
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const allowedRoles = ["patient", "doctor"];
@@ -55,11 +66,33 @@ export const AuthContextProvider: React.FC<AuthContextProviderProps> = ({
     return () => unsubscribe();
   }, [router]);
 
+  useEffect(() => {
+    if (loading) {
+      intervalRef.current = setInterval(() => {
+        setLoaderSpeed((prevSpeed) => Math.min(prevSpeed + 0.1, 3));
+      }, 1000);
+    } else {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    }
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, [loading]);
+
   return (
     <AuthContext.Provider value={{ user, role }}>
       {loading ? (
-        <div className="flex flex-col items-center py-10 font-bold text-5xl">
-          Loading . . .
+        <div className="flex flex-col items-center justify-center h-screen bg-black">
+          <l-quantum
+            size="65"
+            speed={loaderSpeed.toString()}
+            color="white"
+          ></l-quantum>
         </div>
       ) : (
         children

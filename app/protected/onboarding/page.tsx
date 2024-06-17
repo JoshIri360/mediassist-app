@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { customAlphabet } from 'nanoid';
+import { customAlphabet } from "nanoid";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,12 +20,15 @@ import {
   collection,
   deleteDoc,
   doc,
+  getDoc,
   getDocs,
   updateDoc,
 } from "firebase/firestore";
 import { PlusCircle, X } from "lucide-react";
 import Image from "next/image";
-import { ChangeEvent, FormEvent, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+// import { useRouter } from "next/router";
 
 type Medication = {
   name: string;
@@ -49,11 +52,12 @@ interface FormData {
   address: string;
   bloodType: string;
   pastSurgeries: string;
-  userId: string;
+  hospitalNumber: string;
 }
 
 export default function MedicalOnboarding() {
   const { user } = useAuthContext();
+  const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -77,11 +81,26 @@ export default function MedicalOnboarding() {
     address: "",
     bloodType: "",
     pastSurgeries: "",
-    userId: "",
+    hospitalNumber: "",
   });
 
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [progress, setProgress] = useState<number>(0);
+
+  useEffect(() => {
+    const checkOnboardingStatus = async () => {
+      if (user?.uid) {
+        const userDocRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userDocRef);
+
+        if (userDoc.exists() && userDoc.data().onboarded) {
+          router.push("/protected/patient");
+        }
+      }
+    };
+
+    checkOnboardingStatus();
+  }, [user, router]);
 
   const handleInputChange = (
     e:
@@ -165,10 +184,11 @@ export default function MedicalOnboarding() {
         if (!user?.uid) return;
         const userDocRef = doc(db, "users", user.uid);
 
-        const alphabet = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
+        const alphabet =
+          "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
         const nanoid = customAlphabet(alphabet, 5);
-        
-        const userId = nanoid();
+
+        const hospitalNumber = nanoid();
 
         const userData = {
           address: formData.address,
@@ -184,7 +204,7 @@ export default function MedicalOnboarding() {
           weight: formData.weight,
           medications: [...formData.medications],
           onboarded: true,
-          userId,
+          hospitalNumber,
         };
 
         await updateDoc(userDocRef, userData);
@@ -199,6 +219,8 @@ export default function MedicalOnboarding() {
         for (const medication of formData.medications) {
           await addDoc(medicationsCollectionRef, medication);
         }
+
+        router.push("/protected/patient");
 
         console.log("User data and medications updated successfully");
       } catch (error) {

@@ -27,23 +27,31 @@ import {
 export default function DoctorPatientsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [newPatient, setNewPatient] = useState({
-    userId: "",
+    hospitalNumber: "",
     name: "",
     condition: "",
   });
-  const [patientkey, setPatient] = useState<{ id: number; name: string; condition: string; lastVisit: string; }[]>([]);
+  const [patientkey, setPatient] = useState<
+    { id: number; name: string; condition: string; lastVisit: string }[]
+  >([]);
 
-
-
-  const handleSearchPatient = async (userId: any) => {
+  const handleSearchPatient = async (hospitalNumber: any) => {
     try {
       // Search for the user in the "patients" collection
       const querySnapshot = await getDocs(
-        query(collection(db, "users"), where("userId", "==", userId))
+        query(
+          collection(db, "users"),
+          where("hospitalNumber", "==", hospitalNumber)
+        )
       );
-  
+
       if (!querySnapshot.empty) {
-        const patientData = querySnapshot.docs[0].data() as { id: number; name: string; condition: string; lastVisit: string; };
+        const patientData = querySnapshot.docs[0].data() as {
+          id: number;
+          name: string;
+          condition: string;
+          lastVisit: string;
+        };
         console.log("Patient found:", patientData);
         // Return the patient data or update the state with the retrieved information
         return patientData;
@@ -55,9 +63,9 @@ export default function DoctorPatientsPage() {
     }
   };
 
-  const handleSearch = async (userId:any) => {
+  const handleSearch = async (hospitalNumber: any) => {
     try {
-      const patientData = await handleSearchPatient(userId);
+      const patientData = await handleSearchPatient(hospitalNumber);
       if (patientData) {
         // Add the retrieved patient data to the existing patients list
         setPatient([...patientkey, patientData]);
@@ -121,12 +129,12 @@ export default function DoctorPatientsPage() {
             <Input
               type="text"
               placeholder="Enter user ID"
-              value={newPatient.userId}
+              value={newPatient.hospitalNumber}
               onChange={(e) =>
-                setNewPatient({ ...newPatient, userId: e.target.value })
+                setNewPatient({ ...newPatient, hospitalNumber: e.target.value })
               }
             />
-            <Button onClick={() => handleSearch(newPatient.userId)}>
+            <Button onClick={() => handleSearch(newPatient.hospitalNumber)}>
               Add Patient
             </Button>
           </DialogContent>
