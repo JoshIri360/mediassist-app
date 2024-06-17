@@ -2,6 +2,7 @@
 
 import ChatComponent from "@/components/ui/chatComponent";
 import { useAuthContext } from "@/context/AuthContext";
+import Loader from "@/context/Loader";
 import { app } from "@/firebase/config";
 import { getMessaging, onMessage } from "firebase/messaging";
 import { useRouter } from "next/navigation";
@@ -42,7 +43,7 @@ export default function ProtectedPage() {
   if (loading) {
     return (
       <div className="text-5xl font-bold">
-        Loading...
+        <Loader />
         <ChatComponent />
       </div>
     );

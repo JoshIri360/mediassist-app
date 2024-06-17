@@ -7,7 +7,7 @@ import { Contact, Fullscreen, BookOpenCheck } from "lucide-react";
 export function FloatingNavDemo() {
   const navItems = [
     {
-      name: "Hero",
+      name: "Home",
       link: "#hero",
       icon: <IconHome className="h-4 w-4 text-neutral-500 dark:text-white" />,
     },
