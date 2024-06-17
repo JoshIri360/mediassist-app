@@ -1,18 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import {
-  Tablets,
-  Users,
-  Calendar,
-  Clipboard,
-  SettingsIcon,
-  Bell,
-  Menu,
-  DoorClosed,
-  DoorOpen,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,12 +9,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CircleUserRound } from "lucide-react";
-import ChatComponent from "@/components/ui/chatComponent";
-import { usePathname } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
+import { auth, db } from "@/firebase/config";
+import { signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { db } from "@/firebase/config";
+import {
+  Bell,
+  Calendar,
+  CircleUserRound,
+  Clipboard,
+  DoorClosed,
+  DoorOpen,
+  Menu,
+  SettingsIcon,
+  Users
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 interface UserData {
   email: string;
@@ -161,7 +160,12 @@ export default function DoctorLayout({
                 <p className="text-black leading-[14px]">{email}</p>
               </div>
             </div>
-            <div className="flex items-center justify-center">
+            <div
+              className="flex items-center justify-center cursor-pointer"
+              onClick={() => {
+                signOut(auth);
+              }}
+            >
               <DoorClosed className="h-6 w-6" />
               <DoorOpen className="h-6 w-6 absolute opacity-0 group-hover:opacity-100" />
             </div>
@@ -212,10 +216,7 @@ export default function DoctorLayout({
             </DropdownMenu>
           </nav>
         </header>
-        <div className="flex flex-1">
-          {children}
-          <ChatComponent />
-        </div>
+        <div className="flex flex-1">{children}</div>
       </div>
     </div>
   );
