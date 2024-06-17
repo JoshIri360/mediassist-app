@@ -29,13 +29,16 @@ export default function DoctorPatientsPage() {
   const [newPatient, setNewPatient] = useState({
     hospitalNumber: "",
     name: "",
-    condition: "",
+    email: "",
+    address: "",
+    age: 0,
   });
   const [patientkey, setPatient] = useState<
-    { id: number; name: string; condition: string; lastVisit: string }[]
+    { id: number; name: string; email: string; address: string; age: number }[]
   >([]);
 
   const handleSearchPatient = async (hospitalNumber: any) => {
+    console.log("Searching for patient with hospital number:", hospitalNumber);
     try {
       // Search for the user in the "patients" collection
       const querySnapshot = await getDocs(
@@ -49,11 +52,11 @@ export default function DoctorPatientsPage() {
         const patientData = querySnapshot.docs[0].data() as {
           id: number;
           name: string;
-          condition: string;
-          lastVisit: string;
+          email: string;
+          address: string;
+          age: number;
         };
-        console.log("Patient found:", patientData);
-        // Return the patient data or update the state with the retrieved information
+
         return patientData;
       } else {
         console.log("No patient found with the given user ID");
@@ -75,32 +78,12 @@ export default function DoctorPatientsPage() {
     }
   };
 
-  // Mock patient data
-  const patients = [
-    {
-      id: 1,
-      name: "John Doe",
-      condition: "Hypertension",
-      lastVisit: "2024-06-01",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      condition: "Diabetes",
-      lastVisit: "2024-05-28",
-    },
-    {
-      id: 3,
-      name: "Alice Johnson",
-      condition: "Asthma",
-      lastVisit: "2024-06-05",
-    },
-  ];
+  const patients: any = [];
 
   const filteredPatients = [...patientkey, ...patients].filter(
     (patient) =>
       patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      patient.condition.toLowerCase().includes(searchTerm.toLowerCase())
+      patient.email.toLowerCase().includes(searchTerm.toLowerCase()) 
   );
 
   return (
@@ -144,8 +127,9 @@ export default function DoctorPatientsPage() {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Condition</TableHead>
-            <TableHead>Last Visit</TableHead>
+            <TableHead>E-mail</TableHead>
+            <TableHead>Address</TableHead>
+            <TableHead>Age</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -153,8 +137,9 @@ export default function DoctorPatientsPage() {
           {filteredPatients.map((patient) => (
             <TableRow key={patient.id}>
               <TableCell>{patient.name}</TableCell>
-              <TableCell>{patient.condition}</TableCell>
-              <TableCell>{patient.lastVisit}</TableCell>
+              <TableCell>{patient.email}</TableCell>
+              <TableCell>{patient.address}</TableCell>
+              <TableCell>{patient.age}</TableCell>
               <TableCell>
                 <Link href={`/protected/doctor/patients/${patient.id}`}>
                   <Button variant="outline" size="sm">

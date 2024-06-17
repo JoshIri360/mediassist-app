@@ -1,18 +1,5 @@
 "use client";
 
-import Link from "next/link";
-import {
-  Tablets,
-  Users,
-  Calendar,
-  Clipboard,
-  SettingsIcon,
-  Bell,
-  Menu,
-  DoorClosed,
-  DoorOpen,
-} from "lucide-react";
-import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -22,13 +9,24 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { CircleUserRound } from "lucide-react";
-import ChatComponent from "@/components/ui/chatComponent";
-import { usePathname } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
-import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "@/firebase/config";
 import { signOut } from "firebase/auth";
+import { doc, getDoc } from "firebase/firestore";
+import {
+  Bell,
+  Calendar,
+  CircleUserRound,
+  Clipboard,
+  DoorClosed,
+  DoorOpen,
+  Menu,
+  SettingsIcon,
+  Users
+} from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
 interface UserData {
   email: string;
@@ -163,7 +161,7 @@ export default function DoctorLayout({
               </div>
             </div>
             <div
-              className="flex items-center justify-center"
+              className="flex items-center justify-center cursor-pointer"
               onClick={() => {
                 signOut(auth);
               }}
@@ -218,10 +216,7 @@ export default function DoctorLayout({
             </DropdownMenu>
           </nav>
         </header>
-        <div className="flex flex-1">
-          {children}
-          <ChatComponent />
-        </div>
+        <div className="flex flex-1">{children}</div>
       </div>
     </div>
   );

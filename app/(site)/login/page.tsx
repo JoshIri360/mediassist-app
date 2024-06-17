@@ -7,7 +7,7 @@ import signIn from "@/firebase/auth/signin";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { JSX, SVGProps, useState } from "react";
+import { useState } from "react";
 import { toast } from "react-hot-toast";
 
 export default function Page() {
