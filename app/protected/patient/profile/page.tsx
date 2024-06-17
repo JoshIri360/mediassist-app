@@ -15,6 +15,7 @@ import { useAuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useEffect, useState, ChangeEvent, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   name: string;
@@ -32,6 +33,7 @@ interface FormData {
 
 export default function Profile() {
   const { user } = useAuthContext();
+  const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
     name: "",
@@ -54,12 +56,20 @@ export default function Profile() {
       const userDoc = await getDoc(userDocRef);
 
       if (userDoc.exists()) {
-        setFormData(userDoc.data() as FormData);
+        const userData = userDoc.data();
+        const isOnboarded = userData.onboarded || false; // Default to false if onboarded field doesn't exist
+
+        if (!isOnboarded) {
+          // Redirect to /onboarding if the user is not onboarded
+          router.push('/protected/onboarding');
+        } else {
+          setFormData(userData as FormData);
+        }
       }
     };
 
     fetchData();
-  }, [user]);
+  }, [user, router]);
 
   const handleInputChange = (e: any) => {
     const { name, value } = e.target;

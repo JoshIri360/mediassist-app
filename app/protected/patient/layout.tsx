@@ -139,7 +139,7 @@ export default function PatientLayout({
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Settings</DropdownMenuItem>
                 <DropdownMenuItem>
-                  <Link href="/profile">Profile</Link>
+                  <Link href="/protected/patient/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>Logout</DropdownMenuItem>
