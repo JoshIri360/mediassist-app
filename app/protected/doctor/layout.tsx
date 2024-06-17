@@ -25,7 +25,7 @@ import {
   Users,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 interface UserData {
@@ -39,8 +39,17 @@ export default function DoctorLayout({
 }) {
   const [email, setEmail] = useState<string>("");
   const pathname = usePathname();
-  const { user } = useAuthContext();
+  const { user, role } = useAuthContext();
   const uid = user?.uid;
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "patient") {
+      router.push("/protected/patient");
+    }
+  }, [user, role, router]);
 
   // Fetch user email from firestore
 
@@ -164,6 +173,7 @@ export default function DoctorLayout({
               className="flex items-center justify-center cursor-pointer"
               onClick={() => {
                 signOut(auth);
+                router.push("/login");
               }}
             >
               <DoorClosed className="h-6 w-6" />

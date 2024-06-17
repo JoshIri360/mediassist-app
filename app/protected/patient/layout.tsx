@@ -20,8 +20,8 @@ import {
   Tablets,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import React from "react";
+import { usePathname, useRouter } from "next/navigation";
+import React, { useEffect } from "react";
 
 export default function PatientLayout({
   children,
@@ -29,7 +29,16 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const { user } = useAuthContext();
+  const { user, role } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "doctor") {
+      router.push("/protected/doctor");
+    }
+  }, [user, role, router]);
 
   console.log("User", user);
 
