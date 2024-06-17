@@ -54,14 +54,11 @@ export default function Profile() {
     const { user, role } = useAuthContext();
     const router = useRouter();
 
-    useEffect(() => {
-        if (!user) {
-            router.push("/login");
-        } else if (role === "doctor") {
-            router.push("/protected/doctor");
-        }
-    }, [user, role, router]);
-
+    if (!user) {
+      router.push("/login");
+  } else if (role === "doctor") {
+      router.push("/protected/doctor");
+  }
 
     const fetchData = async () => {
       if (!user?.uid) return;
