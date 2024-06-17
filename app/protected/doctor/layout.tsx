@@ -44,26 +44,27 @@ export default function DoctorLayout({
   const uid = user?.uid;
 
   // Fetch user email from firestore
-  const fetchEmail = async (): Promise<string | undefined> => {
-    if (!uid) return undefined;
-    const userRef = doc(db, "users", uid);
-
-    try {
-      // Get the current user document
-      const userDoc = await getDoc(userRef);
-      const userData = userDoc.data() as UserData | undefined;
-      return userData?.email;
-    } catch (error) {
-      console.error("Error fetching email:", error);
-      return undefined;
-    }
-  };
 
   useEffect(() => {
     const getEmail = async () => {
       const fetchedEmail = await fetchEmail();
       if (fetchedEmail) {
         setEmail(fetchedEmail);
+      }
+    };
+
+    const fetchEmail = async (): Promise<string | undefined> => {
+      if (!uid) return undefined;
+      const userRef = doc(db, "users", uid);
+
+      try {
+        // Get the current user document
+        const userDoc = await getDoc(userRef);
+        const userData = userDoc.data() as UserData | undefined;
+        return userData?.email;
+      } catch (error) {
+        console.error("Error fetching email:", error);
+        return undefined;
       }
     };
 

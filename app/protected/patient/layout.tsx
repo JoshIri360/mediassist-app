@@ -88,7 +88,7 @@ export default function PatientLayout({
           </Link>
         </div>
 
-        <div>
+        <div className="w-full space-y-2">
           <Link
             href="/protected/patient/settings"
             className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium mt-auto ${

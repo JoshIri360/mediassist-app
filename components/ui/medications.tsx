@@ -100,6 +100,9 @@ export function MedicationsForm({
           if (docSnap.exists()) {
             const userData = docSnap.data();
             setMedications(userData.medications || []);
+            if (userData.medications.length === 1 && userData.medications[0].name === "") {
+              setMedications([]);
+            }
           } else {
             setDoc(userDocRef, { medications: [] });
             setMedications([]);
