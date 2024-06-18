@@ -23,6 +23,7 @@ const UserProfile: React.FC = () => {
     console.log('User Profile:', user);
     // Handle profile update logic here
   };
+  
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
