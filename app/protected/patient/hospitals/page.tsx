@@ -24,6 +24,8 @@ import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase/config";
 
 const libraries: Libraries = ["places", "geometry"];
 
@@ -52,9 +54,23 @@ export default function MedicalFacilitiesMap() {
   const [center, setCenter] = useState<LatLngLiteral>({ lat: 0, lng: 0 });
   const [selectedPlace, setSelectedPlace] = useState<PlaceResult | null>(null);
   const [facilities, setFacilities] = useState<PlaceResult[]>([]);
+  const [verifiedHospitals, setVerifiedHospitals] = useState<Set<string>>(
+    new Set()
+  );
 
   const { user, role } = useAuthContext();
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchVerifiedHospitals = async () => {
+      const verifiedHospitalsRef = collection(db, "verifiedHospitals");
+      const snapshot = await getDocs(verifiedHospitalsRef);
+      const verifiedIds = new Set(snapshot.docs.map((doc) => doc.id));
+      setVerifiedHospitals(verifiedIds);
+    };
+
+    fetchVerifiedHospitals();
+  }, []);
 
   const calculateDistance = (
     facility: PlaceResult,
