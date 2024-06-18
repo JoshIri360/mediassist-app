@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
+// import { useRouter } from "next/navigation";
 import {
   doc,
   getDoc,
@@ -86,6 +87,16 @@ export default function PatientPage() {
   const [loading, setLoading] = useState(true);
   const [showAddMedicationForm, setShowAddMedicationForm] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
+
+    // const router = useRouter();
+
+    // useEffect(() => {
+    //     if (!user) {
+    //         router.push("/login");
+    //     } else if (role === "patient") {
+    //         router.push("/protected/patient");
+    //     }
+    // }, [user, role, router]);
 
   const form = useForm<Medication>({
     resolver: zodResolver(medicationSchema),
