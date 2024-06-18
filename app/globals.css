@@ -78,3 +78,9 @@
 * {
   scroll-behavior: smooth;
 }
+
+@layer utilities {
+  .successful::-webkit-scrollbar {
+    display: none;
+  }
+}
