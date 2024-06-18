@@ -16,6 +16,13 @@ import { db } from "@/firebase/config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
+import { Copy } from "lucide-react";
+import {
+  TooltipArrow,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
 
 interface FormData {
   name: string;
@@ -88,9 +95,35 @@ export default function Profile() {
         <form onSubmit={handleSubmit} className="w-full px-2">
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
-                Profile
-              </h1>
+              <div className="flex items-center">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+                  Profile
+                </h1>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant="outline"
+                        className="ml-2 cursor-pointer"
+                        onClick={() => {
+                          if (hospitalNumber) {
+                            navigator.clipboard.writeText(hospitalNumber);
+                          }
+                        }}
+                      >
+                        {hospitalNumber}
+                        <Copy className="ml-1" size={16} />
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <TooltipArrow className="radix-tooltip-arrow" />
+                      <div className="rounded bg-black px-2 py-1 text-sm leading-none shadow">
+                        <span className="text-white">Hospital Number</span>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>{" "}
+              </div>
               <p className="mt-2 text-lg text-gray-500 dark:text-gray-400">
                 Edit your profile information.
               </p>
