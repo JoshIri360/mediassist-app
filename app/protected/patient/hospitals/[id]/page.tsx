@@ -16,6 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -36,7 +37,7 @@ import {
   collection,
   doc,
   getDoc,
-  updateDoc
+  updateDoc,
 } from "firebase/firestore";
 import {
   CalendarDaysIcon,
@@ -104,6 +105,9 @@ export default function HospitalPage() {
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
   const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
+  const [appointmentReason, setAppointmentReason] = useState<
+    string | undefined
+  >("");
 
   const { user } = useAuthContext();
   const userId = user?.uid;
@@ -128,6 +132,7 @@ export default function HospitalPage() {
       patientId: userId,
       doctorId: selectedDoctor,
       date: date.toISOString(),
+      appointmentReason: appointmentReason,
     };
 
     const docRef = doc(db, "verifiedHospitals", id);
@@ -332,6 +337,16 @@ export default function HospitalPage() {
                   />
                 </PopoverContent>
               </Popover>
+            </div>
+            <div>
+              <Label htmlFor="date">Appointment Reason</Label>
+              <Input
+                id=""
+                type="text"
+                required
+                value={appointmentReason}
+                onChange={(e) => setAppointmentReason(e.target.value)}
+              />
             </div>
           </div>
           <DialogFooter>
