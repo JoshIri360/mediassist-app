@@ -16,6 +16,14 @@ export default function DoctorSettingsPage() {
   const router = useRouter();
 
   useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "patient") {
+      router.push("/protected/patient");
+    }
+  }, [user, role, router]);
+
+  useEffect(() => {
     const fetchUserData = async () => {
       if (user) {
         const userRef = doc(db, "users", user.uid);
