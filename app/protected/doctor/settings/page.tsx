@@ -64,6 +64,22 @@ export default function DoctorSettingsPage() {
     }
   };
 
+  const handleMobileNotificationsChange = () => {
+    handleSettingsChange({ mobileNotifications: !settings.mobileNotifications });
+  };
+
+  const handleThemeChange = (theme: string) => {
+    handleSettingsChange({ theme });
+  };
+
+  const handleLanguageChange = (language: string) => {
+    handleSettingsChange({ language });
+  };
+
+  const handleLocationChange = (location: string) => {
+    handleSettingsChange({ location });
+  };
+
 
   return (
     <div className="w-full mx-auto py-4 md:py-8 px-5 md:px-8">
