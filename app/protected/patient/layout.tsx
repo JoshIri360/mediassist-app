@@ -59,8 +59,6 @@ export default function PatientLayout({
     fetchData();
   }, [user, router, role]);
 
-  console.log("User", user);
-
   function formatDate(date: Date) {
     const options: Intl.DateTimeFormatOptions = {
       weekday: "long" as const,
@@ -165,7 +163,9 @@ export default function PatientLayout({
               <DropdownMenuContent align="end">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <Link href="/protected/patient/settings">Settings</Link>
+                </DropdownMenuItem>
                 <DropdownMenuItem>
                   <Link href="/protected/patient/profile">Profile</Link>
                 </DropdownMenuItem>

@@ -1,19 +1,67 @@
 "use client";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { useAuthContext } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import { Switch } from "@/components/ui/switch";
+import { SetStateAction, useEffect, useState } from "react";
 import {
   Select,
-  SelectTrigger,
-  SelectValue,
   SelectContent,
   SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { db } from "@/firebase/config";
 
 export default function PatientSettingsPage() {
+  const { user } = useAuthContext();
+  const [settings, setSettings] = useState({
+    mobileNotifications: false,
+    theme: "light",
+    language: "en-GB",
+    location: "auto",
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setSettings({
+            mobileNotifications: userData.mobileNotifications || false,
+            theme: userData.theme || "light",
+            language: userData.language || "en-GB",
+            location: userData.location || "auto",
+          });
+        } else {
+          // User document doesn't exist, create it with default settings
+          await setDoc(userRef, settings);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user, settings]);
+
+  const handleSettingsChange = async (
+    updatedSettings: SetStateAction<{
+      mobileNotifications: boolean;
+      theme: string;
+      language: string;
+      location: string;
+    }>
+  ) => {
+    if (user) {
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, { ...updatedSettings }, { merge: true });
+      setSettings(updatedSettings);
+    }
+  };
+
   return (
-    <div className="w-full max-w-3xl mx-auto py-12 md:py-16">
+    <div className="w-full mx-auto py-4 md:py-8 px-5 md:px-8">
       <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-4">Notifications</h2>
@@ -30,7 +78,16 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Mobile Notifications
                 </span>
-                <Switch id="mobile-notifications" />
+                <Switch
+                  id="mobile-notifications"
+                  checked={settings.mobileNotifications}
+                  onCheckedChange={(value) =>
+                    handleSettingsChange({
+                      ...settings,
+                      mobileNotifications: value,
+                    })
+                  }
+                />
               </div>
             </div>
           </div>
@@ -45,7 +102,12 @@ export default function PatientSettingsPage() {
               </p>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-gray-900 dark:text-gray-50">Theme</span>
-                <Select>
+                <Select
+                  value={settings.theme}
+                  onValueChange={(value) =>
+                    handleSettingsChange({ ...settings, theme: value })
+                  }
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Theme" />
                   </SelectTrigger>
@@ -71,9 +133,14 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Language
                 </span>
-                <Select>
+                <Select
+                  value={settings.language}
+                  onValueChange={(value) =>
+                    handleSettingsChange({ ...settings, language: value })
+                  }
+                >
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue defaultValue="en-GB">English (UK)</SelectValue>
+                    <SelectValue placeholder="Language" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="en-US">English (US)</SelectItem>
@@ -93,9 +160,14 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Location
                 </span>
-                <Select>
+                <Select
+                  value={settings.location}
+                  onValueChange={(value) =>
+                    handleSettingsChange({ ...settings, location: value })
+                  }
+                >
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue defaultValue="auto">Automatic</SelectValue>
+                    <SelectValue placeholder="Location" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="auto">Automatic</SelectItem>
