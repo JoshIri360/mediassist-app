@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
-  CarouselItem
+  CarouselItem,
 } from "@/components/ui/carousel";
 import {
   CarIcon,
@@ -56,7 +56,6 @@ export default function HospitalPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-
     if (id) {
       fetchHospitalData(id as string)
         .then((data) => {
@@ -170,14 +169,10 @@ export default function HospitalPage() {
               </p>
             </div>
           </div>
-          <div className="flex space-x-0 md:space-x-4 md:flex-row flex-col">
+          <div className="flex">
             <Button size="lg" className="w-full mt-4 bg-black text-white">
               <CarIcon className="w-5 h-5 mr-2" />
-              Call an Uber
-            </Button>
-            <Button size="lg" className="w-full mt-4 bg-black text-white">
-              <CarIcon className="w-5 h-5 mr-2" />
-              Call an Uber
+              Get directions
             </Button>
           </div>
         </CardContent>
