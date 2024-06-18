@@ -16,6 +16,29 @@ export default function DoctorSettingsPage() {
   const router = useRouter();
 
   useEffect(() => {
+    const fetchUserData = async () => {
+      if (user) {
+        const userRef = doc(db, "users", user.uid);
+        const userDoc = await getDoc(userRef);
+
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setSettings({
+            mobileNotifications: userData.mobileNotifications || false,
+            theme: userData.theme || "light",
+            language: userData.language || "en-GB",
+            location: userData.location || "auto",
+          });
+        } else {
+          await setDoc(userRef, settings);
+        }
+      }
+    };
+
+    fetchUserData();
+  }, [user, settings]);
+
+  useEffect(() => {
     if (!user) {
       router.push("/login");
     } else if (role === "patient") {
