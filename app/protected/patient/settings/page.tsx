@@ -78,16 +78,7 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Mobile Notifications
                 </span>
-                <Switch
-                  id="mobile-notifications"
-                  checked={settings.mobileNotifications}
-                  onCheckedChange={(value) =>
-                    handleSettingsChange({
-                      ...settings,
-                      mobileNotifications: value,
-                    })
-                  }
-                />
+                <Switch id="mobile-notifications" />
               </div>
             </div>
           </div>
@@ -102,19 +93,12 @@ export default function PatientSettingsPage() {
               </p>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-gray-900 dark:text-gray-50">Theme</span>
-                <Select
-                  value={settings.theme}
-                  onValueChange={(value) =>
-                    handleSettingsChange({ ...settings, theme: value })
-                  }
-                >
+                <Select>
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Theme" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -133,20 +117,12 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Language
                 </span>
-                <Select
-                  value={settings.language}
-                  onValueChange={(value) =>
-                    handleSettingsChange({ ...settings, language: value })
-                  }
-                >
+                <Select>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Language" />
+                    <SelectValue defaultValue="en-GB">English (UK)</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="en-US">English (US)</SelectItem>
-                    <SelectItem value="es-ES">Español (España)</SelectItem>
-                    <SelectItem value="fr-FR">Français (France)</SelectItem>
-                    <SelectItem value="de-DE">Deutsch (Deutschland)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -160,18 +136,12 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Location
                 </span>
-                <Select
-                  value={settings.location}
-                  onValueChange={(value) =>
-                    handleSettingsChange({ ...settings, location: value })
-                  }
-                >
+                <Select>
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Location" />
+                    <SelectValue defaultValue="auto">Automatic</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="auto">Automatic</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -24,7 +24,7 @@ export default function DoctorSettingsPage() {
   }, [user, role, router]);
 
   return (
-    <div className="w-full max-w-3xl mx-auto py-12 md:py-16">
+    <div className="w-full mx-auto py-4 md:py-8 px-5 md:px-8">
       <div className="space-y-8">
         <div>
           <h2 className="text-2xl font-bold mb-4">Notifications</h2>
@@ -62,8 +62,6 @@ export default function DoctorSettingsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="light">Light</SelectItem>
-                    <SelectItem value="dark">Dark</SelectItem>
-                    <SelectItem value="system">System</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -88,9 +86,6 @@ export default function DoctorSettingsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="en-US">English (US)</SelectItem>
-                    <SelectItem value="es-ES">Español (España)</SelectItem>
-                    <SelectItem value="fr-FR">Français (France)</SelectItem>
-                    <SelectItem value="de-DE">Deutsch (Deutschland)</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -110,7 +105,6 @@ export default function DoctorSettingsPage() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="auto">Automatic</SelectItem>
-                    <SelectItem value="manual">Manual</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
