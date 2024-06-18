@@ -38,13 +38,24 @@ export default function DoctorSettingsPage() {
     fetchUserData();
   }, [user, settings]);
 
-  useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    } else if (role === "patient") {
-      router.push("/protected/patient");
+  const handleSettingsChange = async (
+    updatedSettings: Partial<{
+      mobileNotifications: boolean;
+      theme: string;
+      language: string;
+      location: string;
+    }>
+  ) => {
+    if (user) {
+      const userRef = doc(db, "users", user.uid);
+      await setDoc(userRef, { ...settings, ...updatedSettings }, { merge: true });
+      setSettings((prevSettings) => ({
+        ...prevSettings,
+        ...updatedSettings,
+      }));
     }
-  }, [user, role, router]);
+  };
+
 
   return (
     <div className="w-full mx-auto py-4 md:py-8 px-5 md:px-8">
