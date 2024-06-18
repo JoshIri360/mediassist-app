@@ -36,7 +36,6 @@ export default function PatientSettingsPage() {
             location: userData.location || "auto",
           });
         } else {
-          // User document doesn't exist, create it with default settings
           await setDoc(userRef, settings);
         }
       }
