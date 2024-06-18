@@ -142,11 +142,6 @@ export default function HospitalPage() {
                 .map((_, index) => (
                   <StarIcon key={index} className="w-4 h-4 fill-primary" />
                 ))}
-              <div>
-                {hospital.rating
-                  ? `${hospital.rating}/5 (${hospital.user_ratings_total} reviews)`
-                  : "Not available"}
-              </div>
               {Array(5 - Math.floor(hospital.rating || 0))
                 .fill(0)
                 .map((_, index) => (
@@ -155,6 +150,11 @@ export default function HospitalPage() {
                     className="w-4 h-4 fill-gray-300 dark:fill-gray-600"
                   />
                 ))}
+              <div>
+                {hospital.rating
+                  ? `${hospital.rating}/5 (${hospital.user_ratings_total} reviews)`
+                  : "Not available"}
+              </div>
             </div>
             {hospital.opening_hours && (
               <div className="flex items-center gap-2">

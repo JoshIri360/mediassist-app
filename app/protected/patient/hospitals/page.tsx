@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/router";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -18,12 +20,13 @@ import {
 } from "@react-google-maps/api";
 import { LocateIcon, StarIcon } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
+import { Badge } from "@/components/ui/badge";
+import { CircleIcon } from "lucide-react";
 import { collection, getDocs } from "firebase/firestore";
 import { db } from "@/firebase/config";
 
@@ -57,20 +60,6 @@ export default function MedicalFacilitiesMap() {
   const [verifiedHospitals, setVerifiedHospitals] = useState<Set<string>>(
     new Set()
   );
-
-  const { user, role } = useAuthContext();
-  const router = useRouter();
-
-  useEffect(() => {
-    const fetchVerifiedHospitals = async () => {
-      const verifiedHospitalsRef = collection(db, "verifiedHospitals");
-      const snapshot = await getDocs(verifiedHospitalsRef);
-      const verifiedIds = new Set(snapshot.docs.map((doc) => doc.id));
-      setVerifiedHospitals(verifiedIds);
-    };
-
-    fetchVerifiedHospitals();
-  }, []);
 
   const calculateDistance = (
     facility: PlaceResult,
@@ -145,16 +134,26 @@ export default function MedicalFacilitiesMap() {
   }, [map]);
 
   useEffect(() => {
-    if (!user) {
-      router.push("/login");
-    } else if (role === "doctor") {
-      router.push("/protected/doctor");
-    }
-
     if (isLoaded && map) {
       getCurrentLocation();
     }
-  }, [isLoaded, map, getCurrentLocation, user, role, router]);
+  }, [isLoaded, map, getCurrentLocation]);
+
+  useEffect(() => {
+    const fetchVerifiedHospitals = async () => {
+      const verifiedHospitalsRef = collection(db, "verifiedHospitals");
+      const snapshot = await getDocs(verifiedHospitalsRef);
+      const verifiedIds = new Set(
+        snapshot.docs.map((doc) => {
+          return doc.id;
+        })
+      );
+
+      setVerifiedHospitals(verifiedIds);
+    };
+
+    fetchVerifiedHospitals();
+  }, []);
 
   useEffect(() => {
     if (map && center.lat !== 0 && center.lng !== 0) {
@@ -243,9 +242,15 @@ export default function MedicalFacilitiesMap() {
               key={facility.place_id}
               position={facility.geometry.location}
               onClick={() => setSelectedPlace(facility)}
+              icon={
+                verifiedHospitals.has(facility.place_id)
+                  ? {
+                      url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                    }
+                  : undefined
+              }
             />
           ))}
-
           {selectedPlace && (
             <InfoWindow
               position={selectedPlace.geometry.location}
@@ -267,10 +272,21 @@ export default function MedicalFacilitiesMap() {
             key={facility.place_id}
             className="cursor-pointer"
           >
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-950">
-              <div className="p-4 md:p-6">
-                <h3 className="text-lg font-semibold">{facility.name}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
+            <div className="bg-white rounded-lg hover:shadow-lg overflow-hidden dark:bg-gray-950 border">
+              <div className="p-2 md:p-4">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-lg font-semibold">{facility.name}</h3>
+                  {verifiedHospitals.has(facility.place_id) && (
+                    <Badge
+                      variant="outline"
+                      className="border-green-600 bg-white dark:bg-gray-950"
+                    >
+                      <CircleIcon className="h-3 w-3 -translate-x-1 animate-pulse fill-green-300 text-green-300" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
                   {facility.vicinity}
                 </p>
                 <div className="flex items-center gap-2 mt-2">
