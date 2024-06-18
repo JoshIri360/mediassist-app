@@ -11,23 +11,83 @@ export function HomePreview() {
 }
 export const products = [
   {
-    title: "Moonbeam",
-    link: "/images/createaccount.png",
+    title: "Create Account",
+    link: "/login",
     thumbnail: "/images/createaccount.png",
   },
   {
-    title: "Cursor",
-    link: "/images/locatehospital.png",
+    title: "Locate Hospitals",
+    link: "/login",
     thumbnail: "/images/locatehospital.png",
   },
   {
-    title: "Rogue",
-    link: "/images/medicationsemptystate.png",
+    title: "Medications",
+    link: "/login",
     thumbnail: "/images/medicationsemptystate.png",
   },
   {
-    title: "Editorially",
-    link: "/images/patientcenter.png",
+    title: "Patient",
+    link: "/login",
+    thumbnail: "/images/patientcenter.png",
+  },
+  {
+    title: "Create Account",
+    link: "/login",
+    thumbnail: "/images/createaccount.png",
+  },
+  {
+    title: "Locate Hospitals",
+    link: "/login",
+    thumbnail: "/images/locatehospital.png",
+  },
+  {
+    title: "Medications",
+    link: "/login",
+    thumbnail: "/images/medicationsemptystate.png",
+  },
+  {
+    title: "Patient",
+    link: "/login",
+    thumbnail: "/images/patientcenter.png",
+  },
+  {
+    title: "Create Account",
+    link: "/login",
+    thumbnail: "/images/createaccount.png",
+  },
+  {
+    title: "Locate Hospitals",
+    link: "/login",
+    thumbnail: "/images/locatehospital.png",
+  },
+  {
+    title: "Medications",
+    link: "/login",
+    thumbnail: "/images/medicationsemptystate.png",
+  },
+  {
+    title: "Patient",
+    link: "/login",
+    thumbnail: "/images/patientcenter.png",
+  },
+  {
+    title: "Create Account",
+    link: "/login",
+    thumbnail: "/images/createaccount.png",
+  },
+  {
+    title: "Locate Hospitals",
+    link: "/login",
+    thumbnail: "/images/locatehospital.png",
+  },
+  {
+    title: "Medications",
+    link: "/login",
+    thumbnail: "/images/medicationsemptystate.png",
+  },
+  {
+    title: "Patient",
+    link: "/login",
     thumbnail: "/images/patientcenter.png",
   },
 ];

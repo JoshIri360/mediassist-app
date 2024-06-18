@@ -36,7 +36,7 @@ export default function Page() {
 
     console.log(result);
     toast.success("Sign up successful!");
-    return router.push("/protected");
+    return router.push("/protected/doctor");
   };
 
   return (
