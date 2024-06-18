@@ -11,11 +11,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthContext } from "@/context/AuthContext";
-import { db } from "@/firebase/config";
+import { auth, db } from "@/firebase/config";
+import { signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import {
   Bell,
   CircleUserRound,
+  DoorClosed,
+  DoorOpen,
   Hospital,
   Menu,
   SettingsIcon,
@@ -23,16 +26,48 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
+
+interface UserData {
+  email: string;
+}
 
 export default function PatientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [email, setEmail] = useState<string>("");
   const pathname = usePathname();
   const { user, role } = useAuthContext();
+  const uid = user?.uid;
   const router = useRouter();
+
+  useEffect(() => {
+    const getEmail = async () => {
+      const fetchedEmail = await fetchEmail();
+      if (fetchedEmail) {
+        setEmail(fetchedEmail);
+      }
+    };
+
+    const fetchEmail = async (): Promise<string | undefined> => {
+      if (!uid) return undefined;
+      const userRef = doc(db, "users", uid);
+
+      try {
+        // Get the current user document
+        const userDoc = await getDoc(userRef);
+        const userData = userDoc.data() as UserData | undefined;
+        return userData?.email;
+      } catch (error) {
+        console.error("Error fetching email:", error);
+        return undefined;
+      }
+    };
+
+    getEmail();
+  }, [uid]);
 
   useEffect(() => {
     if (!user) {
@@ -117,8 +152,8 @@ export default function PatientLayout({
         <div className="w-full space-y-2">
           <Link
             href="/protected/patient/settings"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium mt-auto ${
-              isActiveLink("/protected/patient/settings")
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+              isActiveLink("/protected/doctor/settings")
                 ? "bg-primary text-white"
                 : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
             }`}
@@ -127,6 +162,35 @@ export default function PatientLayout({
             <SettingsIcon className="mr-2 h-4 w-4" />
             Settings
           </Link>
+          <div
+            className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium ${
+              isActiveLink("/protected/doctor/profile")
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+            }`}
+          >
+            <div className="flex">
+              <div className="self-stretch">
+                <CircleUserRound className="mr-2 h-full aspect-square" />
+              </div>
+              <div>
+                <p className="text-[12] leading-[12px]">Profile</p>
+                <p className="text-black leading-[14px] overflow-hidden whitespace-nowrap text-overflow-ellipsis">
+                  {email}
+                </p>
+              </div>
+            </div>
+            <div
+              className="flex items-center justify-center cursor-pointer"
+              onClick={() => {
+                signOut(auth);
+                router.push("/login");
+              }}
+            >
+              <DoorClosed className="h-6 w-6" />
+              <DoorOpen className="h-6 w-6 absolute opacity-0 group-hover:opacity-100" />
+            </div>
+          </div>
         </div>
       </nav>
       <div className="flex flex-col w-full h-screen overflow-hidden">

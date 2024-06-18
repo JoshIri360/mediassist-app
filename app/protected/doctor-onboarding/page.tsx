@@ -6,12 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Progress } from "@/components/ui/progress";
 import { useAuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/config";
-import {
-    collection,
-    doc,
-    getDoc,
-    setDoc
-} from "firebase/firestore";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
@@ -23,7 +18,6 @@ interface FormData {
   licenseNumber: string;
   yearsOfExperience: string;
   phoneNumber: string;
-  email: string;
   hospitalName: string;
   hospitalAddress: string;
   hospitalPlaceId: string;
@@ -39,7 +33,6 @@ export default function DoctorOnboarding() {
     licenseNumber: "",
     yearsOfExperience: "",
     phoneNumber: "",
-    email: "",
     hospitalName: "",
     hospitalAddress: "",
     hospitalPlaceId: "",
@@ -50,7 +43,7 @@ export default function DoctorOnboarding() {
   useEffect(() => {
     const checkOnboardingStatus = async () => {
       if (user?.uid) {
-        const userDocRef = doc(db, "doctors", user.uid);
+        const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
         if (userDoc.exists() && userDoc.data().onboarded) {
@@ -62,35 +55,46 @@ export default function DoctorOnboarding() {
     checkOnboardingStatus();
   }, [user, router]);
 
+  useEffect(() => {
+    const calculateProgress = () => {
+      const fields = Object.values(formData);
+      const filledFields = fields.filter(
+        (field) => field && field.trim() !== ""
+      ).length;
+      const totalFields = fields.length;
+      const newProgress = Math.round((filledFields / totalFields) * 100);
+      setProgress(newProgress);
+    };
+
+    calculateProgress();
+  }, [formData]);
+
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    calculateProgress();
-  };
-
-  const calculateProgress = () => {
-    const fields = Object.values(formData);
-    const filledFields = fields.filter((field) => field.trim() !== "").length;
-    const totalFields = fields.length;
-    const newProgress = Math.round((filledFields / totalFields) * 100);
-    setProgress(newProgress);
   };
 
   const { ref: hospitalInputRef } = usePlacesWidget({
     apiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
-    onPlaceSelected: (place: google.maps.places.PlaceResult) => {
+    onPlaceSelected: (
+      place: google.maps.places.PlaceResult,
+      ref,
+      autoCompleteRef: any
+    ) => {
+      console.log("autocomplete ref", autoCompleteRef);
+      console.log("autocomplete ref gm acc", autoCompleteRef?.gm_accessors_);
       setFormData((prev) => ({
         ...prev,
-        hospitalName: place.name!,
-        hospitalAddress: place.formatted_address!,
-        hospitalPlaceId: place.place_id!,
+        hospitalName:
+          autoCompleteRef?.gm_accessors_?.place?.As?.formattedPrediction || "",
+        hospitalAddress: place.formatted_address || "",
+        hospitalPlaceId: place.place_id || "",
       }));
-      calculateProgress();
     },
     options: {
-      types: ["hospital", "health"],
+      types: ["hospital"],
     },
   });
 
@@ -98,16 +102,15 @@ export default function DoctorOnboarding() {
     e.preventDefault();
     try {
       if (!user?.uid) return;
-      const doctorDocRef = doc(db, "doctors", user.uid);
+      const doctorDocRef = doc(db, "users", user.uid);
 
       const doctorData = {
         ...formData,
         onboarded: true,
       };
 
-      await setDoc(doctorDocRef, doctorData);
+      await setDoc(doctorDocRef, doctorData, { merge: true });
 
-      // Add hospital to verified list if not already present
       const verifiedHospitalsRef = collection(db, "verifiedHospitals");
       const hospitalDoc = doc(verifiedHospitalsRef, formData.hospitalPlaceId);
       await setDoc(
@@ -131,8 +134,8 @@ export default function DoctorOnboarding() {
     <div className="flex min-h-screen w-full p-5">
       <div className="hidden md:block w-1/2 bg-blue-500 rounded-3xl relative">
         <Image
-          src="/doctor-bg.jpeg"
-          alt="Doctor onboarding image"
+          src="/sign-bg.jpeg"
+          alt="Sign-in image"
           className="h-full w-full object-cover rounded-3xl"
           objectFit="cover"
           layout="fill"
@@ -164,25 +167,27 @@ export default function DoctorOnboarding() {
                   placeholder="Dr. John Doe"
                 />
               </div>
-              <div>
-                <Label htmlFor="specialization">Specialization</Label>
-                <Input
-                  id="specialization"
-                  name="specialization"
-                  value={formData.specialization}
-                  onChange={handleInputChange}
-                  placeholder="e.g. Cardiology, Pediatrics"
-                />
-              </div>
-              <div>
-                <Label htmlFor="licenseNumber">Medical License Number</Label>
-                <Input
-                  id="licenseNumber"
-                  name="licenseNumber"
-                  value={formData.licenseNumber}
-                  onChange={handleInputChange}
-                  placeholder="Enter your medical license number"
-                />
+              <div className="flex w-full space-x-2">
+                <div className="w-full">
+                  <Label htmlFor="specialization">Specialization</Label>
+                  <Input
+                    id="specialization"
+                    name="specialization"
+                    value={formData.specialization}
+                    onChange={handleInputChange}
+                    placeholder="e.g. Cardiology, Pediatrics"
+                  />
+                </div>
+                <div className="w-full">
+                  <Label htmlFor="licenseNumber">Medical License Number</Label>
+                  <Input
+                    id="licenseNumber"
+                    name="licenseNumber"
+                    value={formData.licenseNumber}
+                    onChange={handleInputChange}
+                    placeholder="Enter your medical license number"
+                  />
+                </div>
               </div>
               <div>
                 <Label htmlFor="yearsOfExperience">Years of Experience</Label>
@@ -205,17 +210,7 @@ export default function DoctorOnboarding() {
                   placeholder="Enter your phone number"
                 />
               </div>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  placeholder="Enter your email address"
-                />
-              </div>
+
               <div>
                 <Label htmlFor="hospitalSearch">Hospital</Label>
                 <Input
