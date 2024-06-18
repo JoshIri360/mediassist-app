@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Carousel,
@@ -8,6 +9,28 @@ import {
   CarouselItem,
 } from "@/components/ui/carousel";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import {
+  CalendarDaysIcon,
   CarIcon,
   GlobeIcon,
   MapPinIcon,
@@ -19,7 +42,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Define types for hospital data
 interface Hospital {
   name: string;
   formatted_phone_number?: string;
@@ -53,13 +75,20 @@ export default function HospitalPage() {
   const [hospital, setHospital] = useState<Hospital | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
 
+  const toggleBookingForm = () => setIsBookingFormOpen(!isBookingFormOpen);
   const handleGetDirections = () => {
     if (hospital) {
       const encodedAddress = encodeURIComponent(hospital.formatted_address);
       const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
       window.open(mapsUrl, "_blank");
     }
+  };
+
+  const handleBookAppointment = () => {
+    toggleBookingForm();
   };
 
   useEffect(() => {
@@ -79,8 +108,6 @@ export default function HospitalPage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!hospital) return <div>No hospital data found</div>;
-
-  console.log(hospital);
 
   return (
     <div className="container mx-auto p-4">
@@ -176,18 +203,93 @@ export default function HospitalPage() {
               </p>
             </div>
           </div>
-          <div className="flex">
+          <div className="flex justify-between mt-4">
             <Button
               size="lg"
-              className="w-full mt-4 bg-black text-white"
+              className="w-full bg-black text-white"
               onClick={handleGetDirections}
             >
               <CarIcon className="w-5 h-5 mr-2" />
               Get directions
             </Button>
+            <Button
+              size="lg"
+              className="w-full ml-4 bg-primary text-white"
+              onClick={handleBookAppointment}
+            >
+              Book Appointment
+            </Button>
           </div>
         </CardContent>
       </Card>
+      <Dialog open={isBookingFormOpen} onOpenChange={toggleBookingForm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Schedule an Appointment</DialogTitle>
+            <DialogDescription>
+              Select a doctor and date to book your appointment.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="doctor">Doctor</Label>
+              <Select>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a doctor" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="dr-smith">
+                    Dr. Smith (Cardiology)
+                  </SelectItem>
+                  <SelectItem value="dr-johnson">
+                    Dr. Johnson (Pediatrics)
+                  </SelectItem>
+                  <SelectItem value="dr-lee">Dr. Lee (Dermatology)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="date">Appointment Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarDaysIcon className="mr-1 h-4 w-4 -translate-x-1" />
+                    {date?.toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }) || "Select a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border bg-white"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="submit"
+              className="w-full"
+              onClick={() => {
+                alert("Appointment booked successfully!");
+                toggleBookingForm();
+              }}
+            >
+              Submit Booking
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
