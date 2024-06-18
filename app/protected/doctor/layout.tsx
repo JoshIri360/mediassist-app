@@ -185,8 +185,11 @@ export default function DoctorLayout({
               </div>
               <div>
                 <p className="text-[12] leading-[12px]">Profile</p>
-                <p className="text-black leading-[14px] overflow-hidden whitespace-nowrap text-overflow-ellipsis">
-                  {email}
+                <p
+                  className="text-black leading-[14px] overflow-hidden whitespace-nowrap text-overflow-ellipsis"
+                  style={{ maxWidth: "130px" }}
+                >
+                  {email.length > 15 ? `${email.substring(0, 15)}...` : email}
                 </p>
               </div>
             </div>

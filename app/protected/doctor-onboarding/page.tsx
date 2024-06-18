@@ -113,14 +113,28 @@ export default function DoctorOnboarding() {
 
       const verifiedHospitalsRef = collection(db, "verifiedHospitals");
       const hospitalDoc = doc(verifiedHospitalsRef, formData.hospitalPlaceId);
-      await setDoc(
-        hospitalDoc,
-        {
+      const hospitalSnapshot = await getDoc(hospitalDoc);
+
+      let hospitalData;
+      if (hospitalSnapshot.exists()) {
+        hospitalData = hospitalSnapshot.data();
+      } else {
+        hospitalData = {
           name: formData.hospitalName,
           address: formData.hospitalAddress,
-        },
-        { merge: true }
-      );
+          doctors: [],
+        };
+      }
+
+      const doctorInfo = {
+        name: formData.name,
+        id: user.uid,
+        specialization: formData.specialization,
+      };
+
+      hospitalData.doctors.push(doctorInfo);
+
+      await setDoc(hospitalDoc, hospitalData, { merge: true });
 
       router.push("/protected/doctor");
 
