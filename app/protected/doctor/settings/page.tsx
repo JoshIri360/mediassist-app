@@ -154,11 +154,11 @@ export default function DoctorSettingsPage() {
                   Language
                 </span>
                 <Select
-                value={settings.language}
-                onValueChange={handleLanguageChange}
+                  value={settings.language}
+                  onValueChange={handleLanguageChange}
                 >
                   <SelectTrigger className="w-[180px]">
-                  <SelectItem value="en-GB">English (UK)</SelectItem>
+                    <SelectItem value="en-GB">English (UK)</SelectItem>
                     <SelectItem value="en-US">English (US)</SelectItem>
                     <SelectItem value="fr-FR">French</SelectItem>
                   </SelectTrigger>
@@ -177,9 +177,13 @@ export default function DoctorSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Location
                 </span>
-                <Select>
+                <Select
+                  value={settings.location}
+                  onValueChange={handleLocationChange}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue defaultValue="auto">Automatic</SelectValue>
+                    <SelectItem value="manual">Manual</SelectItem>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="auto">Automatic</SelectItem>
