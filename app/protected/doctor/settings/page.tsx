@@ -2,98 +2,120 @@
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { Switch } from "@/components/ui/switch";
+import {
+  Select,
+  SelectTrigger,
+  SelectValue,
+  SelectContent,
+  SelectItem,
+} from "@/components/ui/select";
 
 export default function DoctorSettingsPage() {
-
   const { user, role } = useAuthContext();
-    const router = useRouter();
+  const router = useRouter();
 
-    useEffect(() => {
-        if (!user) {
-            router.push("/login");
-        } else if (role === "patient") {
-            router.push("/protected/patient");
-        }
-    }, [user, role, router]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "patient") {
+      router.push("/protected/patient");
+    }
+  }, [user, role, router]);
 
   return (
-    <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Settings</h1>
-      <div className="bg-white rounded-lg shadow-md p-6">
-        <h2 className="text-lg font-bold mb-4">Notifications</h2>
-        <div className="mb-4">
-          <label
-            htmlFor="mobileNotifications"
-            className="block text-gray-700 font-bold mb-2"
-          >
-            Mobile Notifications
-          </label>
-          <p className="text-gray-500 mb-2">
-            It is time description for the notification
-          </p>
-          <input
-            type="checkbox"
-            id="mobileNotifications"
-            className="form-checkbox h-5 w-5 text-purple-600"
-          />
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-        <h2 className="text-lg font-bold mb-4">Appearance</h2>
-        <div className="mb-4">
-          <label
-            htmlFor="theme"
-            className="block text-gray-700 font-bold mb-2"
-          >
-            Theme
-          </label>
-          <p className="text-gray-500 mb-2">
-            It is time description for the notification
-          </p>
-          <select
-            id="theme"
-            className="form-select block w-full mt-1 rounded-md bg-white py-2 px-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-          >
-            <option>Light</option>
-            <option>Dark</option>
-          </select>
-        </div>
-      </div>
-
-      <div className="bg-white rounded-lg shadow-md p-6 mt-6">
-        <h2 className="text-lg font-bold mb-4">Language and Region</h2>
-        <div className="mb-4">
-          <label
-            htmlFor="language"
-            className="block text-gray-700 font-bold mb-2"
-          >
-            Language
-          </label>
-          <select
-            id="language"
-            className="form-select block w-full mt-1 rounded-md bg-white py-2 px-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-          >
-            <option>English (UK)</option>
-            <option>English (US)</option>
-            <option>French</option>
-            <option>Spanish</option>
-          </select>
+    <div className="w-full max-w-3xl mx-auto py-12 md:py-16">
+      <div className="space-y-8">
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Notifications</h2>
+          <div className="grid gap-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">
+                Mobile Notifications
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Receive notifications on your mobile device for important
+                updates and activity.
+              </p>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-gray-900 dark:text-gray-50">
+                  Mobile Notifications
+                </span>
+                <Switch id="mobile-notifications" />
+              </div>
+            </div>
+          </div>
         </div>
         <div>
-          <label
-            htmlFor="location"
-            className="block text-gray-700 font-bold mb-2"
-          >
-            Location
-          </label>
-          <select
-            id="location"
-            className="form-select block w-full mt-1 rounded-md bg-white py-2 px-3 border border-gray-300 shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-          >
-            <option>Automatic</option>
-            <option>Manual</option>
-          </select>
+          <h2 className="text-2xl font-bold mb-4">Appearance</h2>
+          <div className="grid gap-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Theme</h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Choose the theme that best suits your preferences.
+              </p>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-gray-900 dark:text-gray-50">Theme</span>
+                <Select>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Theme" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
+                    <SelectItem value="system">System</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h2 className="text-2xl font-bold mb-4">Language & Region</h2>
+          <div className="grid gap-6">
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Language</h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Select your preferred language.
+              </p>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-gray-900 dark:text-gray-50">
+                  Language
+                </span>
+                <Select>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue defaultValue="en-GB">English (UK)</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="en-US">English (US)</SelectItem>
+                    <SelectItem value="es-ES">Español (España)</SelectItem>
+                    <SelectItem value="fr-FR">Français (France)</SelectItem>
+                    <SelectItem value="de-DE">Deutsch (Deutschland)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div>
+              <h3 className="text-lg font-semibold mb-2">Location</h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                Set your location preferences.
+              </p>
+              <div className="mt-4 flex items-center justify-between">
+                <span className="text-gray-900 dark:text-gray-50">
+                  Location
+                </span>
+                <Select>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue defaultValue="auto">Automatic</SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="auto">Automatic</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
