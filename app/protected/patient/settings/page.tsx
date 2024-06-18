@@ -45,7 +45,7 @@ export default function PatientSettingsPage() {
   }, [user, settings]);
 
   const handleSettingsChange = async (
-    updatedSettings: SetStateAction<{
+    updatedSettings: Partial<{
       mobileNotifications: boolean;
       theme: string;
       language: string;
@@ -54,9 +54,28 @@ export default function PatientSettingsPage() {
   ) => {
     if (user) {
       const userRef = doc(db, "users", user.uid);
-      await setDoc(userRef, { ...updatedSettings }, { merge: true });
-      setSettings(updatedSettings);
+      await setDoc(userRef, { ...settings, ...updatedSettings }, { merge: true });
+      setSettings((prevSettings) => ({
+        ...prevSettings,
+        ...updatedSettings,
+      }));
     }
+  };
+
+  const handleMobileNotificationsChange = () => {
+    handleSettingsChange({ mobileNotifications: !settings.mobileNotifications });
+  };
+
+  const handleThemeChange = (theme: string) => {
+    handleSettingsChange({ theme });
+  };
+
+  const handleLanguageChange = (language: string) => {
+    handleSettingsChange({ language });
+  };
+
+  const handleLocationChange = (location: string) => {
+    handleSettingsChange({ location });
   };
 
   return (
@@ -77,7 +96,11 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Mobile Notifications
                 </span>
-                <Switch id="mobile-notifications" />
+                <Switch
+                  id="mobile-notifications"
+                  checked={settings.mobileNotifications}
+                  onCheckedChange={handleMobileNotificationsChange}
+                />
               </div>
             </div>
           </div>
@@ -92,12 +115,16 @@ export default function PatientSettingsPage() {
               </p>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-gray-900 dark:text-gray-50">Theme</span>
-                <Select>
+                <Select
+                  value={settings.theme}
+                  onValueChange={handleThemeChange}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Theme" />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="light">Light</SelectItem>
+                    <SelectItem value="dark">Dark</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -116,12 +143,17 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Language
                 </span>
-                <Select>
+                <Select
+                  value={settings.language}
+                  onValueChange={handleLanguageChange}
+                >
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue defaultValue="en-GB">English (UK)</SelectValue>
+                    <SelectValue>{settings.language}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="en-GB">English (UK)</SelectItem>
                     <SelectItem value="en-US">English (US)</SelectItem>
+                    <SelectItem value="fr-FR">French</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -135,12 +167,16 @@ export default function PatientSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Location
                 </span>
-                <Select>
+                <Select
+                  value={settings.location}
+                  onValueChange={handleLocationChange}
+                >
                   <SelectTrigger className="w-[180px]">
-                    <SelectValue defaultValue="auto">Automatic</SelectValue>
+                    <SelectValue>{settings.location}</SelectValue>
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="auto">Automatic</SelectItem>
+                    <SelectItem value="manual">Manual</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
