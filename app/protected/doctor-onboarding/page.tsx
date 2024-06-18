@@ -46,7 +46,7 @@ export default function DoctorOnboarding() {
         const userDocRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userDocRef);
 
-        if (userDoc.exists() && userDoc.data().onboarded) {
+        if (userDoc.exists() && userDoc.data()?.onboarded) {
           router.push("/protected/doctor");
         }
       }
@@ -83,8 +83,6 @@ export default function DoctorOnboarding() {
       ref,
       autoCompleteRef: any
     ) => {
-      console.log("autocomplete ref", autoCompleteRef);
-      console.log("autocomplete ref gm acc", autoCompleteRef?.gm_accessors_);
       setFormData((prev) => ({
         ...prev,
         hospitalName:
@@ -115,15 +113,30 @@ export default function DoctorOnboarding() {
       const hospitalDoc = doc(verifiedHospitalsRef, formData.hospitalPlaceId);
       const hospitalSnapshot = await getDoc(hospitalDoc);
 
-      let hospitalData;
+      let hospitalData: {
+        name: string;
+        address: string;
+        doctors?: { name: string; id: string; specialization: string }[];
+      } = {
+        name: formData.hospitalName,
+        address: formData.hospitalAddress,
+        doctors: [],
+      } as {
+        name: string;
+        address: string;
+        doctors?: { name: string; id: string; specialization: string }[];
+      };
+
       if (hospitalSnapshot.exists()) {
-        hospitalData = hospitalSnapshot.data();
-      } else {
-        hospitalData = {
-          name: formData.hospitalName,
-          address: formData.hospitalAddress,
-          doctors: [],
-        };
+        hospitalData =
+          (hospitalSnapshot.data() as {
+            name: string;
+            address: string;
+            doctors?: { name: string; id: string; specialization: string }[];
+          }) || hospitalData;
+        if (!hospitalData.doctors) {
+          hospitalData.doctors = [];
+        }
       }
 
       const doctorInfo = {
@@ -132,13 +145,13 @@ export default function DoctorOnboarding() {
         specialization: formData.specialization,
       };
 
-      hospitalData.doctors.push(doctorInfo);
+      if (hospitalData?.doctors) {
+        hospitalData.doctors.push(doctorInfo);
+      }
 
       await setDoc(hospitalDoc, hospitalData, { merge: true });
 
       router.push("/protected/doctor");
-
-      console.log("Doctor data updated successfully");
     } catch (error) {
       console.error("Error updating doctor data:", error);
     }

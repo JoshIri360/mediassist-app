@@ -24,11 +24,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  updateDoc
+} from "firebase/firestore";
 import {
   CalendarDaysIcon,
   CarIcon,
@@ -60,7 +69,6 @@ interface Hospital {
   };
 }
 
-// Function to fetch hospital data
 const fetchHospitalData = async (placeId: string): Promise<Hospital> => {
   const response = await fetch(`/api/place-details?placeId=${placeId}`);
   if (!response.ok) {
@@ -69,16 +77,39 @@ const fetchHospitalData = async (placeId: string): Promise<Hospital> => {
   return response.json();
 };
 
+const checkIfVerified = async (placeId: string) => {
+  const collectionRef = collection(db, "verifiedHospitals");
+  const docRef = doc(collectionRef, placeId);
+
+  const docSnapshot = await getDoc(docRef);
+  if (docSnapshot.exists()) {
+    const data = docSnapshot.data();
+    return data.doctors || [];
+  } else {
+    return [];
+  }
+};
+
+type RouteParams = {
+  id: string;
+};
+
 export default function HospitalPage() {
-  const params = useParams();
+  const params = useParams<RouteParams>();
   const { id } = params;
   const [hospital, setHospital] = useState<Hospital | null>(null);
+  const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [date, setDate] = useState<Date | undefined>(new Date());
   const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
+
+  const { user } = useAuthContext();
+  const userId = user?.uid;
 
   const toggleBookingForm = () => setIsBookingFormOpen(!isBookingFormOpen);
+
   const handleGetDirections = () => {
     if (hospital) {
       const encodedAddress = encodeURIComponent(hospital.formatted_address);
@@ -88,14 +119,42 @@ export default function HospitalPage() {
   };
 
   const handleBookAppointment = () => {
-    toggleBookingForm();
+    if (!selectedDoctor || !date) {
+      alert("Please select a doctor and date.");
+      return;
+    }
+
+    const appointment = {
+      patientId: userId,
+      doctorId: selectedDoctor,
+      date: date.toISOString(),
+    };
+
+    const docRef = doc(db, "verifiedHospitals", id);
+
+    updateDoc(docRef, {
+      appointments: arrayUnion(appointment),
+    })
+      .then(() => {
+        alert("Appointment booked successfully!");
+        toggleBookingForm();
+      })
+      .catch((error) => {
+        console.error("Error booking appointment: ", error);
+        alert("Failed to book appointment. Please try again.");
+      });
   };
 
   useEffect(() => {
     if (id) {
-      fetchHospitalData(id as string)
-        .then((data) => {
-          setHospital(data);
+      Promise.all([
+        fetchHospitalData(id as string),
+        checkIfVerified(id as string),
+      ])
+        .then(([hospitalData, doctorsData]) => {
+          console.log("Doctor's data", doctorsData);
+          setHospital(hospitalData);
+          setDoctors(doctorsData);
           setLoading(false);
         })
         .catch((err) => {
@@ -215,7 +274,7 @@ export default function HospitalPage() {
             <Button
               size="lg"
               className="w-full ml-4 bg-primary text-white"
-              onClick={handleBookAppointment}
+              onClick={toggleBookingForm}
             >
               Book Appointment
             </Button>
@@ -233,18 +292,17 @@ export default function HospitalPage() {
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
               <Label htmlFor="doctor">Doctor</Label>
-              <Select>
+              <Select onValueChange={setSelectedDoctor}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a doctor" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="dr-smith">
-                    Dr. Smith (Cardiology)
-                  </SelectItem>
-                  <SelectItem value="dr-johnson">
-                    Dr. Johnson (Pediatrics)
-                  </SelectItem>
-                  <SelectItem value="dr-lee">Dr. Lee (Dermatology)</SelectItem>
+                  {doctors?.length &&
+                    doctors.map((doctor, i) => (
+                      <SelectItem value={doctor.id} key={doctor.id}>
+                        {doctor.name} ({doctor.specialization})
+                      </SelectItem>
+                    ))}
                 </SelectContent>
               </Select>
             </div>
@@ -280,10 +338,7 @@ export default function HospitalPage() {
             <Button
               type="submit"
               className="w-full"
-              onClick={() => {
-                alert("Appointment booked successfully!");
-                toggleBookingForm();
-              }}
+              onClick={handleBookAppointment}
             >
               Submit Booking
             </Button>
