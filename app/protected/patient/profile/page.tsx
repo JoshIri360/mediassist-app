@@ -1,7 +1,6 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -14,8 +13,8 @@ import {
 import { useAuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
 
 interface FormData {
   name: string;
@@ -32,7 +31,6 @@ interface FormData {
 }
 
 export default function Profile() {
-  
   const { user, role } = useAuthContext();
   const router = useRouter();
 
@@ -51,14 +49,6 @@ export default function Profile() {
   });
 
   useEffect(() => {
-
-
-    if (!user) {
-      router.push("/login");
-  } else if (role === "doctor") {
-      router.push("/protected/doctor");
-  }
-
     const fetchData = async () => {
       if (!user?.uid) return;
       const userDocRef = doc(db, "users", user.uid);
@@ -66,14 +56,9 @@ export default function Profile() {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        const isOnboarded = userData.onboarded || false; // Default to false if onboarded field doesn't exist
+        const isOnboarded = userData.onboarded || false;
 
-        if (!isOnboarded) {
-          // Redirect to /onboarding if the user is not onboarded
-          router.push('/protected/onboarding');
-        } else {
-          setFormData(userData as FormData);
-        }
+        setFormData(userData as FormData);
       }
     };
 
@@ -98,10 +83,7 @@ export default function Profile() {
   return (
     <div className="flex min-h-screen w-full p-5">
       <div className="w-full flex items-center justify-center mx-auto">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full px-2"
-        >
+        <form onSubmit={handleSubmit} className="w-full px-2">
           <div className="space-y-6">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">

@@ -11,6 +11,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
+import { doc, getDoc } from "firebase/firestore";
 import {
   Bell,
   CircleUserRound,
@@ -38,7 +40,24 @@ export default function PatientLayout({
     } else if (role === "doctor") {
       router.push("/protected/doctor");
     }
-  }, [user, role, router]);
+
+    const fetchData = async () => {
+      if (!user?.uid) return;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const isOnboarded = userData.onboarded || false;
+
+        if (!isOnboarded) {
+          router.push("/protected/onboarding");
+        }
+      }
+    };
+
+    fetchData();
+  }, [user, router, role]);
 
   console.log("User", user);
 
