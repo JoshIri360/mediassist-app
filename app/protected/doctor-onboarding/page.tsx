@@ -161,7 +161,7 @@ export default function DoctorOnboarding() {
     <div className="flex min-h-screen w-full p-5">
       <div className="hidden md:block w-1/2 bg-blue-500 rounded-3xl relative">
         <Image
-          src="/sign-bg.jpeg"
+          src="/downloadbg.jpeg"
           alt="Sign-in image"
           className="h-full w-full object-cover rounded-3xl"
           objectFit="cover"
