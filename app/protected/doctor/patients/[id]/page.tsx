@@ -1,5 +1,20 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
+import { useAuthContext } from "@/context/AuthContext";
+// import { useRouter } from "next/navigation";
+import {
+  doc,
+  getDoc,
+  updateDoc,
+  arrayUnion,
+  arrayRemove,
+} from "firebase/firestore";
+import { db } from "@/firebase/config";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -26,21 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { useAuthContext } from "@/context/AuthContext";
-import { db } from "@/firebase/config";
-import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  arrayRemove,
-  arrayUnion,
-  doc,
-  getDoc,
-  updateDoc,
-} from "firebase/firestore";
-import { PrinterIcon } from "lucide-react"; // Make sure to install lucide-react
-import { useParams } from "next/navigation";
-import { useEffect, useRef, useState } from "react";
-import { useForm } from "react-hook-form";
-import * as z from "zod";
+import { PrinterIcon } from "lucide-react";
 
 interface Patient {
   id: string;
@@ -81,21 +82,21 @@ const medicationSchema = z.object({
 
 export default function PatientPage() {
   const { id } = useParams();
-  const { user } = useAuthContext();
+  const { user, role } = useAuthContext();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAddMedicationForm, setShowAddMedicationForm] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-    // const router = useRouter();
+  const router = useRouter();
 
-    // useEffect(() => {
-    //     if (!user) {
-    //         router.push("/login");
-    //     } else if (role === "patient") {
-    //         router.push("/protected/patient");
-    //     }
-    // }, [user, role, router]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "patient") {
+      router.push("/protected/patient");
+    }
+  }, [user, role, router]);
 
   const form = useForm<Medication>({
     resolver: zodResolver(medicationSchema),
