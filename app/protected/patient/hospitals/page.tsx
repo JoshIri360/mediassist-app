@@ -1,7 +1,5 @@
 "use client";
 
-import { useRouter } from "next/router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Command,
   CommandEmpty,
@@ -20,6 +18,7 @@ import {
 } from "@react-google-maps/api";
 import { LocateIcon, StarIcon } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 import usePlacesAutocomplete, {
   getGeocode,

@@ -1,22 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
-import { useAuthContext } from "@/context/AuthContext";
-// import { useRouter } from "next/navigation";
-import {
-  doc,
-  getDoc,
-  updateDoc,
-  arrayUnion,
-  arrayRemove,
-} from "firebase/firestore";
-import { db } from "@/firebase/config";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -25,6 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -41,7 +26,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  arrayRemove,
+  arrayUnion,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { PrinterIcon } from "lucide-react"; // Make sure to install lucide-react
+import { useParams } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
 
 interface Patient {
   id: string;

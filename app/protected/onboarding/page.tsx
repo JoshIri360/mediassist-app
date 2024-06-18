@@ -28,7 +28,6 @@ import { PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// import { useRouter } from "next/router";
 
 type Medication = {
   name: string;
