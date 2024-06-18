@@ -6,7 +6,7 @@ export function Footer() {
             <p className="text-xs text-gray-400">
                 © 2024 MediAssist Hackathon. All rights reserved.
             </p>
-            <nav className="sm:ml-auto flex gap-4 sm:gap-6">
+            {/* <nav className="sm:ml-auto flex gap-4 sm:gap-6">
                 <Link className="text-xs hover:underline underline-offset-4" href="#hero">
                     Code of Conduct
                 </Link>
@@ -19,7 +19,7 @@ export function Footer() {
                 <Link className="text-xs hover:underline underline-offset-4" href="#issues">
                     Source Code
                 </Link>
-            </nav>
+            </nav> */}
         </footer>
     );
 }
