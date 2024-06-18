@@ -1,5 +1,6 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -34,6 +35,7 @@ export default function Profile() {
   const { user, role } = useAuthContext();
   const router = useRouter();
 
+  const [hospitalNumber, setHospitalNumber] = useState();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     age: "",
@@ -57,7 +59,7 @@ export default function Profile() {
       if (userDoc.exists()) {
         const userData = userDoc.data();
         const isOnboarded = userData.onboarded || false;
-
+        setHospitalNumber(userData.hospitalNumber);
         setFormData(userData as FormData);
       }
     };
