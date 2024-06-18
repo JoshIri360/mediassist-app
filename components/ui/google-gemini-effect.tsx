@@ -29,9 +29,9 @@ export const GoogleGeminiEffect = ({
           `MediAssist is an all-in-one mobile web application for emergency medical guidance, locating nearby healthcare facilities and medication information.`}
       </p>
       <div className="w-full h-[890px] md:h-[870px] lg:h-[920px] -top-60 md:-top-40  flex items-center justify-center bg-red-transparent absolute ">
-        <button className="font-bold bg-white rounded-full md:px-4 md:py-2 px-2 py-1 md:mt-24 mt-8 z-30 md:text-base text-black text-xs  w-fit mx-auto ">
+        <a href="mailto:aidelojejoshua@gmail.com" className="font-bold bg-white rounded-full md:px-4 md:py-2 px-2 py-1 md:mt-24 mt-8 z-30 md:text-base text-black text-xs  w-fit mx-auto ">
           Contact Us
-        </button>
+        </a>
       </div>
       <svg
         width="1440"
