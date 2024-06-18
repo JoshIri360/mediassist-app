@@ -54,6 +54,9 @@ export default function MedicalFacilitiesMap() {
   const [selectedPlace, setSelectedPlace] = useState<PlaceResult | null>(null);
   const [facilities, setFacilities] = useState<PlaceResult[]>([]);
 
+  const { user, role } = useAuthContext();
+  const router = useRouter();
+
   const calculateDistance = (
     facility: PlaceResult,
     center: LatLngLiteral
@@ -133,8 +136,7 @@ export default function MedicalFacilitiesMap() {
 
   useEffect(() => {
 
-    const { user, role } = useAuthContext();
-    const router = useRouter();
+    
     if (!user) {
       router.push("/login");
       ;

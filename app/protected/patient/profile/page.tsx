@@ -32,7 +32,8 @@ interface FormData {
 }
 
 export default function Profile() {
-  const { user } = useAuthContext();
+  
+  const { user, role } = useAuthContext();
   const router = useRouter();
 
   const [formData, setFormData] = useState<FormData>({
@@ -51,8 +52,6 @@ export default function Profile() {
 
   useEffect(() => {
 
-    const { user, role } = useAuthContext();
-    const router = useRouter();
 
     if (!user) {
       router.push("/login");
