@@ -125,7 +125,10 @@ export default function DoctorSettingsPage() {
               </p>
               <div className="mt-4 flex items-center justify-between">
                 <span className="text-gray-900 dark:text-gray-50">Theme</span>
-                <Select>
+                <Select
+                  value={settings.theme}
+                  onValueChange={handleThemeChange}
+                >
                   <SelectTrigger className="w-[180px]">
                     <SelectValue placeholder="Theme" />
                   </SelectTrigger>
