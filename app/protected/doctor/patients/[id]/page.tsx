@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
-// import { useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   doc,
   getDoc,
@@ -82,21 +82,21 @@ const medicationSchema = z.object({
 
 export default function PatientPage() {
   const { id } = useParams();
-  const { user } = useAuthContext();
+  const { user, role } = useAuthContext();
   const [patient, setPatient] = useState<Patient | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAddMedicationForm, setShowAddMedicationForm] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-    // const router = useRouter();
+    const router = useRouter();
 
-    // useEffect(() => {
-    //     if (!user) {
-    //         router.push("/login");
-    //     } else if (role === "patient") {
-    //         router.push("/protected/patient");
-    //     }
-    // }, [user, role, router]);
+    useEffect(() => {
+        if (!user) {
+            router.push("/login");
+        } else if (role === "patient") {
+            router.push("/protected/patient");
+        }
+    }, [user, role, router]);
 
   const form = useForm<Medication>({
     resolver: zodResolver(medicationSchema),
