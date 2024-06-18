@@ -1,7 +1,8 @@
 "use client";
 import { useAuthContext } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 import { Switch } from "@/components/ui/switch";
 import {
   Select,
@@ -10,10 +11,17 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { db } from "@/firebase/config";
 
 export default function DoctorSettingsPage() {
   const { user, role } = useAuthContext();
   const router = useRouter();
+  const [settings, setSettings] = useState({
+    mobileNotifications: false,
+    theme: "light",
+    language: "en-GB",
+    location: "auto",
+  });
 
   useEffect(() => {
     if (!user) {
@@ -99,7 +107,10 @@ export default function DoctorSettingsPage() {
                 <span className="text-gray-900 dark:text-gray-50">
                   Mobile Notifications
                 </span>
-                <Switch id="mobile-notifications" />
+                <Switch id="mobile-notifications"
+                  checked={settings.mobileNotifications}
+                  onCheckedChange={handleMobileNotificationsChange}
+                />
               </div>
             </div>
           </div>
