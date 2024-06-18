@@ -51,7 +51,7 @@ export default function PatientLayout({
         const isOnboarded = userData.onboarded || false;
 
         if (!isOnboarded) {
-          router.push("/protected/onboarding");
+          router.push("/protected/patient-onboarding");
         }
       }
     };

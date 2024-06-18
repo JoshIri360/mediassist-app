@@ -48,12 +48,19 @@ const fetchHospitalData = async (placeId: string): Promise<Hospital> => {
 };
 
 export default function HospitalPage() {
-  console.log("Id");
   const params = useParams();
   const { id } = params;
   const [hospital, setHospital] = useState<Hospital | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const handleGetDirections = () => {
+    if (hospital) {
+      const encodedAddress = encodeURIComponent(hospital.formatted_address);
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+      window.open(mapsUrl, "_blank");
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -170,7 +177,11 @@ export default function HospitalPage() {
             </div>
           </div>
           <div className="flex">
-            <Button size="lg" className="w-full mt-4 bg-black text-white">
+            <Button
+              size="lg"
+              className="w-full mt-4 bg-black text-white"
+              onClick={handleGetDirections}
+            >
               <CarIcon className="w-5 h-5 mr-2" />
               Get directions
             </Button>

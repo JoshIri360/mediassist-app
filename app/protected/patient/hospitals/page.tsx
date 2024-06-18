@@ -90,7 +90,6 @@ export default function MedicalFacilitiesMap() {
         ) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             setFacilities(results as PlaceResult[]);
-            console.log("Facilities found:", results);
           }
         }
       );
@@ -100,22 +99,19 @@ export default function MedicalFacilitiesMap() {
 
   const getCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
-      console.log("Geolocation is supported!");
       navigator.geolocation.getCurrentPosition(
         (position: GeolocationPosition) => {
-          console.log("Getting current location...");
           const pos: LatLngLiteral = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-          console.log("Current location:", pos);
+
           setCenter(pos);
           if (map) {
             map.setCenter(pos);
           }
         },
         () => {
-          console.log("Error: The Geolocation service failed.");
           const defaultPos = { lat: 4.7731, lng: 7.0085 };
           setCenter(defaultPos);
           if (map) {
@@ -124,7 +120,6 @@ export default function MedicalFacilitiesMap() {
         }
       );
     } else {
-      console.log("Error: Your browser doesn't support geolocation.");
       const defaultPos = { lat: 4.7731, lng: 7.0085 };
       setCenter(defaultPos);
       if (map) {
@@ -134,20 +129,16 @@ export default function MedicalFacilitiesMap() {
   }, [map]);
 
   useEffect(() => {
-
-    
     if (!user) {
       router.push("/login");
-      ;
     } else if (role === "doctor") {
       router.push("/protected/doctor");
-      ;
     }
 
     if (isLoaded && map) {
       getCurrentLocation();
     }
-  }, [isLoaded, map, getCurrentLocation]);
+  }, [isLoaded, map, getCurrentLocation, user, role, router]);
 
   useEffect(() => {
     if (map && center.lat !== 0 && center.lng !== 0) {
@@ -179,9 +170,7 @@ export default function MedicalFacilitiesMap() {
         setCenter(newCenter);
         map?.panTo(newCenter);
         if (map) searchNearbyFacilities(newCenter, map);
-      } catch (error) {
-        console.log("😱 Error: ", error);
-      }
+      } catch (error) {}
     };
 
     return (
