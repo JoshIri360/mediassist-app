@@ -25,6 +25,10 @@ import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
+import { Badge } from "@/components/ui/badge";
+import { CircleIcon } from "lucide-react";
+import { collection, getDocs } from "firebase/firestore";
+import { db } from "@/firebase/config";
 
 const libraries: Libraries = ["places", "geometry"];
 
@@ -53,9 +57,9 @@ export default function MedicalFacilitiesMap() {
   const [center, setCenter] = useState<LatLngLiteral>({ lat: 0, lng: 0 });
   const [selectedPlace, setSelectedPlace] = useState<PlaceResult | null>(null);
   const [facilities, setFacilities] = useState<PlaceResult[]>([]);
-
-  const { user, role } = useAuthContext();
-  const router = useRouter();
+  const [verifiedHospitals, setVerifiedHospitals] = useState<Set<string>>(
+    new Set()
+  );
 
   const calculateDistance = (
     facility: PlaceResult,
@@ -91,7 +95,6 @@ export default function MedicalFacilitiesMap() {
         ) => {
           if (status === google.maps.places.PlacesServiceStatus.OK && results) {
             setFacilities(results as PlaceResult[]);
-            console.log("Facilities found:", results);
           }
         }
       );
@@ -101,22 +104,19 @@ export default function MedicalFacilitiesMap() {
 
   const getCurrentLocation = useCallback(() => {
     if (navigator.geolocation) {
-      console.log("Geolocation is supported!");
       navigator.geolocation.getCurrentPosition(
         (position: GeolocationPosition) => {
-          console.log("Getting current location...");
           const pos: LatLngLiteral = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
           };
-          console.log("Current location:", pos);
+
           setCenter(pos);
           if (map) {
             map.setCenter(pos);
           }
         },
         () => {
-          console.log("Error: The Geolocation service failed.");
           const defaultPos = { lat: 4.7731, lng: 7.0085 };
           setCenter(defaultPos);
           if (map) {
@@ -125,7 +125,6 @@ export default function MedicalFacilitiesMap() {
         }
       );
     } else {
-      console.log("Error: Your browser doesn't support geolocation.");
       const defaultPos = { lat: 4.7731, lng: 7.0085 };
       setCenter(defaultPos);
       if (map) {
@@ -135,20 +134,26 @@ export default function MedicalFacilitiesMap() {
   }, [map]);
 
   useEffect(() => {
-
-    
-    if (!user) {
-      router.push("/login");
-      ;
-    } else if (role === "doctor") {
-      router.push("/protected/doctor");
-      ;
-    }
-
     if (isLoaded && map) {
       getCurrentLocation();
     }
   }, [isLoaded, map, getCurrentLocation]);
+
+  useEffect(() => {
+    const fetchVerifiedHospitals = async () => {
+      const verifiedHospitalsRef = collection(db, "verifiedHospitals");
+      const snapshot = await getDocs(verifiedHospitalsRef);
+      const verifiedIds = new Set(
+        snapshot.docs.map((doc) => {
+          return doc.id;
+        })
+      );
+
+      setVerifiedHospitals(verifiedIds);
+    };
+
+    fetchVerifiedHospitals();
+  }, []);
 
   useEffect(() => {
     if (map && center.lat !== 0 && center.lng !== 0) {
@@ -180,9 +185,7 @@ export default function MedicalFacilitiesMap() {
         setCenter(newCenter);
         map?.panTo(newCenter);
         if (map) searchNearbyFacilities(newCenter, map);
-      } catch (error) {
-        console.log("😱 Error: ", error);
-      }
+      } catch (error) {}
     };
 
     return (
@@ -239,9 +242,15 @@ export default function MedicalFacilitiesMap() {
               key={facility.place_id}
               position={facility.geometry.location}
               onClick={() => setSelectedPlace(facility)}
+              icon={
+                verifiedHospitals.has(facility.place_id)
+                  ? {
+                      url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+                    }
+                  : undefined
+              }
             />
           ))}
-
           {selectedPlace && (
             <InfoWindow
               position={selectedPlace.geometry.location}
@@ -263,10 +272,21 @@ export default function MedicalFacilitiesMap() {
             key={facility.place_id}
             className="cursor-pointer"
           >
-            <div className="bg-white rounded-lg shadow-lg overflow-hidden dark:bg-gray-950">
-              <div className="p-4 md:p-6">
-                <h3 className="text-lg font-semibold">{facility.name}</h3>
-                <p className="text-gray-500 dark:text-gray-400 text-sm">
+            <div className="bg-white rounded-lg hover:shadow-lg overflow-hidden dark:bg-gray-950 border">
+              <div className="p-2 md:p-4">
+                <div className="flex justify-between items-start">
+                  <h3 className="text-lg font-semibold">{facility.name}</h3>
+                  {verifiedHospitals.has(facility.place_id) && (
+                    <Badge
+                      variant="outline"
+                      className="border-green-600 bg-white dark:bg-gray-950"
+                    >
+                      <CircleIcon className="h-3 w-3 -translate-x-1 animate-pulse fill-green-300 text-green-300" />
+                      Verified
+                    </Badge>
+                  )}
+                </div>
+                <p className="text-gray-500 dark:text-gray-400 text-sm mt-2">
                   {facility.vicinity}
                 </p>
                 <div className="flex items-center gap-2 mt-2">

@@ -34,7 +34,7 @@ export default function Page() {
       <div className="relative hidden lg:block">
         <div>
           <Image
-            src="/sign-bg.jpeg"
+            src="/downloadbg.jpeg"
             alt="Sign-in image"
             className="h-full w-full object-cover rounded-3xl"
             objectFit="cover"

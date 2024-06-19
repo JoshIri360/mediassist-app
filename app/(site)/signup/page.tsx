@@ -44,7 +44,7 @@ export default function Page() {
       <div className="relative hidden lg:block">
         <div>
           <Image
-            src="/sign-bg.jpeg"
+            src="/downloadbg.jpeg"
             alt="Sign-in image"
             className="h-full w-full object-cover rounded-3xl"
             objectFit="cover"
@@ -52,9 +52,9 @@ export default function Page() {
           />
         </div>
         <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-white text-center max-w-md px-6">
-          <h2 className="text-3xl font-bold mb-4">Welcome back!</h2>
+          <h2 className="text-3xl font-bold mb-4">Hello there!</h2>
           <p className="text-lg">
-            Sign in to your account and start exploring our amazing features.
+          Create a new account and take your medication to the next level.
           </p>
         </div>
       </div>

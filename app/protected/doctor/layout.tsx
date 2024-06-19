@@ -49,7 +49,24 @@ export default function DoctorLayout({
     } else if (role === "patient") {
       router.push("/protected/patient");
     }
-  }, [user, role, router]);
+
+    const fetchData = async () => {
+      if (!user?.uid) return;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data();
+        const isOnboarded = userData.onboarded || false;
+
+        if (!isOnboarded) {
+          router.push("/protected/doctor-onboarding");
+        }
+      }
+    };
+
+    fetchData();
+  }, [user, router, role]);
 
   // Fetch user email from firestore
 
@@ -64,11 +81,13 @@ export default function DoctorLayout({
     const fetchEmail = async (): Promise<string | undefined> => {
       if (!uid) return undefined;
       const userRef = doc(db, "users", uid);
+      console.log("UID", uid);
 
       try {
         // Get the current user document
         const userDoc = await getDoc(userRef);
         const userData = userDoc.data() as UserData | undefined;
+        console.log("User's data", userData);
         return userData?.email;
       } catch (error) {
         console.error("Error fetching email:", error);
@@ -166,7 +185,12 @@ export default function DoctorLayout({
               </div>
               <div>
                 <p className="text-[12] leading-[12px]">Profile</p>
-                <p className="text-black leading-[14px]">{email}</p>
+                <p
+                  className="text-black leading-[14px] overflow-hidden whitespace-nowrap text-overflow-ellipsis"
+                  style={{ maxWidth: "130px" }}
+                >
+                  {email.length > 15 ? `${email.substring(0, 15)}...` : email}
+                </p>
               </div>
             </div>
             <div

@@ -1,13 +1,46 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Carousel,
   CarouselContent,
-  CarouselItem
+  CarouselItem,
 } from "@/components/ui/carousel";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@radix-ui/react-popover";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  updateDoc,
+} from "firebase/firestore";
+import {
+  CalendarDaysIcon,
   CarIcon,
   GlobeIcon,
   MapPinIcon,
@@ -19,7 +52,6 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
 
-// Define types for hospital data
 interface Hospital {
   name: string;
   formatted_phone_number?: string;
@@ -38,7 +70,6 @@ interface Hospital {
   };
 }
 
-// Function to fetch hospital data
 const fetchHospitalData = async (placeId: string): Promise<Hospital> => {
   const response = await fetch(`/api/place-details?placeId=${placeId}`);
   if (!response.ok) {
@@ -47,20 +78,88 @@ const fetchHospitalData = async (placeId: string): Promise<Hospital> => {
   return response.json();
 };
 
+const checkIfVerified = async (placeId: string) => {
+  const collectionRef = collection(db, "verifiedHospitals");
+  const docRef = doc(collectionRef, placeId);
+
+  const docSnapshot = await getDoc(docRef);
+  if (docSnapshot.exists()) {
+    const data = docSnapshot.data();
+    return data.doctors || [];
+  } else {
+    return [];
+  }
+};
+
+type RouteParams = {
+  id: string;
+};
+
 export default function HospitalPage() {
-  console.log("Id");
-  const params = useParams();
+  const params = useParams<RouteParams>();
   const { id } = params;
   const [hospital, setHospital] = useState<Hospital | null>(null);
+  const [doctors, setDoctors] = useState<any[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+  const [date, setDate] = useState<Date | undefined>(new Date());
+  const [isBookingFormOpen, setIsBookingFormOpen] = useState(false);
+  const [selectedDoctor, setSelectedDoctor] = useState<string | null>(null);
+  const [appointmentReason, setAppointmentReason] = useState<
+    string | undefined
+  >("");
+
+  const { user } = useAuthContext();
+  const userId = user?.uid;
+
+  const toggleBookingForm = () => setIsBookingFormOpen(!isBookingFormOpen);
+
+  const handleGetDirections = () => {
+    if (hospital) {
+      const encodedAddress = encodeURIComponent(hospital.formatted_address);
+      const mapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${encodedAddress}`;
+      window.open(mapsUrl, "_blank");
+    }
+  };
+
+  const handleBookAppointment = () => {
+    if (!selectedDoctor || !date) {
+      alert("Please select a doctor and date.");
+      return;
+    }
+
+    const appointment = {
+      patientId: userId,
+      doctorId: selectedDoctor,
+      date: date.toISOString(),
+      appointmentReason: appointmentReason,
+    };
+
+    const docRef = doc(db, "verifiedHospitals", id);
+
+    updateDoc(docRef, {
+      appointments: arrayUnion(appointment),
+    })
+      .then(() => {
+        alert("Appointment booked successfully!");
+        toggleBookingForm();
+      })
+      .catch((error) => {
+        console.error("Error booking appointment: ", error);
+        alert("Failed to book appointment. Please try again.");
+      });
+  };
 
   useEffect(() => {
-
     if (id) {
-      fetchHospitalData(id as string)
-        .then((data) => {
-          setHospital(data);
+      Promise.all([
+        fetchHospitalData(id as string),
+        checkIfVerified(id as string),
+      ])
+        .then(([hospitalData, doctorsData]) => {
+          console.log("Doctor's data", doctorsData);
+          setHospital(hospitalData);
+          setDoctors(doctorsData);
           setLoading(false);
         })
         .catch((err) => {
@@ -73,8 +172,6 @@ export default function HospitalPage() {
   if (loading) return <div>Loading...</div>;
   if (error) return <div>Error: {error}</div>;
   if (!hospital) return <div>No hospital data found</div>;
-
-  console.log(hospital);
 
   return (
     <div className="container mx-auto p-4">
@@ -136,11 +233,6 @@ export default function HospitalPage() {
                 .map((_, index) => (
                   <StarIcon key={index} className="w-4 h-4 fill-primary" />
                 ))}
-              <div>
-                {hospital.rating
-                  ? `${hospital.rating}/5 (${hospital.user_ratings_total} reviews)`
-                  : "Not available"}
-              </div>
               {Array(5 - Math.floor(hospital.rating || 0))
                 .fill(0)
                 .map((_, index) => (
@@ -149,6 +241,11 @@ export default function HospitalPage() {
                     className="w-4 h-4 fill-gray-300 dark:fill-gray-600"
                   />
                 ))}
+              <div>
+                {hospital.rating
+                  ? `${hospital.rating}/5 (${hospital.user_ratings_total} reviews)`
+                  : "Not available"}
+              </div>
             </div>
             {hospital.opening_hours && (
               <div className="flex items-center gap-2">
@@ -170,18 +267,99 @@ export default function HospitalPage() {
               </p>
             </div>
           </div>
-          <div className="flex space-x-0 md:space-x-4 md:flex-row flex-col">
-            <Button size="lg" className="w-full mt-4 bg-black text-white">
+          <div className="flex justify-between mt-4">
+            <Button
+              size="lg"
+              className="w-full bg-black text-white"
+              onClick={handleGetDirections}
+            >
               <CarIcon className="w-5 h-5 mr-2" />
-              Call an Uber
+              Get directions
             </Button>
-            <Button size="lg" className="w-full mt-4 bg-black text-white">
-              <CarIcon className="w-5 h-5 mr-2" />
-              Call an Uber
+            <Button
+              size="lg"
+              className="w-full ml-4 bg-primary text-white"
+              onClick={toggleBookingForm}
+            >
+              Book Appointment
             </Button>
           </div>
         </CardContent>
       </Card>
+      <Dialog open={isBookingFormOpen} onOpenChange={toggleBookingForm}>
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>Schedule an Appointment</DialogTitle>
+            <DialogDescription>
+              Select a doctor and date to book your appointment.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="doctor">Doctor</Label>
+              <Select onValueChange={setSelectedDoctor}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a doctor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {doctors?.length &&
+                    doctors.map((doctor, i) => (
+                      <SelectItem value={doctor.id} key={doctor.id}>
+                        {doctor.name} ({doctor.specialization})
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="date">Appointment Date</Label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-start text-left font-normal"
+                  >
+                    <CalendarDaysIcon className="mr-1 h-4 w-4 -translate-x-1" />
+                    {date?.toLocaleDateString("en-US", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    }) || "Select a date"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={date}
+                    onSelect={setDate}
+                    className="rounded-md border bg-white"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+            <div>
+              <Label htmlFor="date">Appointment Reason</Label>
+              <Input
+                id=""
+                type="text"
+                required
+                value={appointmentReason}
+                onChange={(e) => setAppointmentReason(e.target.value)}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              type="submit"
+              className="w-full"
+              onClick={handleBookAppointment}
+            >
+              Submit Booking
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

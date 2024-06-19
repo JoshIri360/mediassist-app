@@ -28,7 +28,6 @@ import { PlusCircle, X } from "lucide-react";
 import Image from "next/image";
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-// import { useRouter } from "next/router";
 
 type Medication = {
   name: string;
@@ -248,7 +247,7 @@ export default function MedicalOnboarding() {
     >
       <div className="hidden md:block w-1/2 bg-blue-500 rounded-3xl relative">
         <Image
-          src="/sign-bg.jpeg"
+          src="/downloadbg.jpeg"
           alt="Sign-in image"
           className="h-full w-full object-cover rounded-3xl"
           objectFit="cover"

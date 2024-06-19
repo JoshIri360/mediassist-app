@@ -110,7 +110,7 @@ export const Header = () => {
         The All-In-One <br /> Medical Companion
       </h1>
       <p className="max-w-2xl text-base md:text-xl mt-8 dark:text-neutral-200">
-        Whether it&apos;s a sudden emergency, diagnosing concerning symptoms, finding healthcare facilities, or managing medications - MediAssist is designed to be your go-to app for any medical situation.
+        Whether it&apos;s diagnosing concerning symptoms, finding healthcare facilities, or managing medications - MediAssist is designed to be your go-to app for any medical situation.
       </p>
     </div>
   );

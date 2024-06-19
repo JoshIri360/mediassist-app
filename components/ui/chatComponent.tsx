@@ -8,7 +8,7 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { MessageSquareIcon, SendIcon } from "lucide-react";
+import { SendIcon } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
 interface Message {
@@ -85,7 +85,7 @@ export default function ChatComponent() {
               Your Personal Medical Companion
             </h3>
           </DrawerHeader>
-          <div className={"flex-1 overflow-y-auto px-4 py-6"}>
+          <div className={"flex-1 overflow-y-auto px-4 py-6 successful"}>
             <div className="space-y-4">
               {messages.map((message, index) => (
                 <div
@@ -146,6 +146,36 @@ export default function ChatComponent() {
         </DrawerContent>
       </Drawer>
     </div>
+  );
+}
+
+function MessageSquareIcon(props: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      {...props}
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
+      <path
+        d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z"
+        stroke="white"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
+      <path
+        d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z"
+        stroke="white"
+        stroke-width="2"
+        stroke-linejoin="round"
+      />
+    </svg>
   );
 }
 

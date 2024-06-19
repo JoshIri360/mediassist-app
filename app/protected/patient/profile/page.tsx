@@ -1,7 +1,7 @@
 "use client";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -14,8 +14,15 @@ import {
 import { useAuthContext } from "@/context/AuthContext";
 import { db } from "@/firebase/config";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { useEffect, useState, ChangeEvent, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { FormEvent, useEffect, useState } from "react";
+import { Copy } from "lucide-react";
+import {
+  TooltipArrow,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@radix-ui/react-tooltip";
+import { Tooltip, TooltipContent } from "@/components/ui/tooltip";
 
 interface FormData {
   name: string;
@@ -32,10 +39,10 @@ interface FormData {
 }
 
 export default function Profile() {
-  
   const { user, role } = useAuthContext();
   const router = useRouter();
 
+  const [hospitalNumber, setHospitalNumber] = useState();
   const [formData, setFormData] = useState<FormData>({
     name: "",
     age: "",
@@ -51,14 +58,6 @@ export default function Profile() {
   });
 
   useEffect(() => {
-
-
-    if (!user) {
-      router.push("/login");
-  } else if (role === "doctor") {
-      router.push("/protected/doctor");
-  }
-
     const fetchData = async () => {
       if (!user?.uid) return;
       const userDocRef = doc(db, "users", user.uid);
@@ -66,14 +65,9 @@ export default function Profile() {
 
       if (userDoc.exists()) {
         const userData = userDoc.data();
-        const isOnboarded = userData.onboarded || false; // Default to false if onboarded field doesn't exist
-
-        if (!isOnboarded) {
-          // Redirect to /onboarding if the user is not onboarded
-          router.push('/protected/onboarding');
-        } else {
-          setFormData(userData as FormData);
-        }
+        const isOnboarded = userData.onboarded || false;
+        setHospitalNumber(userData.hospitalNumber);
+        setFormData(userData as FormData);
       }
     };
 
@@ -98,15 +92,38 @@ export default function Profile() {
   return (
     <div className="flex min-h-screen w-full p-5">
       <div className="w-full flex items-center justify-center mx-auto">
-        <form
-          onSubmit={handleSubmit}
-          className="w-full px-2"
-        >
+        <form onSubmit={handleSubmit} className="w-full px-2">
           <div className="space-y-6">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
-                Profile
-              </h1>
+              <div className="flex items-center">
+                <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-50">
+                  Profile
+                </h1>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Badge
+                        variant="outline"
+                        className="ml-2 cursor-pointer"
+                        onClick={() => {
+                          if (hospitalNumber) {
+                            navigator.clipboard.writeText(hospitalNumber);
+                          }
+                        }}
+                      >
+                        {hospitalNumber}
+                        <Copy className="ml-1" size={16} />
+                      </Badge>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      <TooltipArrow className="radix-tooltip-arrow" />
+                      <div className="rounded bg-black px-2 py-1 text-sm leading-none shadow">
+                        <span className="text-white">Hospital Number</span>
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>{" "}
+              </div>
               <p className="mt-2 text-lg text-gray-500 dark:text-gray-400">
                 Edit your profile information.
               </p>

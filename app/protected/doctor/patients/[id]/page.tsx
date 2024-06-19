@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useAuthContext } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import {
   doc,
   getDoc,
@@ -16,7 +16,6 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Form,
   FormControl,
@@ -25,6 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -41,7 +41,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { PrinterIcon } from "lucide-react"; // Make sure to install lucide-react
+import { PrinterIcon } from "lucide-react";
 
 interface Patient {
   id: string;
@@ -88,15 +88,15 @@ export default function PatientPage() {
   const [showAddMedicationForm, setShowAddMedicationForm] = useState(false);
   const printRef = useRef<HTMLDivElement>(null);
 
-    const router = useRouter();
+  const router = useRouter();
 
-    useEffect(() => {
-        if (!user) {
-            router.push("/login");
-        } else if (role === "patient") {
-            router.push("/protected/patient");
-        }
-    }, [user, role, router]);
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "patient") {
+      router.push("/protected/patient");
+    }
+  }, [user, role, router]);
 
   const form = useForm<Medication>({
     resolver: zodResolver(medicationSchema),
