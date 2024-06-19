@@ -1,6 +1,12 @@
 "use client";
 import { useAuthContext } from '@/context/AuthContext';
 import React, { useState } from 'react';
+import { useRouter } from "next/navigation";
+
+
+
+const { user, role } = useAuthContext();
+const router = useRouter();
 
 const UserProfile: React.FC = () => {
   const [user, setUser] = useState({
@@ -24,6 +30,11 @@ const UserProfile: React.FC = () => {
     // Handle profile update logic here
   };
   
+  if (!user) {
+    router.push("/login");
+} else if (role === "doctor") {
+    router.push("/protected/doctor");
+  }
 
   return (
     <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-6">
