@@ -4,11 +4,11 @@ Welcome to the MediAssist web app repository for HackOps 1.0!
 
 ## Overview
 
-**MediAssist** is a web application designed to enhance productivity in medical emergencies. It provides AI-powered medical advice, locates nearby hospitals and pharmacies, and offers comprehensive medication information. This app aims to streamline access to critical medical information, improving efficiency and response times in urgent situations.
+**MediAssist** is a web application designed to enhance productivity in the medical field. It provides AI-powered medical advice, locates nearby hospitals and pharmacies, and offers comprehensive medication information. This app aims to streamline access to critical medical information, improving efficiency and response times in urgent situations.
 
 ## Features
 
-- **Emergency Flow**: Quickly access first aid instructions, locate nearby hospitals and pharmacies, and notify emergency contacts.
+
 - **Symptom Checker**: Enter symptoms to receive AI-powered medical advice and relevant information.
 - **Hospital and Pharmacy Finder**: View nearby hospitals and pharmacies on a map, with contact information and navigation options.
 - **Medication Information**: Search for medications, view detailed information, save to profile, and set dosage reminders.

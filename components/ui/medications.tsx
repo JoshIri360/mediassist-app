@@ -318,7 +318,7 @@ export function MedicationsForm({
                 <TableHead>Times</TableHead>
                 <TableHead>Start Date</TableHead>
                 <TableHead>End Date</TableHead>
-                <TableHead className="w-[80px]">Ask AI</TableHead>
+                {/* <TableHead className="w-[80px]">Ask AI</TableHead> */}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -342,12 +342,12 @@ export function MedicationsForm({
                     <TableCell>{med.times && med.times.join(", ")}</TableCell>
                     <TableCell>{med.startDate}</TableCell>
                     <TableCell>{med.endDate}</TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <Button variant="ghost" size="icon" className="w-8 h-8">
                         <SparkleIcon className="h-4 w-4" />
                         <span className="sr-only">Ask AI</span>
                       </Button>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               <TableRow>
@@ -370,12 +370,12 @@ export function MedicationsForm({
                     <TableCell>{med.times && med.times.join(", ")}</TableCell>
                     <TableCell>{med.startDate}</TableCell>
                     <TableCell>{med.endDate}</TableCell>
-                    <TableCell>
+                    {/* <TableCell>
                       <Button variant="ghost" size="icon" className="w-8 h-8">
                         <SparkleIcon className="h-4 w-4" />
                         <span className="sr-only">Ask AI</span>
                       </Button>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
             </TableBody>

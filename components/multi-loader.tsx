@@ -7,7 +7,7 @@ const loadingStates = [
   { text: "Ugh, food poisoning again..." },
   { text: "Launch MediAssist symptom checker." },
   { text: '"I regret that expired gala."' },
-  { text: "Finding nearest emergency room." },
+  { text: "Finding nearest hospital." },
   { text: "Navigating to hospital now." },
   { text: 'Doctor: "No more sketchy food!"' },
   { text: '"But it was free..."' },
