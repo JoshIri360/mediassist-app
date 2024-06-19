@@ -1,25 +1,35 @@
 "use client";
 import { useAuthContext } from '@/context/AuthContext';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from "next/navigation";
 
 
 
-const { user, role } = useAuthContext();
-const router = useRouter();
+
 
 const UserProfile: React.FC = () => {
-  const [user, setUser] = useState({
+  const [userinfo, setUser] = useState({
     name: '',
     dob: '',
     email: '',
     phone: '',
   });
 
+  const { user, role } = useAuthContext();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!user) {
+      router.push("/login");
+    } else if (role === "doctor") {
+      router.push("/protected/doctor");
+    }
+  }, [user, role, router]);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setUser({
-      ...user,
+      ...userinfo,
       [name]: value,
     });
   };
@@ -48,7 +58,7 @@ const UserProfile: React.FC = () => {
             type="text"
             id="name"
             name="name"
-            value={user.name}
+            value={userinfo.name}
             onChange={handleChange}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
@@ -63,7 +73,7 @@ const UserProfile: React.FC = () => {
             type="date"
             id="dob"
             name="dob"
-            value={user.dob}
+            value={userinfo.dob}
             onChange={handleChange}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
@@ -78,7 +88,7 @@ const UserProfile: React.FC = () => {
             type="email"
             id="email"
             name="email"
-            value={user.email}
+            value={userinfo.email}
             onChange={handleChange}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
@@ -93,7 +103,7 @@ const UserProfile: React.FC = () => {
             type="tel"
             id="phone"
             name="phone"
-            value={user.phone}
+            value={userinfo.phone}
             onChange={handleChange}
             required
             className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-600"
