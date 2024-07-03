@@ -35,7 +35,40 @@ class WebRTCService {
           }
         });
       };
+
+      this.peerConnection.onicecandidate = (event) => {
+        if (event.candidate) {
+          console.log("New ICE candidate:", event.candidate);
+        }
+      };
+
+      this.peerConnection.onconnectionstatechange = () => {
+        console.log(
+          "Connection state change:",
+          this.peerConnection?.connectionState
+        );
+        if (this.peerConnection?.connectionState === "failed") {
+          this.handleConnectionFailed();
+        }
+      };
+
+      this.peerConnection.oniceconnectionstatechange = () => {
+        console.log(
+          "ICE connection state change:",
+          this.peerConnection?.iceConnectionState
+        );
+        if (this.peerConnection?.iceConnectionState === "failed") {
+          this.handleConnectionFailed();
+        }
+      };
     }
+  }
+
+  private handleConnectionFailed() {
+    console.error("WebRTC connection failed, attempting to restart...");
+    this.endCall().then(() => {
+      this.initializePeerConnection();
+    });
   }
 
   async setupMediaDevices() {
@@ -52,9 +85,7 @@ class WebRTCService {
 
       if (this.peerConnection) {
         this.localStream.getTracks().forEach((track) => {
-          if (this.peerConnection && this.localStream) {
-            this.peerConnection.addTrack(track, this.localStream);
-          }
+          this.peerConnection?.addTrack(track, this.localStream!);
         });
       } else {
         throw new Error("Peer connection not initialized");
@@ -79,7 +110,10 @@ class WebRTCService {
     const answerCandidates = collection(callDoc, "answerCandidates");
 
     this.peerConnection.onicecandidate = (event) => {
-      event.candidate && setDoc(doc(offerCandidates), event.candidate.toJSON());
+      if (event.candidate) {
+        console.log("New ICE candidate:", event.candidate);
+        setDoc(doc(offerCandidates), event.candidate.toJSON());
+      }
     };
 
     const offerDescription = await this.peerConnection.createOffer();
@@ -109,6 +143,7 @@ class WebRTCService {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const candidate = new RTCIceCandidate(change.doc.data());
+          console.log("Adding received ICE candidate:", candidate);
           this.peerConnection?.addIceCandidate(candidate);
         }
       });
@@ -127,8 +162,10 @@ class WebRTCService {
     const offerCandidates = collection(callDoc, "offerCandidates");
 
     this.peerConnection.onicecandidate = (event) => {
-      event.candidate &&
+      if (event.candidate) {
+        console.log("New ICE candidate:", event.candidate);
         setDoc(doc(answerCandidates), event.candidate.toJSON());
+      }
     };
 
     const callData = (await getDoc(callDoc)).data();
@@ -156,6 +193,7 @@ class WebRTCService {
       snapshot.docChanges().forEach((change) => {
         if (change.type === "added") {
           const candidate = new RTCIceCandidate(change.doc.data());
+          console.log("Adding received ICE candidate:", candidate);
           this.peerConnection?.addIceCandidate(candidate);
         }
       });
@@ -184,4 +222,5 @@ class WebRTCService {
   }
 }
 
-export default new WebRTCService();
+const webRTCService = new WebRTCService();
+export default webRTCService;

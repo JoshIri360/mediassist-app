@@ -31,8 +31,10 @@ const VideoCallPage: React.FC = () => {
       setRemoteStream(remoteStream);
     } catch (error) {
       console.error("Error setting up media devices:", error);
-      throw new Error(
-        "Failed to access camera and microphone. Please check your permissions."
+      setError(
+        error instanceof Error
+          ? error.message
+          : "Failed to access camera and microphone. Please check your permissions."
       );
     }
   };
