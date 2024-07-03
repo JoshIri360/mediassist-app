@@ -15,7 +15,6 @@ const VideoCallPage: React.FC = () => {
   const [joinCallId, setJoinCallId] = useState("");
 
   useEffect(() => {
-    // Clean up function to end the call when component unmounts
     return () => {
       WebRTCService.endCall();
     };
@@ -23,9 +22,10 @@ const VideoCallPage: React.FC = () => {
 
   const setupStreams = async () => {
     try {
-      await WebRTCService.setupMediaDevices();
-      setLocalStream(WebRTCService.getLocalStream());
-      setRemoteStream(WebRTCService.getRemoteStream());
+      const { localStream, remoteStream } =
+        await WebRTCService.setupMediaDevices();
+      setLocalStream(localStream);
+      setRemoteStream(remoteStream);
     } catch (error) {
       console.error("Error setting up media devices:", error);
       throw new Error(
@@ -68,7 +68,9 @@ const VideoCallPage: React.FC = () => {
     } catch (error) {
       console.error("Error joining call:", error);
       setError(
-        "Failed to join the call. Please check the call ID and try again."
+        error instanceof Error
+          ? error.message
+          : "Failed to join the call. Please check the call ID and try again."
       );
     } finally {
       setIsLoading(false);
@@ -100,17 +102,21 @@ const VideoCallPage: React.FC = () => {
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white rounded-lg shadow-md w-full max-w-4xl">
         <div className="relative aspect-video">
-          <video
-            className="w-full h-full rounded object-cover"
-            ref={(videoRef) => {
-              if (videoRef && localStream) {
-                videoRef.srcObject = localStream;
-              }
-            }}
-            autoPlay
-            playsInline
-            muted
-          />
+          {localStream ? (
+            <video
+              className="w-full h-full rounded object-cover"
+              ref={(videoRef) => {
+                if (videoRef) videoRef.srcObject = localStream;
+              }}
+              autoPlay
+              playsInline
+              muted
+            />
+          ) : (
+            <div className="w-full h-full rounded bg-gray-200 flex items-center justify-center">
+              <p className="text-gray-500">Camera off</p>
+            </div>
+          )}
           <p className="absolute bottom-2 left-2 bg-black bg-opacity-50 text-white px-2 py-1 rounded">
             You
           </p>
@@ -120,9 +126,7 @@ const VideoCallPage: React.FC = () => {
             <video
               className="w-full h-full rounded object-cover"
               ref={(videoRef) => {
-                if (videoRef && remoteStream) {
-                  videoRef.srcObject = remoteStream;
-                }
+                if (videoRef) videoRef.srcObject = remoteStream;
               }}
               autoPlay
               playsInline
