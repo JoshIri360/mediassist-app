@@ -8,6 +8,7 @@ import {
   updateDoc,
   getDoc,
 } from "firebase/firestore";
+import { useAuthContext } from "@/context/AuthContext";
 
 const servers = {
   iceServers: [
@@ -22,24 +23,31 @@ interface VideoCallProps {
   role: "doctor" | "patient";
 }
 
-const VideoCall: React.FC<VideoCallProps> = ({ userId, role }) => {
+const VideoCall: React.FC<VideoCallProps> = ({ userId }) => {
   const [localStream, setLocalStream] = useState<MediaStream | null>(null);
   const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
   const [callId, setCallId] = useState<string>("");
+  const { user, role } = useAuthContext();
 
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
   const pcRef = useRef<RTCPeerConnection | null>(null);
 
+  const patientId = "TOnFPD4v1ydA3tjjwxsh1ryPoOE3";
+
   useEffect(() => {
     const startWebcam = async () => {
-      const stream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true,
-      });
-      setLocalStream(stream);
-      if (localVideoRef.current) {
-        localVideoRef.current.srcObject = stream;
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: true,
+        });
+        setLocalStream(stream);
+        if (localVideoRef.current) {
+          localVideoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error("Error accessing webcam: ", error);
       }
     };
 
@@ -50,111 +58,158 @@ const VideoCall: React.FC<VideoCallProps> = ({ userId, role }) => {
     };
   }, []);
 
-  const createCall = async () => {
-    pcRef.current = new RTCPeerConnection(servers);
+  useEffect(() => {
+    if (role === "doctor") {
+      createCall(patientId);
+    } else if (role === "patient") {
+      answerCall();
+    }
 
-    localStream?.getTracks().forEach((track) => {
-      pcRef.current?.addTrack(track, localStream);
-    });
-
-    pcRef.current.ontrack = (event) => {
-      setRemoteStream(event.streams[0]);
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0];
-      }
+    return () => {
+      pcRef.current?.close();
     };
+  }, [role]);
 
-    const callDoc = await addDoc(collection(db, "calls"), {
-      created: new Date(),
-    });
-    setCallId(callDoc.id);
+  const createCall = async (patientId: string) => {
+    try {
+      pcRef.current = new RTCPeerConnection(servers);
 
-    pcRef.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        addDoc(
-          collection(db, `calls/${callDoc.id}/offerCandidates`),
-          event.candidate.toJSON()
-        );
+      localStream?.getTracks().forEach((track) => {
+        pcRef.current?.addTrack(track, localStream);
+      });
+
+      pcRef.current.ontrack = (event) => {
+        const [stream] = event.streams;
+        setRemoteStream(stream);
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = stream;
+        }
+      };
+
+      const callDoc = await addDoc(collection(db, "calls"), {
+        created: new Date(),
+      });
+      setCallId(callDoc.id);
+
+      const patientRef = doc(db, "users", patientId);
+      await updateDoc(patientRef, { calls: callDoc.id });
+
+      pcRef.current.onicecandidate = (event) => {
+        if (event.candidate) {
+          addDoc(
+            collection(db, `calls/${callDoc.id}/offerCandidates`),
+            event.candidate.toJSON()
+          );
+        }
+      };
+
+      const offerDescription = await pcRef.current.createOffer();
+      await pcRef.current.setLocalDescription(offerDescription);
+
+      await updateDoc(callDoc, {
+        offer: {
+          type: offerDescription.type,
+          sdp: offerDescription.sdp,
+        },
+      });
+
+      onSnapshot(callDoc, (snapshot) => {
+        const data = snapshot.data();
+        if (data?.answer && !pcRef.current?.currentRemoteDescription) {
+          const answerDescription = new RTCSessionDescription(data.answer);
+          pcRef.current?.setRemoteDescription(answerDescription);
+        }
+      });
+
+      onSnapshot(
+        collection(db, `calls/${callDoc.id}/answerCandidates`),
+        (snapshot) => {
+          snapshot.docChanges().forEach((change) => {
+            if (change.type === "added") {
+              const candidate = new RTCIceCandidate(change.doc.data());
+              pcRef.current?.addIceCandidate(candidate);
+            }
+          });
+        }
+      );
+    } catch (error) {
+      console.error("Error creating call: ", error);
+    }
+  };
+
+  const answerCall = async () => {
+    if (!user) return;
+
+    try {
+      pcRef.current = new RTCPeerConnection(servers);
+
+      const userRef = doc(db, "users", user.uid);
+      const userData = (await getDoc(userRef)).data();
+
+      if (!userData) {
+        console.error("User data not found");
+        return;
       }
-    };
 
-    const offerDescription = await pcRef.current.createOffer();
-    await pcRef.current.setLocalDescription(offerDescription);
+      const callId = userData.calls;
 
-    await updateDoc(callDoc, {
-      offer: { type: offerDescription.type, sdp: offerDescription.sdp },
-    });
+      localStream?.getTracks().forEach((track) => {
+        pcRef.current?.addTrack(track, localStream);
+      });
 
-    onSnapshot(callDoc, (snapshot) => {
-      const data = snapshot.data();
-      if (!pcRef.current?.currentRemoteDescription && data?.answer) {
-        const answerDescription = new RTCSessionDescription(data.answer);
-        pcRef.current?.setRemoteDescription(answerDescription);
+      pcRef.current.ontrack = (event) => {
+        const [stream] = event.streams;
+        setRemoteStream(stream);
+        if (remoteVideoRef.current) {
+          remoteVideoRef.current.srcObject = stream;
+        }
+      };
+
+      const callDoc = doc(db, "calls", callId);
+      const answerCandidates = collection(
+        db,
+        `calls/${callId}/answerCandidates`
+      );
+      const offerCandidates = collection(db, `calls/${callId}/offerCandidates`);
+
+      pcRef.current.onicecandidate = (event) => {
+        if (event.candidate) {
+          addDoc(answerCandidates, event.candidate.toJSON());
+        }
+      };
+
+      const callData = (await getDoc(callDoc)).data();
+      if (!callData) {
+        console.error("Call data not found");
+        return;
       }
-    });
 
-    onSnapshot(
-      collection(db, `calls/${callDoc.id}/answerCandidates`),
-      (snapshot) => {
+      const offerDescription = callData.offer;
+      await pcRef.current.setRemoteDescription(
+        new RTCSessionDescription(offerDescription)
+      );
+
+      const answerDescription = await pcRef.current.createAnswer();
+      await pcRef.current.setLocalDescription(answerDescription);
+
+      await updateDoc(callDoc, {
+        answer: {
+          type: answerDescription.type,
+          sdp: answerDescription.sdp,
+        },
+      });
+
+      onSnapshot(offerCandidates, (snapshot) => {
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
             const candidate = new RTCIceCandidate(change.doc.data());
             pcRef.current?.addIceCandidate(candidate);
           }
         });
-      }
-    );
-  };
-
-  const answerCall = async (callId: string) => {
-    pcRef.current = new RTCPeerConnection(servers);
-
-    localStream?.getTracks().forEach((track) => {
-      pcRef.current?.addTrack(track, localStream);
-    });
-
-    pcRef.current.ontrack = (event) => {
-      setRemoteStream(event.streams[0]);
-      if (remoteVideoRef.current) {
-        remoteVideoRef.current.srcObject = event.streams[0];
-      }
-    };
-
-    const callDoc = doc(db, "calls", callId);
-    const answerCandidates = collection(db, `calls/${callId}/answerCandidates`);
-    const offerCandidates = collection(db, `calls/${callId}/offerCandidates`);
-
-    pcRef.current.onicecandidate = (event) => {
-      if (event.candidate) {
-        addDoc(answerCandidates, event.candidate.toJSON());
-      }
-    };
-
-    const callData = (await getDoc(callDoc)).data();
-    if (!callData) {
-      console.error("Call data not found");
-      return;
-    }
-    const offerDescription = callData.offer;
-    await pcRef.current.setRemoteDescription(
-      new RTCSessionDescription(offerDescription)
-    );
-
-    const answerDescription = await pcRef.current.createAnswer();
-    await pcRef.current.setLocalDescription(answerDescription);
-
-    await updateDoc(callDoc, {
-      answer: { type: answerDescription.type, sdp: answerDescription.sdp },
-    });
-
-    onSnapshot(offerCandidates, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === "added") {
-          const candidate = new RTCIceCandidate(change.doc.data());
-          pcRef.current?.addIceCandidate(candidate);
-        }
       });
-    });
+    } catch (error) {
+      console.error("Error answering call: ", error);
+    }
   };
 
   return (
@@ -173,27 +228,6 @@ const VideoCall: React.FC<VideoCallProps> = ({ userId, role }) => {
           playsInline
           className="w-1/2 h-auto"
         />
-      </div>
-      <div className="flex space-x-4">
-        <button
-          onClick={createCall}
-          className="bg-blue-500 text-white px-4 py-2 rounded"
-        >
-          Start Call
-        </button>
-        <input
-          type="text"
-          value={callId}
-          onChange={(e) => setCallId(e.target.value)}
-          placeholder="Enter Call ID"
-          className="border px-2 py-1 rounded"
-        />
-        <button
-          onClick={() => answerCall(callId)}
-          className="bg-green-500 text-white px-4 py-2 rounded"
-        >
-          Join Call
-        </button>
       </div>
     </div>
   );

@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Command,
   CommandEmpty,
@@ -10,7 +9,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
 import {
   GoogleMap,
   InfoWindow,
@@ -18,17 +17,14 @@ import {
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { LocateIcon, StarIcon } from "lucide-react";
+import { collection, getDocs } from "firebase/firestore";
+import { CircleIcon, LocateIcon, StarIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
-import { Badge } from "@/components/ui/badge";
-import { CircleIcon } from "lucide-react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/config";
 
 const libraries: Libraries = ["places", "geometry"];
 

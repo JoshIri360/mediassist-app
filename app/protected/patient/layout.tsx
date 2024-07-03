@@ -10,6 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import EmergencyComponent from "@/components/ui/emergencyComponent";
 import { useAuthContext } from "@/context/AuthContext";
 import { auth, db } from "@/firebase/config";
 import { signOut } from "firebase/auth";
@@ -244,6 +245,7 @@ export default function PatientLayout({
         </header>
         <div className="flex flex-1 pt-16 overflow-hidden">
           <div className="flex-1 overflow-y-auto">{children}</div>
+          <EmergencyComponent />
           <ChatComponent />
         </div>
       </div>

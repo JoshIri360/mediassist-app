@@ -166,14 +166,14 @@ function MessageSquareIcon(props: React.SVGProps<SVGSVGElement>) {
       <path
         d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z"
         stroke="white"
-        stroke-width="2"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinejoin="round"
       />
       <path
         d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z"
         stroke="white"
-        stroke-width="2"
-        stroke-linejoin="round"
+        strokeWidth="2"
+        strokeLinejoin="round"
       />
     </svg>
   );
