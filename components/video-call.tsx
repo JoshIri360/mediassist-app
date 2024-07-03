@@ -16,11 +16,14 @@ const VideoCallPage: React.FC = () => {
 
   useEffect(() => {
     return () => {
-      WebRTCService.endCall();
+      WebRTCService?.endCall();
     };
   }, []);
 
   const setupStreams = async () => {
+    if (!WebRTCService) {
+      throw new Error("WebRTC is not supported in this environment");
+    }
     try {
       const { localStream, remoteStream } =
         await WebRTCService.setupMediaDevices();
@@ -35,6 +38,10 @@ const VideoCallPage: React.FC = () => {
   };
 
   const startCall = async () => {
+    if (!WebRTCService) {
+      setError("WebRTC is not supported in this environment");
+      return;
+    }
     setIsLoading(true);
     setError(null);
     try {

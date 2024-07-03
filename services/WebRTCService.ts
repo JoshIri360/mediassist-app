@@ -14,27 +14,35 @@ class WebRTCService {
   private remoteStream: MediaStream | null = null;
 
   constructor() {
-    this.initializePeerConnection();
+    if (typeof window !== "undefined") {
+      this.initializePeerConnection();
+    }
   }
 
   private initializePeerConnection() {
-    this.peerConnection = new RTCPeerConnection({
-      iceServers: [
-        { urls: "stun:stun.l.google.com:19302" },
-        { urls: "stun:stun1.l.google.com:19302" },
-      ],
-    });
-
-    this.peerConnection.ontrack = (event) => {
-      event.streams[0].getTracks().forEach((track) => {
-        if (this.remoteStream) {
-          this.remoteStream.addTrack(track);
-        }
+    if (typeof RTCPeerConnection !== "undefined") {
+      this.peerConnection = new RTCPeerConnection({
+        iceServers: [
+          { urls: "stun:stun.l.google.com:19302" },
+          { urls: "stun:stun1.l.google.com:19302" },
+        ],
       });
-    };
+
+      this.peerConnection.ontrack = (event) => {
+        event.streams[0].getTracks().forEach((track) => {
+          if (this.remoteStream) {
+            this.remoteStream.addTrack(track);
+          }
+        });
+      };
+    }
   }
 
   async setupMediaDevices() {
+    if (typeof navigator === "undefined" || !navigator.mediaDevices) {
+      throw new Error("MediaDevices API is not available in this environment");
+    }
+
     try {
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
