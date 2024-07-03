@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { db } from "@/firebase/config";
 import {
   collection,
@@ -6,228 +6,153 @@ import {
   doc,
   onSnapshot,
   updateDoc,
-  getDoc,
 } from "firebase/firestore";
-import { useAuthContext } from "@/context/AuthContext";
 
-const servers = {
-  iceServers: [
-    {
-      urls: ["stun:stun1.l.google.com:19302", "stun:stun2.l.google.com:19302"],
-    },
-  ],
-};
-
-interface VideoCallProps {
-  userId: string;
-  role: "doctor" | "patient";
-}
-
-const VideoCall: React.FC<VideoCallProps> = ({ userId }) => {
-  const [localStream, setLocalStream] = useState<MediaStream | null>(null);
-  const [remoteStream, setRemoteStream] = useState<MediaStream | null>(null);
-  const [callId, setCallId] = useState<string>("");
-  const { user, role } = useAuthContext();
-
+const VideoCall = () => {
   const localVideoRef = useRef<HTMLVideoElement>(null);
   const remoteVideoRef = useRef<HTMLVideoElement>(null);
-  const pcRef = useRef<RTCPeerConnection | null>(null);
-
-  const patientId = "TOnFPD4v1ydA3tjjwxsh1ryPoOE3";
+  const [callId, setCallId] = useState<string>("");
+  const [peerConnection, setPeerConnection] =
+    useState<RTCPeerConnection | null>(null);
 
   useEffect(() => {
-    const startWebcam = async () => {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: true,
-        });
-        setLocalStream(stream);
-        if (localVideoRef.current) {
-          localVideoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error("Error accessing webcam: ", error);
+    const initLocalStream = async () => {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: true,
+      });
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
       }
     };
-
-    startWebcam();
-
-    return () => {
-      localStream?.getTracks().forEach((track) => track.stop());
-    };
+    initLocalStream();
   }, []);
 
-  useEffect(() => {
-    if (role === "doctor") {
-      createCall(patientId);
-    } else if (role === "patient") {
-      answerCall();
-    }
+  const startCall = async () => {
+    const pc = new RTCPeerConnection();
+    setPeerConnection(pc);
 
-    return () => {
-      pcRef.current?.close();
+    const localStream = localVideoRef.current?.srcObject as MediaStream;
+    localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+
+    const callDoc = await addDoc(collection(db, "calls"), {});
+    setCallId(callDoc.id);
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        addDoc(
+          collection(db, "calls", callDoc.id, "offerCandidates"),
+          event.candidate.toJSON()
+        );
+      }
     };
-  }, [role]);
 
-  const createCall = async (patientId: string) => {
-    try {
-      pcRef.current = new RTCPeerConnection(servers);
+    const offerDescription = await pc.createOffer();
+    await pc.setLocalDescription(offerDescription);
 
-      localStream?.getTracks().forEach((track) => {
-        pcRef.current?.addTrack(track, localStream);
-      });
+    const offer = {
+      sdp: offerDescription.sdp,
+      type: offerDescription.type,
+    };
 
-      pcRef.current.ontrack = (event) => {
-        const [stream] = event.streams;
-        setRemoteStream(stream);
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = stream;
-        }
-      };
+    await updateDoc(callDoc, { offer });
 
-      const callDoc = await addDoc(collection(db, "calls"), {
-        created: new Date(),
-      });
-      setCallId(callDoc.id);
-
-      const patientRef = doc(db, "users", patientId);
-      await updateDoc(patientRef, { calls: callDoc.id });
-
-      pcRef.current.onicecandidate = (event) => {
-        if (event.candidate) {
-          addDoc(
-            collection(db, `calls/${callDoc.id}/offerCandidates`),
-            event.candidate.toJSON()
-          );
-        }
-      };
-
-      const offerDescription = await pcRef.current.createOffer();
-      await pcRef.current.setLocalDescription(offerDescription);
-
-      await updateDoc(callDoc, {
-        offer: {
-          type: offerDescription.type,
-          sdp: offerDescription.sdp,
-        },
-      });
-
-      onSnapshot(callDoc, (snapshot) => {
-        const data = snapshot.data();
-        if (data?.answer && !pcRef.current?.currentRemoteDescription) {
-          const answerDescription = new RTCSessionDescription(data.answer);
-          pcRef.current?.setRemoteDescription(answerDescription);
-        }
-      });
-
-      onSnapshot(
-        collection(db, `calls/${callDoc.id}/answerCandidates`),
-        (snapshot) => {
-          snapshot.docChanges().forEach((change) => {
-            if (change.type === "added") {
-              const candidate = new RTCIceCandidate(change.doc.data());
-              pcRef.current?.addIceCandidate(candidate);
-            }
-          });
-        }
-      );
-    } catch (error) {
-      console.error("Error creating call: ", error);
-    }
-  };
-
-  const answerCall = async () => {
-    if (!user) return;
-
-    try {
-      pcRef.current = new RTCPeerConnection(servers);
-
-      const userRef = doc(db, "users", user.uid);
-      const userData = (await getDoc(userRef)).data();
-
-      if (!userData) {
-        console.error("User data not found");
-        return;
+    onSnapshot(doc(db, "calls", callDoc.id), (snapshot) => {
+      const data = snapshot.data();
+      if (!pc.currentRemoteDescription && data?.answer) {
+        const answerDescription = new RTCSessionDescription(data.answer);
+        pc.setRemoteDescription(answerDescription);
       }
+    });
 
-      const callId = userData.calls;
-
-      localStream?.getTracks().forEach((track) => {
-        pcRef.current?.addTrack(track, localStream);
-      });
-
-      pcRef.current.ontrack = (event) => {
-        const [stream] = event.streams;
-        setRemoteStream(stream);
-        if (remoteVideoRef.current) {
-          remoteVideoRef.current.srcObject = stream;
-        }
-      };
-
-      const callDoc = doc(db, "calls", callId);
-      const answerCandidates = collection(
-        db,
-        `calls/${callId}/answerCandidates`
-      );
-      const offerCandidates = collection(db, `calls/${callId}/offerCandidates`);
-
-      pcRef.current.onicecandidate = (event) => {
-        if (event.candidate) {
-          addDoc(answerCandidates, event.candidate.toJSON());
-        }
-      };
-
-      const callData = (await getDoc(callDoc)).data();
-      if (!callData) {
-        console.error("Call data not found");
-        return;
-      }
-
-      const offerDescription = callData.offer;
-      await pcRef.current.setRemoteDescription(
-        new RTCSessionDescription(offerDescription)
-      );
-
-      const answerDescription = await pcRef.current.createAnswer();
-      await pcRef.current.setLocalDescription(answerDescription);
-
-      await updateDoc(callDoc, {
-        answer: {
-          type: answerDescription.type,
-          sdp: answerDescription.sdp,
-        },
-      });
-
-      onSnapshot(offerCandidates, (snapshot) => {
+    onSnapshot(
+      collection(db, "calls", callDoc.id, "answerCandidates"),
+      (snapshot) => {
         snapshot.docChanges().forEach((change) => {
           if (change.type === "added") {
             const candidate = new RTCIceCandidate(change.doc.data());
-            pcRef.current?.addIceCandidate(candidate);
+            pc.addIceCandidate(candidate);
           }
         });
+      }
+    );
+  };
+
+  const joinCall = async (id: string) => {
+    const pc = new RTCPeerConnection();
+    setPeerConnection(pc);
+
+    const callDoc = doc(db, "calls", id);
+    setCallId(id);
+
+    const localStream = localVideoRef.current?.srcObject as MediaStream;
+    localStream.getTracks().forEach((track) => pc.addTrack(track, localStream));
+
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        addDoc(
+          collection(db, "calls", id, "answerCandidates"),
+          event.candidate.toJSON()
+        );
+      }
+    };
+
+    onSnapshot(callDoc, async (snapshot) => {
+      const data = snapshot.data();
+      if (data?.offer) {
+        const offerDescription = new RTCSessionDescription(data.offer);
+        pc.setRemoteDescription(offerDescription);
+
+        const answerDescription = await pc.createAnswer();
+        await pc.setLocalDescription(answerDescription);
+
+        const answer = {
+          sdp: answerDescription.sdp,
+          type: answerDescription.type,
+        };
+
+        await updateDoc(callDoc, { answer });
+      }
+    });
+
+    onSnapshot(collection(db, "calls", id, "offerCandidates"), (snapshot) => {
+      snapshot.docChanges().forEach((change) => {
+        if (change.type === "added") {
+          const candidate = new RTCIceCandidate(change.doc.data());
+          pc.addIceCandidate(candidate);
+        }
       });
-    } catch (error) {
-      console.error("Error answering call: ", error);
-    }
+    });
   };
 
   return (
-    <div className="flex flex-col items-center">
-      <div className="flex space-x-4 mb-4">
-        <video
-          ref={localVideoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-1/2 h-auto"
+    <div className="video-call">
+      <video
+        ref={localVideoRef}
+        autoPlay
+        playsInline
+        muted
+        className="local-video"
+      />
+      <video
+        ref={remoteVideoRef}
+        autoPlay
+        playsInline
+        className="remote-video"
+      />
+      <div>
+        <button onClick={startCall} className="start-call-btn">
+          Start Call
+        </button>
+        <input
+          type="text"
+          placeholder="Enter call ID"
+          value={callId}
+          onChange={(e) => setCallId(e.target.value)}
         />
-        <video
-          ref={remoteVideoRef}
-          autoPlay
-          playsInline
-          className="w-1/2 h-auto"
-        />
+        <button onClick={() => joinCall(callId)} className="join-call-btn">
+          Join Call
+        </button>
       </div>
     </div>
   );

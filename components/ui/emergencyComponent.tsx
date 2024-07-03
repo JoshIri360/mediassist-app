@@ -17,18 +17,26 @@ import {
   updateDoc,
   doc,
   arrayUnion,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/firebase/config";
 import { useAuthContext } from "@/context/AuthContext";
+import { GoogleMap, useJsApiLoader, Marker } from "@react-google-maps/api";
+import { Progress } from "@/components/ui/progress";
 
 interface Hospital {
   id: string;
   name: string;
   placeId: string;
+  latitude?: number;
+  longitude?: number;
 }
+
+const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? "";
 
 export default function EmergencyComponent() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [showConfirmation, setShowConfirmation] = useState(false);
   const [countdown, setCountdown] = useState(10);
   const [nearestHospital, setNearestHospital] = useState<Hospital | null>(null);
   const [userLocation, setUserLocation] =
@@ -36,7 +44,14 @@ export default function EmergencyComponent() {
   const [emergencyStatus, setEmergencyStatus] = useState<
     "idle" | "finding" | "notifying" | "confirmed"
   >("idle");
+  const [progress, setProgress] = useState(0);
+  const [userInfo, setUserInfo] = useState({ name: "", phoneNumber: "" });
   const { user } = useAuthContext();
+
+  const { isLoaded } = useJsApiLoader({
+    googleMapsApiKey,
+    libraries: ["places", "geometry"],
+  });
 
   useEffect(() => {
     if (isDialogOpen && emergencyStatus === "finding") {
@@ -46,7 +61,7 @@ export default function EmergencyComponent() {
 
   useEffect(() => {
     const findNearestHospital = async () => {
-      if (!userLocation) return;
+      if (!userLocation || !isLoaded) return;
 
       const hospitalsRef = collection(db, "verifiedHospitals");
       const q = query(hospitalsRef);
@@ -56,7 +71,7 @@ export default function EmergencyComponent() {
         const hospitals: Hospital[] = querySnapshot.docs.map((doc) => ({
           id: doc.id,
           name: doc.data().name,
-          placeId: doc.id, // Assuming the document ID is the place ID
+          placeId: doc.id,
         }));
 
         const nearestHospital = await findNearestHospitalUsingPlacesAPI(
@@ -86,7 +101,34 @@ export default function EmergencyComponent() {
     } else if (countdown === 0 && emergencyStatus === "finding") {
       findNearestHospital();
     }
-  }, [isDialogOpen, countdown, emergencyStatus]);
+  }, [isDialogOpen, countdown, emergencyStatus, isLoaded, userLocation]);
+
+  useEffect(() => {
+    if (emergencyStatus === "finding" || emergencyStatus === "notifying") {
+      const interval = setInterval(() => {
+        setProgress((prevProgress) =>
+          prevProgress >= 1000 ? 0 : prevProgress + 10
+        );
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [emergencyStatus]);
+
+  useEffect(() => {
+    const fetchUserInfo = async () => {
+      if (user?.uid) {
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setUserInfo({
+            name: data.name || "Unknown",
+            phoneNumber: data.phoneNumber || "Unknown",
+          });
+        }
+      }
+    };
+    fetchUserInfo();
+  }, [user]);
 
   const getUserLocation = () => {
     if ("geolocation" in navigator) {
@@ -112,6 +154,11 @@ export default function EmergencyComponent() {
   const findNearestHospitalUsingPlacesAPI = async (
     hospitals: Hospital[]
   ): Promise<Hospital | null> => {
+    if (!isLoaded || !google.maps.places) {
+      console.error("Google Maps Places API not loaded");
+      return null;
+    }
+
     const placesService = new google.maps.places.PlacesService(
       document.createElement("div")
     );
@@ -143,7 +190,12 @@ export default function EmergencyComponent() {
             details.geometry.location.lat(),
             details.geometry.location.lng()
           );
-          return { ...hospital, distance };
+          return {
+            ...hospital,
+            distance,
+            latitude: details.geometry.location.lat(),
+            longitude: details.geometry.location.lng(),
+          };
         }
       } catch (error) {
         console.error(`Error getting details for ${hospital.name}:`, error);
@@ -164,12 +216,24 @@ export default function EmergencyComponent() {
   };
 
   const notifyHospital = async (hospital: Hospital) => {
-    if (!user) return;
+    if (!user?.uid) return;
+
+    const userDocRef = doc(db, "users", user.uid);
+    const userDoc = await getDoc(userDocRef);
+
+    if (!userDoc.exists()) {
+      console.error("User document does not exist.");
+      setEmergencyStatus("idle");
+      alert("User information not found. Please try again.");
+      return;
+    }
+
+    const userData = userDoc.data();
 
     const emergencyInfo = {
       patientId: user.uid,
-      patientName: user.displayName || "Unknown",
-      patientPhone: user.phoneNumber || "Unknown",
+      patientName: userData.name || "Unknown",
+      patientPhone: userData.phoneNumber || "Unknown",
       location: {
         latitude: userLocation!.latitude,
         longitude: userLocation!.longitude,
@@ -193,6 +257,11 @@ export default function EmergencyComponent() {
   };
 
   const handleEmergency = () => {
+    setShowConfirmation(true);
+  };
+
+  const confirmEmergency = () => {
+    setShowConfirmation(false);
     setIsDialogOpen(true);
     setCountdown(10);
     setEmergencyStatus("finding");
@@ -211,7 +280,7 @@ export default function EmergencyComponent() {
     lat2: number,
     lon2: number
   ): number => {
-    const R = 6371; // Radius of the Earth in km
+    const R = 6371;
     const dLat = (lat2 - lat1) * (Math.PI / 180);
     const dLon = (lon2 - lon1) * (Math.PI / 180);
     const a =
@@ -224,45 +293,99 @@ export default function EmergencyComponent() {
     return R * c;
   };
 
+  const getStatusMessage = () => {
+    switch (emergencyStatus) {
+      case "finding":
+        return "Hang tight! We're locating the nearest hospital...";
+      case "notifying":
+        return `We're notifying ${nearestHospital?.name}. Help is on the way!`;
+      case "confirmed":
+        return `Emergency confirmed. ${nearestHospital?.name} has been notified and help is coming.`;
+      default:
+        return "Press the button to request emergency assistance.";
+    }
+  };
+
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          className="fixed bottom-20 right-4 z-50 shadow-lg bg-gradient-to-r from-red-600 from-60% to-[#ea7c7c] to-100% border-[#242424] rounded-full py-7"
-          onClick={handleEmergency}
-        >
-          <AmbulanceIcon className="h-6 w-6" color="white" />
-          <span className="sr-only">Emergency</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Emergency Assistance</DialogTitle>
-        </DialogHeader>
-        {emergencyStatus === "finding" && (
-          <div>
-            <p>Locating nearest hospital... {countdown} seconds to cancel.</p>
-            <Button onClick={cancelEmergency}>Cancel</Button>
+    <>
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogTrigger asChild>
+          <Button
+            variant="outline"
+            className="fixed bottom-20 right-4 z-50 shadow-lg bg-gradient-to-r from-red-600 from-60% to-[#ea7c7c] to-100% border-[#242424] rounded-full py-7"
+            onClick={handleEmergency}
+          >
+            <AmbulanceIcon className="h-6 w-6" color="white" />
+            <span className="sr-only">Emergency</span>
+          </Button>
+        </DialogTrigger>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Emergency Assistance</DialogTitle>
+          </DialogHeader>
+          <p className="text-lg font-semibold">{getStatusMessage()}</p>
+          {(emergencyStatus === "finding" ||
+            emergencyStatus === "notifying") && (
+            <Progress value={progress} className="w-full" />
+          )}
+          {emergencyStatus === "finding" && (
+            <div>
+              <p>Locating nearest hospital... {countdown} seconds to cancel.</p>
+              <Button onClick={cancelEmergency}>Cancel</Button>
+            </div>
+          )}
+          {nearestHospital && userLocation && (
+            <div style={{ height: "200px", width: "100%" }}>
+              <GoogleMap
+                center={{
+                  lat: userLocation.latitude,
+                  lng: userLocation.longitude,
+                }}
+                zoom={12}
+                mapContainerStyle={{ height: "100%", width: "100%" }}
+              >
+                <Marker
+                  position={{
+                    lat: userLocation.latitude,
+                    lng: userLocation.longitude,
+                  }}
+                />
+                {nearestHospital.latitude && nearestHospital.longitude && (
+                  <Marker
+                    position={{
+                      lat: nearestHospital.latitude,
+                      lng: nearestHospital.longitude,
+                    }}
+                  />
+                )}
+              </GoogleMap>
+            </div>
+          )}
+          <div className="mt-4">
+            <h3 className="font-semibold">Your contact information:</h3>
+            <p>Name: {userInfo.name}</p>
+            <p>Phone: {userInfo.phoneNumber}</p>
           </div>
-        )}
-        {emergencyStatus === "notifying" && (
-          <p>Notifying {nearestHospital?.name}. Please stand by...</p>
-        )}
-        {emergencyStatus === "confirmed" && (
-          <div>
-            <p>
-              Emergency services from {nearestHospital?.name} have been notified
-              and are on their way.
-            </p>
-            <p>Estimated arrival time: [Placeholder for estimated time]</p>
-            <p>Hospital contact: [Placeholder for hospital contact]</p>
-          </div>
-        )}
-        <DialogFooter>
-          <Button onClick={() => setIsDialogOpen(false)}>Close</Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Emergency</DialogTitle>
+          </DialogHeader>
+          <p>Are you sure you want to request emergency assistance?</p>
+          <DialogFooter>
+            <Button onClick={() => setShowConfirmation(false)}>Cancel</Button>
+            <Button
+              onClick={confirmEmergency}
+              className="bg-red-600 text-white"
+            >
+              Confirm Emergency
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
