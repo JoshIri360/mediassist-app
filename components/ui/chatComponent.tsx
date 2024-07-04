@@ -8,12 +8,30 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer";
 import { Input } from "@/components/ui/input";
-import { SendIcon } from "lucide-react";
+import { SendIcon, BotMessageSquare } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
+import { doc, getDoc } from "firebase/firestore";
 
 interface Message {
-  role: "assistant" | "user";
+  role: "assistant" | "user" | "system";
   content: string;
+}
+
+interface UserData {
+  name: string;
+  age: string;
+  weight: string;
+  familyHistory: string;
+  allergies: string;
+  immunizations: string;
+  gender: string;
+  phoneNumber: string;
+  address: string;
+  bloodType: string;
+  pastSurgeries: string;
+  hospitalNumber?: string;
 }
 
 export default function ChatComponent() {
@@ -23,6 +41,23 @@ export default function ChatComponent() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const { user } = useAuthContext();
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!user?.uid) return;
+      const userDocRef = doc(db, "users", user.uid);
+      const userDoc = await getDoc(userDocRef);
+
+      if (userDoc.exists()) {
+        const userData = userDoc.data() as UserData;
+        setUserData(userData);
+      }
+    };
+
+    fetchUserData();
+  }, [user]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInput(e.target.value);
@@ -32,23 +67,27 @@ export default function ChatComponent() {
     e.preventDefault();
     if (!input.trim()) return;
 
-    setMessages((prevMessages) => [
-      ...prevMessages,
-      { role: "user", content: input },
-    ]);
+    const newUserMessage: Message = { role: "user", content: input };
+    setMessages((prevMessages) => [...prevMessages, newUserMessage]);
     setInput("");
     setIsLoading(true);
 
-    setTimeout(async () => {
-      console.log("API call", messages, input);
+    let messagesToSend = [...messages, newUserMessage];
+
+    // Inject user data for the first message only
+    if (messages.length === 1 && userData) {
+      const userDataMessage: Message = {
+        role: "user",
+        content: `Here are my details ${JSON.stringify(userData)}`,
+      };
+      messagesToSend = [userDataMessage, ...messagesToSend];
+    }
+
+    try {
       const response = await fetch("/api/chat", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          messages: [...messages, { role: "user", content: input }],
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: messagesToSend }),
       });
 
       const data = await response.json();
@@ -56,8 +95,11 @@ export default function ChatComponent() {
         ...prevMessages,
         { role: "assistant", content: data.text },
       ]);
+    } catch (error) {
+      console.error("Error sending message:", error);
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   useEffect(() => {
@@ -69,10 +111,11 @@ export default function ChatComponent() {
       <Drawer>
         <DrawerTrigger asChild>
           <Button
+            title="Open Chatbot"
             variant="outline"
             className="fixed bottom-4 right-4 z-50 shadow-lg bg-gradient-to-r from-gray-900 from-60% to-[#666666] to-100% border-[#242424] rounded-full py-7"
           >
-            <MessageSquareIcon className="h-6 w-6" color="white" />
+            <BotMessageSquare className="h-6 w-6" color="white" />
             <span className="sr-only">Open chatbot</span>
           </Button>
         </DrawerTrigger>
@@ -90,18 +133,16 @@ export default function ChatComponent() {
               {messages.map((message, index) => (
                 <div
                   key={index}
-                  className={`flex ${
-                    message.role === "assistant"
-                      ? "justify-start"
-                      : "justify-end"
-                  }`}
+                  className={`flex ${message.role === "assistant"
+                    ? "justify-start"
+                    : "justify-end"
+                    }`}
                 >
                   <div
-                    className={`flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ${
-                      message.role === "assistant"
-                        ? "bg-gray-100 dark:bg-gray-800 items-start"
-                        : "bg-gray-900 text-gray-50 dark:bg-gray-50 dark:text-gray-900 items-end"
-                    }`}
+                    className={`flex w-max max-w-[75%] flex-col gap-2 rounded-lg px-3 py-2 text-sm ${message.role === "assistant"
+                      ? "bg-gray-100 dark:bg-gray-800 items-start"
+                      : "bg-gray-900 text-gray-50 dark:bg-gray-50 dark:text-gray-900 items-end"
+                      }`}
                   >
                     <p>{message.content}</p>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
@@ -146,36 +187,6 @@ export default function ChatComponent() {
         </DrawerContent>
       </Drawer>
     </div>
-  );
-}
-
-function MessageSquareIcon(props: React.SVGProps<SVGSVGElement>) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path
-        d="M13.8234 1.3999L15.6537 6.34611L20.5999 8.17637L15.6537 10.0066L13.8234 14.9528L11.9932 10.0066L7.04696 8.17637L11.9932 6.34611L13.8234 1.3999Z"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M5.35284 12.694L6.95167 15.0481L9.30579 16.647L6.95167 18.2458L5.35284 20.5999L3.75402 18.2458L1.3999 16.647L3.75402 15.0481L5.35284 12.694Z"
-        stroke="white"
-        strokeWidth="2"
-        strokeLinejoin="round"
-      />
-    </svg>
   );
 }
 
