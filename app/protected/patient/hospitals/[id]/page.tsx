@@ -32,6 +32,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@radix-ui/react-popover";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   arrayUnion,
   collection,
@@ -49,7 +50,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 interface Hospital {
@@ -108,9 +109,12 @@ export default function HospitalPage() {
   const [appointmentReason, setAppointmentReason] = useState<
     string | undefined
   >("");
+  const [appointmentType, setAppointmentType] = useState<string>("inperson");
 
   const { user } = useAuthContext();
   const userId = user?.uid;
+
+  const router = useRouter();
 
   const toggleBookingForm = () => setIsBookingFormOpen(!isBookingFormOpen);
 
@@ -128,11 +132,15 @@ export default function HospitalPage() {
       return;
     }
 
+    const randomId = Math.random().toString(36).substr(2, 9);
+
     const appointment = {
       patientId: userId,
       doctorId: selectedDoctor,
       date: date.toISOString(),
       appointmentReason: appointmentReason,
+      appointmentType: appointmentType,
+      id: randomId,
     };
 
     const docRef = doc(db, "verifiedHospitals", id);
@@ -157,7 +165,6 @@ export default function HospitalPage() {
         checkIfVerified(id as string),
       ])
         .then(([hospitalData, doctorsData]) => {
-          console.log("Doctor's data", doctorsData);
           setHospital(hospitalData);
           setDoctors(doctorsData);
           setLoading(false);
@@ -291,7 +298,8 @@ export default function HospitalPage() {
           <DialogHeader>
             <DialogTitle>Schedule an Appointment</DialogTitle>
             <DialogDescription>
-              Select a doctor and date to book your appointment.
+              Select a doctor, date, and appointment type to book your
+              appointment.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
@@ -339,14 +347,31 @@ export default function HospitalPage() {
               </Popover>
             </div>
             <div>
-              <Label htmlFor="date">Appointment Reason</Label>
+              <Label htmlFor="appointmentReason">Appointment Reason</Label>
               <Input
-                id=""
+                id="appointmentReason"
                 type="text"
                 required
                 value={appointmentReason}
                 onChange={(e) => setAppointmentReason(e.target.value)}
               />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="appointmentType">Appointment Type</Label>
+              <RadioGroup
+                defaultValue="inperson"
+                onValueChange={setAppointmentType}
+                className="flex space-x-4"
+              >
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="inperson" id="inperson" />
+                  <Label htmlFor="inperson">In-person</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="virtual" id="virtual" />
+                  <Label htmlFor="virtual">Virtual</Label>
+                </div>
+              </RadioGroup>
             </div>
           </div>
           <DialogFooter>
