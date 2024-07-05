@@ -122,11 +122,10 @@ export default function DoctorLayout({
         <div className="flex flex-col w-full space-y-2 mb-auto">
           <Link
             href="/protected/doctor"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor")
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/doctor")
                 ? "bg-primary text-white"
                 : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+              }`}
             prefetch={false}
           >
             <Users className="mr-2 h-4 w-4" />
@@ -164,22 +163,20 @@ export default function DoctorLayout({
         <div className="w-full space-y-2">
           <Link
             href="/protected/doctor/settings"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/settings")
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/doctor/settings")
                 ? "bg-primary text-white"
                 : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+              }`}
             prefetch={false}
           >
             <SettingsIcon className="mr-2 h-4 w-4" />
             Settings
           </Link>
           <div
-            className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/profile")
+            className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/doctor/profile")
                 ? "bg-primary text-white"
                 : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+              }`}
           >
             <div className="flex">
               <div className="self-stretch">
@@ -199,7 +196,7 @@ export default function DoctorLayout({
               className="flex items-center justify-center cursor-pointer"
               onClick={() => {
                 signOut(auth);
-                router.push("/login");
+                router.push("/");
               }}
             >
               <DoorClosed className="h-6 w-6" />
@@ -248,7 +245,14 @@ export default function DoctorLayout({
                   <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    signOut(auth);
+                    router.push("/");
+                  }}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>
