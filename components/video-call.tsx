@@ -19,9 +19,9 @@ const token =
 const callId = "001";
 
 const user: User = {
-  id: "joshs",
+  id: "josef",
   type: "guest",
-  name: "Joshua Aideloje",
+  name: "Josef sho",
 };
 
 const client = new StreamVideoClient({
