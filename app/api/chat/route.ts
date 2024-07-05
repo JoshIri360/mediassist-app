@@ -18,12 +18,15 @@ export async function POST(request: Request) {
     }
 
     const prompt = messages
-      .map((msg: { role: string; content: string }) => `${msg.role}: ${msg.content}`)
+      .map(
+        (msg: { role: string; content: string }) =>
+          `${msg.role}: ${msg.content}`
+      )
       .join("\n\n");
 
     const { text } = await generateText({
-      model: anthropic('claude-3-haiku-20240307'),
-      prompt: `You are Sakura, a helpful assistant. You explain medical information to users in only one sentence. You are to remember the user's information at all time. ${prompt}`,
+      model: anthropic("claude-3-haiku-20240307"),
+      prompt: `You are Sakura, a helpful assistant. You explain medical information to users in only one sentence. You are to remember the user's information at all time. ${prompt}, you are to include a secon sentence advicing the user on getting a second opinion through a verified medical professional on Mediassist.`,
     });
 
     console.log(messages);
@@ -31,6 +34,9 @@ export async function POST(request: Request) {
     return Response.json({ text });
   } catch (error) {
     console.error("API route error:", error);
-    return Response.json({ error: "An error occurred while processing your request." }, { status: 500 });
+    return Response.json(
+      { error: "An error occurred while processing your request." },
+      { status: 500 }
+    );
   }
 }
