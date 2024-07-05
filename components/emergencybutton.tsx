@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
+import Link from 'next/link';
 import { db } from "@/firebase/config";
 import {
   doc,
@@ -97,14 +98,16 @@ const EmergencyButton: React.FC<EmergencyButtonProps> = ({ doctorEmail }) => {
   }
 
   return (
-    <button
-      onClick={handleEmergencyClick}
-      className={`p-1 rounded-full ${
-        isBlinking ? "bg-red-600" : "bg-gray-200"
-      } transition-colors duration-300 w-20 h-8 text-xs mt-2`}
-    >
-      <Bell size={16} color={isBlinking ? "white" : "black"} />
-    </button>
+    <Link href="/protected/doctor/emergencies" passHref>
+      <button
+        onClick={handleEmergencyClick}
+        className={`p-1 rounded-full ${
+          isBlinking ? "bg-red-600" : "bg-gray-200"
+        } transition-colors duration-300 w-20 h-8 text-xs mt-2 inline-block`}
+      >
+        <Bell size={16} color={isBlinking ? "white" : "black"} />
+      </button>
+    </Link>
   );
 };
 
