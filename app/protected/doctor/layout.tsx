@@ -133,41 +133,33 @@ export default function DoctorLayout({
             Patient List
           </Link>
           <Link
-            href="/protected/doctor/appointments"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/appointments")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
-            prefetch={false}
-          >
-            <Calendar className="mr-2 h-4 w-4" />
-            Appointments
-          </Link>
-          <Link
-            href="/protected/doctor/notes"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/notes")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
-            prefetch={false}
-          >
-            <Clipboard className="mr-2 h-4 w-4" />
-            Notes & Observations
-          </Link>
-          <Link
-            href="/protected/doctor"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/emergencies")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
-            prefetch={false}
-          >
-            <Users className="mr-2 h-4 w-4" />
-            Emergencies
-          </Link>
+        href="/protected/doctor/appointments"
+        className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+          isActiveLink("/protected/doctor/appointments")
+            ? "bg-primary text-white"
+            : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+        }`}
+        prefetch={false}
+      >
+        <Calendar className="mr-2 h-4 w-4" />
+        Appointments
+      </Link>
+      
+
+      <Link
+        href="/protected/doctor/notes"
+        className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+          isActiveLink("/protected/doctor/notes")
+            ? "bg-primary text-white"
+            : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+        }`}
+        prefetch={false}
+      >
+        <Clipboard className="mr-2 h-4 w-4" />
+        Notes & Observations
+      </Link>
+
+      <EmergencyButton doctorEmail={email} />
         </div>
         <div className="w-full space-y-2">
           <Link
@@ -215,7 +207,7 @@ export default function DoctorLayout({
             </div>
           </div>
         </div>
-        <EmergencyButton doctorEmail={email} />
+      
       </nav>
       <div className="flex flex-col min-h-screen w-full">
         <header className="sticky top-0 flex h-16 w-full items-center bg-white px-4 md:px-6 border-b border-[#E4E7EC]">

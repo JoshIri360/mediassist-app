@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Bell } from "lucide-react";
+import { Users } from "lucide-react";
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { db } from "@/firebase/config";
 import {
   doc,
@@ -21,6 +22,7 @@ const EmergencyButton: React.FC<EmergencyButtonProps> = ({ doctorEmail }) => {
   const [shouldBlink, setShouldBlink] = useState<boolean>(false);
   const [hospitalPlaceId, setHospitalPlaceId] = useState<string | null>(null);
   const [emergencyDocId, setEmergencyDocId] = useState<string | null>(null);
+
 
   useEffect(() => {
     const fetchDoctorHospital = async () => {
@@ -98,16 +100,20 @@ const EmergencyButton: React.FC<EmergencyButtonProps> = ({ doctorEmail }) => {
   }
 
   return (
-    <Link href="/protected/doctor/emergencies" passHref>
-      <button
-        onClick={handleEmergencyClick}
-        className={`p-1 rounded-full ${
-          isBlinking ? "bg-red-600" : "bg-gray-200"
-        } transition-colors duration-300 w-20 h-8 text-xs mt-2 inline-block`}
-      >
-        <Bell size={16} color={isBlinking ? "white" : "black"} />
-      </button>
-    </Link>
+    <Link
+  href="/protected/doctor/emergencies"
+  className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+    isBlinking ? "bg-red-600 text-white" : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+  } transition-colors duration-300`}
+  prefetch={false}
+  onClick={(e) => {
+    e.preventDefault();
+    handleEmergencyClick();
+  }}
+>
+  <Users className={`mr-2 h-4 w-4 ${isBlinking ? 'animate-pulse' : ''}`} />
+  Emergencies
+</Link>
   );
 };
 
