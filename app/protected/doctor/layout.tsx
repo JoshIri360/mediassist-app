@@ -145,19 +145,6 @@ export default function DoctorLayout({
             Appointments
           </Link>
 
-          <Link
-            href="/protected/doctor/notes"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/notes")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
-            prefetch={false}
-          >
-            <Clipboard className="mr-2 h-4 w-4" />
-            Notes & Observations
-          </Link>
-
           <EmergencyButton doctorEmail={email} />
         </div>
         <div className="w-full space-y-2">
