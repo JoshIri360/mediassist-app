@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Users } from "lucide-react";
-import Link from 'next/link';
-import { useRouter } from 'next/router';
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { db } from "@/firebase/config";
 import {
   doc,
@@ -22,7 +22,7 @@ const EmergencyButton: React.FC<EmergencyButtonProps> = ({ doctorEmail }) => {
   const [shouldBlink, setShouldBlink] = useState<boolean>(false);
   const [hospitalPlaceId, setHospitalPlaceId] = useState<string | null>(null);
   const [emergencyDocId, setEmergencyDocId] = useState<string | null>(null);
-
+  const router = useRouter();
 
   useEffect(() => {
     const fetchDoctorHospital = async () => {
@@ -49,7 +49,7 @@ const EmergencyButton: React.FC<EmergencyButtonProps> = ({ doctorEmail }) => {
   useEffect(() => {
     if (hospitalPlaceId) {
       const hospitalRef = doc(db, "verifiedHospitals", hospitalPlaceId);
-      
+
       const unsubscribe = onSnapshot(hospitalRef, (docSnapshot) => {
         if (docSnapshot.exists()) {
           const hospitalData = docSnapshot.data();
@@ -90,6 +90,8 @@ const EmergencyButton: React.FC<EmergencyButtonProps> = ({ doctorEmail }) => {
         emergencies: [],
       });
       setShouldBlink(false);
+      // Navigate to the emergencies page
+      router.push("/protected/doctor/emergencies");
     } catch (error) {
       console.error("Error updating emergency status:", error);
     }
@@ -100,20 +102,17 @@ const EmergencyButton: React.FC<EmergencyButtonProps> = ({ doctorEmail }) => {
   }
 
   return (
-    <Link
-  href="/protected/doctor/emergencies"
-  className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-    isBlinking ? "bg-red-600 text-white" : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-  } transition-colors duration-300`}
-  prefetch={false}
-  onClick={(e) => {
-    e.preventDefault();
-    handleEmergencyClick();
-  }}
->
-  <Users className={`mr-2 h-4 w-4 ${isBlinking ? 'animate-pulse' : ''}`} />
-  Emergencies
-</Link>
+    <button
+      onClick={handleEmergencyClick}
+      className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+        isBlinking
+          ? "bg-red-600 text-white"
+          : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+      } transition-colors duration-300`}
+    >
+      <Users className={`mr-2 h-4 w-4 ${isBlinking ? "animate-pulse" : ""}`} />
+      Emergencies
+    </button>
   );
 };
 
