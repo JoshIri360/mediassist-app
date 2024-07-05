@@ -11,9 +11,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { db } from "@/firebase/config";
+import { useRouter } from "next/navigation";
 
 export default function PatientSettingsPage() {
-  const { user } = useAuthContext();
+  const { user, role } = useAuthContext();
+  const router = useRouter();
   const [settings, setSettings] = useState({
     mobileNotifications: false,
     theme: "light",
@@ -23,6 +25,7 @@ export default function PatientSettingsPage() {
 
   useEffect(() => {
     const fetchUserData = async () => {
+
       if (user) {
         const userRef = doc(db, "users", user.uid);
         const userDoc = await getDoc(userRef);
