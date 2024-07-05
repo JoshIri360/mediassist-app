@@ -24,6 +24,7 @@ import {
   Menu,
   SettingsIcon,
   Tablets,
+  Video,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -145,6 +146,18 @@ export default function PatientLayout({
           >
             <Hospital className="mr-2 h-4 w-4" />
             Locate Hospitals
+          </Link>
+          <Link
+            href="/protected/patient/video-call"
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+              isActiveLink("/protected/patient/video-call")
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+            }`}
+            prefetch={false}
+          >
+            <Video className="mr-2 h-4 w-4" />
+            Virtual Meetings
           </Link>
         </div>
 

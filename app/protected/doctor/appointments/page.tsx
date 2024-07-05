@@ -1,18 +1,18 @@
 "use client";
-import { useAuthContext } from "@/context/AuthContext";
-import { useRouter } from "next/navigation";
-import { useEffect, useState, useMemo } from "react";
-import { db } from "@/firebase/config";
-import { getDoc, doc, DocumentData } from "firebase/firestore";
 import { Input } from "@/components/ui/input";
 import {
   Table,
-  TableHeader,
-  TableRow,
-  TableHead,
   TableBody,
   TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
 } from "@/components/ui/table";
+import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
+import { doc, DocumentData, getDoc } from "firebase/firestore";
+import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 interface Appointment {
   id: string;
@@ -20,6 +20,7 @@ interface Appointment {
   patientName: string;
   date: string;
   appointmentReason: string;
+  appointmentType: string;
 }
 
 export default function DoctorAppointmentsPage() {
@@ -63,6 +64,7 @@ export default function DoctorAppointmentsPage() {
                     patientName: patientName,
                     date: appointment.date,
                     appointmentReason: appointment.appointmentReason,
+                    appointmentType: appointment.appointmentType,
                   };
                 })
               );
@@ -76,6 +78,19 @@ export default function DoctorAppointmentsPage() {
     };
     fetchAppointments();
   }, [user, role]);
+
+  const handleStartMeeting = (appointment: {
+    appointmentType: string;
+    patientId: string;
+  }) => {
+    if (appointment.appointmentType === "virtual") {
+      // Implement your video call logic here
+      console.log("Starting virtual meeting");
+      router.push(
+        `/protected/doctor/video-call?patientId=${appointment.patientId}`
+      );
+    }
+  };
 
   const filteredAppointments = useMemo(() => {
     const searchValue = search.toLowerCase();
@@ -110,6 +125,8 @@ export default function DoctorAppointmentsPage() {
               <TableHead>Patient</TableHead>
               <TableHead>Date</TableHead>
               <TableHead>Reason</TableHead>
+              <TableHead>Type</TableHead>
+              <TableHead>Action</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -127,6 +144,15 @@ export default function DoctorAppointmentsPage() {
                   {new Date(appointment.date).toLocaleString()}
                 </TableCell>
                 <TableCell>{appointment.appointmentReason}</TableCell>
+                <TableCell>{appointment.appointmentType}</TableCell>
+                <TableCell>
+                  <button
+                    onClick={() => handleStartMeeting(appointment)}
+                    className="bg-blue-500 text-white px-4 py-2 rounded"
+                  >
+                    Start Meeting
+                  </button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
