@@ -126,11 +126,10 @@ export default function PatientLayout({
         <div className="flex flex-col w-full space-y-2 mb-auto">
           <Link
             href="/protected/patient"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/patient")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/patient")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             prefetch={false}
           >
             <Tablets className="mr-2 h-4 w-4" />
@@ -138,11 +137,10 @@ export default function PatientLayout({
           </Link>
           <Link
             href="/protected/patient/hospitals"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/patient/hospitals")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/patient/hospitals")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             prefetch={false}
           >
             <Hospital className="mr-2 h-4 w-4" />
@@ -153,22 +151,20 @@ export default function PatientLayout({
         <div className="w-full space-y-2">
           <Link
             href="/protected/patient/settings"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/settings")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/doctor/settings")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             prefetch={false}
           >
             <SettingsIcon className="mr-2 h-4 w-4" />
             Settings
           </Link>
           <div
-            className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/profile")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/doctor/profile")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
           >
             <div className="flex">
               <div className="self-stretch">
@@ -188,7 +184,7 @@ export default function PatientLayout({
               className="flex items-center justify-center cursor-pointer"
               onClick={() => {
                 signOut(auth);
-                router.push("/login");
+                router.push("/");
               }}
             >
               <DoorClosed className="h-6 w-6" />
@@ -238,7 +234,14 @@ export default function PatientLayout({
                   <Link href="/protected/patient/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    router.push("/");
+                    // signOut(auth);
+                  }}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>
