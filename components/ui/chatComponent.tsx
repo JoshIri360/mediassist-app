@@ -115,7 +115,7 @@ export default function ChatComponent() {
             variant="outline"
             className="fixed bottom-4 right-4 z-50 shadow-lg bg-gradient-to-r from-gray-900 from-60% to-[#666666] to-100% border-[#242424] rounded-full py-7 px-2"
           >
-            <SakuraIcon className="h-10 w-10" color="white" />
+            <SakuraIcon className="h-10 w-10 relative right-2" color="white" />
             <span className="sr-only">Open chatbot</span>
           </Button>
         </DrawerTrigger>
