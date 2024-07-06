@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/router";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 import {
   Command,
   CommandEmpty,
@@ -10,7 +9,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import { useAuthContext } from "@/context/AuthContext";
+import { db } from "@/firebase/config";
 import {
   GoogleMap,
   InfoWindow,
@@ -18,17 +17,14 @@ import {
   Marker,
   useJsApiLoader,
 } from "@react-google-maps/api";
-import { LocateIcon, StarIcon } from "lucide-react";
+import { collection, getDocs } from "firebase/firestore";
+import { CircleIcon, LocateIcon, StarIcon } from "lucide-react";
 import Link from "next/link";
 import React, { useCallback, useEffect, useState } from "react";
 import usePlacesAutocomplete, {
   getGeocode,
   getLatLng,
 } from "use-places-autocomplete";
-import { Badge } from "@/components/ui/badge";
-import { CircleIcon } from "lucide-react";
-import { collection, getDocs } from "firebase/firestore";
-import { db } from "@/firebase/config";
 
 const libraries: Libraries = ["places", "geometry"];
 
@@ -166,54 +162,89 @@ export default function MedicalFacilitiesMap() {
   }, []);
 
   const MapSearchBox: React.FC = () => {
+    const [inputValue, setInputValue] = useState("");
+    const [hasTyped, setHasTyped] = useState(false);
     const {
       ready,
-      value,
       suggestions: { status, data },
       setValue,
       clearSuggestions,
-    } = usePlacesAutocomplete();
+    } = usePlacesAutocomplete({
+      requestOptions: {
+        /* Define your request options here */
+      },
+      debounce: 300,
+    });
+
+    useEffect(() => {
+      console.log("Component re-rendered");
+      console.log("Current input value:", inputValue);
+      console.log("Suggestions status:", status);
+      console.log("Suggestions data:", data);
+    }, [inputValue, status, data]);
 
     const handleSelect = async (address: string) => {
+      console.log("handleSelect called with address:", address);
+      setInputValue(address);
       setValue(address, false);
       clearSuggestions();
-
       try {
         const results = await getGeocode({ address });
         const { lat, lng } = await getLatLng(results[0]);
         const newCenter = { lat, lng };
+        console.log("New center:", newCenter);
         setCenter(newCenter);
         map?.panTo(newCenter);
         if (map) searchNearbyFacilities(newCenter, map);
-      } catch (error) {}
+      } catch (error) {
+        console.error("Error in handleSelect: ", error);
+      }
+    };
+
+    const handleInputChange = (newValue: string) => {
+      console.log("Input changed to:", newValue);
+
+      if (!hasTyped && newValue !== "") {
+        setHasTyped(true);
+      }
+
+      if (hasTyped && newValue === "") {
+        console.log("Preventing input from becoming empty");
+        return; // Don't update if trying to clear after typing
+      }
+
+      setInputValue(newValue);
+      setValue(newValue);
+
+      if (newValue.trim() === "") {
+        clearSuggestions();
+      }
+    };
+
+    const renderSuggestions = () => {
+      if (status !== "OK" || !Array.isArray(data) || data.length === 0) {
+        return <CommandItem>No suggestions available</CommandItem>;
+      }
+      return data.map(({ place_id, description }) => (
+        <CommandItem key={place_id} onSelect={() => handleSelect(description)}>
+          {description}
+        </CommandItem>
+      ));
     };
 
     return (
       <Command className="rounded-lg border shadow-md">
         <CommandInput
           placeholder="Search for a location"
-          value={value}
-          onValueChange={(newValue) => {
-            setValue(newValue);
-            if (newValue === "") {
-              clearSuggestions();
-            }
-          }}
+          value={inputValue}
+          onValueChange={handleInputChange}
           disabled={!ready}
         />
-        {value !== "" && (
+        {inputValue !== "" && (
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Suggestions">
-              {status === "OK" &&
-                data.map(({ place_id, description }) => (
-                  <CommandItem
-                    key={place_id}
-                    onSelect={() => handleSelect(description)}
-                  >
-                    {description}
-                  </CommandItem>
-                ))}
+              {renderSuggestions()}
             </CommandGroup>
           </CommandList>
         )}

@@ -1,18 +1,10 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAuthContext } from "@/context/AuthContext";
-import { auth, db } from "@/firebase/config";
+import React, { useEffect, useState } from "react";
 import { signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Bell,
   Calendar,
@@ -24,9 +16,18 @@ import {
   SettingsIcon,
   Users,
 } from "lucide-react";
-import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { useAuthContext } from "@/context/AuthContext";
+import { auth, db } from "@/firebase/config";
+import EmergencyButton from "@/components/emergencybutton";
 
 interface UserData {
   email: string;
@@ -68,8 +69,6 @@ export default function DoctorLayout({
     fetchData();
   }, [user, router, role]);
 
-  // Fetch user email from firestore
-
   useEffect(() => {
     const getEmail = async () => {
       const fetchedEmail = await fetchEmail();
@@ -84,7 +83,6 @@ export default function DoctorLayout({
       console.log("UID", uid);
 
       try {
-        // Get the current user document
         const userDoc = await getDoc(userRef);
         const userData = userDoc.data() as UserData | undefined;
         console.log("User's data", userData);
@@ -146,18 +144,8 @@ export default function DoctorLayout({
             <Calendar className="mr-2 h-4 w-4" />
             Appointments
           </Link>
-          <Link
-            href="/protected/doctor/notes"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/notes")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
-            prefetch={false}
-          >
-            <Clipboard className="mr-2 h-4 w-4" />
-            Notes & Observations
-          </Link>
+
+          <EmergencyButton doctorEmail={email} />
         </div>
         <div className="w-full space-y-2">
           <Link
@@ -197,7 +185,7 @@ export default function DoctorLayout({
               className="flex items-center justify-center cursor-pointer"
               onClick={() => {
                 signOut(auth);
-                router.push("/login");
+                router.push("/");
               }}
             >
               <DoorClosed className="h-6 w-6" />
@@ -245,7 +233,15 @@ export default function DoctorLayout({
                   <Link href="/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    signOut(auth);
+                    router.push("/");
+                  }}
+                >
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>

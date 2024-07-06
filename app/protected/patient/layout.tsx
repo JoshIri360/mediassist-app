@@ -10,10 +10,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import EmergencyComponent from "@/components/ui/emergencyComponent";
 import { useAuthContext } from "@/context/AuthContext";
 import { auth, db } from "@/firebase/config";
 import { signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import {
   Bell,
   CircleUserRound,
@@ -21,8 +22,10 @@ import {
   DoorOpen,
   Hospital,
   Menu,
+  Phone,
   SettingsIcon,
   Tablets,
+  Video,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -30,6 +33,7 @@ import React, { useEffect, useState } from "react";
 
 interface UserData {
   email: string;
+  call: string;
 }
 
 export default function PatientLayout({
@@ -38,10 +42,25 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const [email, setEmail] = useState<string>("");
+  const [callId, setCallId] = useState<string | null>(null);
   const pathname = usePathname();
   const { user, role } = useAuthContext();
   const uid = user?.uid;
   const router = useRouter();
+
+  useEffect(() => {
+    if (!uid) return;
+
+    const userRef = doc(db, "users", uid);
+    const unsubscribe = onSnapshot(userRef, (doc) => {
+      const userData = doc.data() as UserData | undefined;
+      if (userData) {
+        setCallId(userData.call || null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [uid]);
 
   useEffect(() => {
     const getEmail = async () => {
@@ -125,11 +144,10 @@ export default function PatientLayout({
         <div className="flex flex-col w-full space-y-2 mb-auto">
           <Link
             href="/protected/patient"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/patient")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/patient")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             prefetch={false}
           >
             <Tablets className="mr-2 h-4 w-4" />
@@ -137,37 +155,59 @@ export default function PatientLayout({
           </Link>
           <Link
             href="/protected/patient/hospitals"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/patient/hospitals")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/patient/hospitals")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             prefetch={false}
           >
             <Hospital className="mr-2 h-4 w-4" />
             Locate Hospitals
+          </Link>
+          <Link
+            href={
+              callId
+                ? `/protected/patient/video-call?callId=${callId}`
+                : "/protected/patient/video-call"
+            }
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
+              isActiveLink("/protected/patient/video-call")
+                ? "bg-primary text-white"
+                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+            } ${callId ? "animate-pulse" : ""}`}
+            prefetch={false}
+          >
+            {callId ? (
+              <Phone className="mr-2 h-4 w-4" />
+            ) : (
+              <Video className="mr-2 h-4 w-4" />
+            )}
+            {callId ? "Incoming Call" : "Virtual Meetings"}
+            {callId && (
+              <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                1
+              </span>
+            )}
           </Link>
         </div>
 
         <div className="w-full space-y-2">
           <Link
             href="/protected/patient/settings"
-            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/settings")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/doctor/settings")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
             prefetch={false}
           >
             <SettingsIcon className="mr-2 h-4 w-4" />
             Settings
           </Link>
           <div
-            className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium ${
-              isActiveLink("/protected/doctor/profile")
-                ? "bg-primary text-white"
-                : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            className={`flex w-full items-center justify-between rounded-lg px-4 py-2 text-sm font-medium ${isActiveLink("/protected/doctor/profile")
+              ? "bg-primary text-white"
+              : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
+              }`}
           >
             <div className="flex">
               <div className="self-stretch">
@@ -187,7 +227,7 @@ export default function PatientLayout({
               className="flex items-center justify-center cursor-pointer"
               onClick={() => {
                 signOut(auth);
-                router.push("/login");
+                router.push("/");
               }}
             >
               <DoorClosed className="h-6 w-6" />
@@ -237,13 +277,21 @@ export default function PatientLayout({
                   <Link href="/protected/patient/profile">Profile</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={() => {
+                    router.push("/");
+                    // signOut(auth);
+                  }}>
+                  Logout
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </nav>
         </header>
         <div className="flex flex-1 pt-16 overflow-hidden">
           <div className="flex-1 overflow-y-auto">{children}</div>
+          <EmergencyComponent />
           <ChatComponent />
         </div>
       </div>
