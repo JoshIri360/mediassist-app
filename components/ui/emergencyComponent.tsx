@@ -239,6 +239,7 @@ export default function EmergencyComponent() {
         longitude: userLocation!.longitude,
       },
       timestamp: new Date(),
+      status: "pending" // Status can be "pending", "confirmed", or "resolved"
     };
 
     try {
