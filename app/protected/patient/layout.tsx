@@ -14,7 +14,7 @@ import EmergencyComponent from "@/components/ui/emergencyComponent";
 import { useAuthContext } from "@/context/AuthContext";
 import { auth, db } from "@/firebase/config";
 import { signOut } from "firebase/auth";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, onSnapshot } from "firebase/firestore";
 import {
   Bell,
   CircleUserRound,
@@ -22,6 +22,7 @@ import {
   DoorOpen,
   Hospital,
   Menu,
+  Phone,
   SettingsIcon,
   Tablets,
   Video,
@@ -32,6 +33,7 @@ import React, { useEffect, useState } from "react";
 
 interface UserData {
   email: string;
+  call: string;
 }
 
 export default function PatientLayout({
@@ -40,10 +42,25 @@ export default function PatientLayout({
   children: React.ReactNode;
 }) {
   const [email, setEmail] = useState<string>("");
+  const [callId, setCallId] = useState<string | null>(null);
   const pathname = usePathname();
   const { user, role } = useAuthContext();
   const uid = user?.uid;
   const router = useRouter();
+
+  useEffect(() => {
+    if (!uid) return;
+
+    const userRef = doc(db, "users", uid);
+    const unsubscribe = onSnapshot(userRef, (doc) => {
+      const userData = doc.data() as UserData | undefined;
+      if (userData) {
+        setCallId(userData.call || null);
+      }
+    });
+
+    return () => unsubscribe();
+  }, [uid]);
 
   useEffect(() => {
     const getEmail = async () => {
@@ -148,16 +165,29 @@ export default function PatientLayout({
             Locate Hospitals
           </Link>
           <Link
-            href="/protected/patient/video-call"
+            href={
+              callId
+                ? `/protected/patient/video-call?callId=${callId}`
+                : "/protected/patient/video-call"
+            }
             className={`flex w-full items-center rounded-lg px-4 py-2 text-sm font-medium ${
               isActiveLink("/protected/patient/video-call")
                 ? "bg-primary text-white"
                 : "text-gray-600 hover:bg-gray-200 hover:text-gray-800"
-            }`}
+            } ${callId ? "animate-pulse" : ""}`}
             prefetch={false}
           >
-            <Video className="mr-2 h-4 w-4" />
-            Virtual Meetings
+            {callId ? (
+              <Phone className="mr-2 h-4 w-4" />
+            ) : (
+              <Video className="mr-2 h-4 w-4" />
+            )}
+            {callId ? "Incoming Call" : "Virtual Meetings"}
+            {callId && (
+              <span className="ml-auto bg-red-500 text-white text-xs font-bold rounded-full w-5 h-5 flex items-center justify-center">
+                1
+              </span>
+            )}
           </Link>
         </div>
 
