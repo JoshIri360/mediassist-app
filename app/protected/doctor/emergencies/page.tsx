@@ -65,6 +65,7 @@ const EmergenciesPage: React.FC = () => {
 
     fetchDoctorHospital();
   }, [user]);
+  
 
   useEffect(() => {
     console.log("Hospital Place ID:", hospitalPlaceId);
